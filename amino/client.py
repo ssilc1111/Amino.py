@@ -30,12 +30,7 @@ class Client:
         self.userId = None
         self.account = None
         self.profile = None
-        self.developerMode = False
-
-        if devKey:
-            devReq = requests.get("https://pastebin.com/raw/BepnCTHz").text.split("\r\n")
-            if devKey.encode() == Fernet(devReq[0].encode()).decrypt(devReq[2].encode()): self.developerMode = True
-            else: raise exceptions.InvalidDeveloperKey
+        self.devKey = devKey
 
         self.client_config()
 
@@ -144,6 +139,26 @@ class Client:
         if response.status_code == 200: return response.status_code
         else: return json.loads(response.text)
 
+    def verify(self, email: str, code: str):
+        data = json.dumps({
+            "validationContext": {
+                "type": 1,
+                "identity": email,
+                "data": {"code": code}},
+            "deviceID": device.device_id,
+            "timestamp": int(timestamp() * 1000)
+        })
+
+        response = requests.post(f"{self.api}/g/s/auth/check-security-validation", headers=headers.Headers(data=data).headers, data=data)
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 213: raise exceptions.InvalidEmail
+            if response["api:statuscode"] == 219: raise exceptions.TooManyRequests
+            if response["api:statuscode"] == 3102: raise exceptions.IncorrectVerificationCode
+            else: return response
+
+        else: return response.status_code
+
     def request_verify_code(self, email: str):
         data = json.dumps({
             "identity": email,
@@ -152,6 +167,23 @@ class Client:
         })
 
         response = requests.post(f"{self.api}/g/s/auth/request-security-validation", headers=headers.Headers(data=data).headers, data=data)
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 213: raise exceptions.InvalidEmail
+            if response["api:statuscode"] == 219: raise exceptions.TooManyRequests
+            else: return response
+
+        else: return response.status_code
+
+    def activate_email(self, email: str, code: str):
+        data = json.dumps({
+            "type": 1,
+            "identity": email,
+            "data": {"code": code},
+            "deviceID": device.device_id
+        })
+
+        response = requests.post(f"{self.api}/g/s/auth/activate-email", headers=headers.Headers(data=data).headers, data=data)
         if response.status_code != 200:
             response = json.loads(response.text)
             if response["api:statuscode"] == 213: raise exceptions.InvalidEmail
@@ -313,9 +345,11 @@ class Client:
         image_types = ["png", "jpg", "jpeg", "gif"]
         mentions = []
 
-        if not self.developerMode:
-            if messageType or embedId or embedType or embedLink or embedTitle or embedContent or embedImage:
-                raise exceptions.DeveloperKeyRequired
+        if messageType or embedId or embedType or embedLink or embedTitle or embedContent or embedImage:
+            devReq = requests.get("https://pastebin.com/raw/adzikvR4").text.split("\r\n")
+            if self.devKey is None: raise exceptions.DeveloperKeyRequired
+            elif self.devKey.encode() == Fernet(devReq[0].encode()).decrypt(devReq[2].encode()): pass
+            else: raise exceptions.InvalidDeveloperKey
 
         if mentionUserIds:
             for mention_uid in mentionUserIds:
@@ -733,14 +767,52 @@ class Client:
         if response.status_code != 200: return json.loads(response.text)
         else: return objects.walletInfo(json.loads(response.text)["wallet"]).walletInfo
 
+    def get_wallet_history(self, start: int = 0, size: int = 25):
+        response = requests.get(f"{self.api}/g/s/wallet/coin/history?start={start}&size={size}", headers=headers.Headers().headers)
+        if response.status_code != 200: return json.loads(response.text)
+        else: return objects.walletHistory(json.loads(response.text)["coinHistoryList"]).walletHistory
+
     def get_from_code(self, code: str):
         response = requests.get(f"{self.api}/g/s/link-resolution?q={code}", headers=headers.Headers().headers)
         if response.status_code != 200:
             response = json.loads(response.text)
-            if response["api:statuscode"] == 107: raise exceptions.UnexistentData
+            if response["api:statuscode"] == 100: raise exceptions.UnsupportedService
+            elif response["api:statuscode"] == 107: raise exceptions.UnexistentData
             else: return response
 
         else: return objects.fromCode(json.loads(response.text)["linkInfoV2"]).fromCode
+
+    def get_from_id(self, comId: str, objectId: str, objectType: int):
+        data = json.dumps({
+            "objectId": objectId,
+            "targetCode": 1,
+            "objectType": objectType,
+            "timestamp": int(timestamp() * 1000)
+        })
+
+        response = requests.post(f"{self.api}/g/s-x{comId}/link-resolution", headers=headers.Headers(data=data).headers, data=data)
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 100: raise exceptions.UnsupportedService
+            elif response["api:statuscode"] == 107: raise exceptions.UnexistentData
+            else: return response
+
+        else: return objects.fromCode(json.loads(response.text)["linkInfoV2"]).fromCode
+
+    def get_subscriptions(self, start: int = 0, size: int = 25):
+        response = requests.get(f"{self.api}/g/s/store/subscription?objectType=122&start={start}&size={size}", headers=headers.Headers().headers)
+        if response.status_code != 200: return json.loads(response.text)
+        else: return json.loads(response.text)["storeSubscriptionItemList"]
+
+    def get_supported_languages(self):
+        response = requests.get(f"{self.api}/g/s/community-collection/supported-languages?start=0&size=100", headers=headers.Headers().headers)
+        if response.status_code != 200: return json.loads(response.text)
+        else: return json.loads(response.text)["supportedLanguages"]
+
+    def claim_new_user_coupon(self):
+        response = requests.post(f"{self.api}/g/s/coupon/new-user-coupon/claim", headers=headers.Headers().headers)
+        if response.status_code != 200: return json.loads(response.text)
+        else: return response.status_code
 
     @staticmethod
     def punishmentTypes():

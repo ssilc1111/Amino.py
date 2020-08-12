@@ -1,6 +1,7 @@
 import json
 import base64
 import random
+
 import ffmpeg
 import requests
 from time import timezone
@@ -10,24 +11,20 @@ from typing import BinaryIO
 from . import client
 from .lib.util import exceptions, headers, device, objects
 from cryptography.fernet import Fernet
+from string import hexdigits
 
 device = device.DeviceGenerator()
 headers.sid = client.Client().sid
 
 class SubClient(client.Client):
-    def __init__(self, comId: str, profile: str, devKey: str = None):
+    def __init__(self, comId: str, devKey: str = None):
         client.Client.__init__(self)
 
         if not comId: raise exceptions.NoCommunity
 
-        self.profile = profile
+        self.profile = self.get_user_info(client.Client().userId)
         self.comId = comId
-        self.developerMode = False
-
-        if devKey:
-            devReq = requests.get("https://pastebin.com/raw/BepnCTHz").text.split("\r\n")
-            if devKey.encode() == Fernet(devReq[0].encode()).decrypt(devReq[2].encode()): self.developerMode = True
-            else: raise exceptions.InvalidDeveloperKey
+        self.devKey = devKey
 
     def post_blog(self, title: str, content: str, categoriesList: list = None, backgroundColor: str = None, images: list = None, fansOnly: bool = False):
         if images:
@@ -333,7 +330,7 @@ class SubClient(client.Client):
         else: return response.status_code
 
     # TODO : Fix stay online object, returning Invalid Request
-    
+
     def send_active_obj(self):
         data = json.dumps({
             "userActiveTimeChunkList": [{
@@ -363,7 +360,7 @@ class SubClient(client.Client):
         else: return response.status_code
 
     # TODO : Finish this
-    
+
     def watch_ad(self):
         response = requests.post(f"{self.api}/g/s/wallet/ads/video/start", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
@@ -412,12 +409,14 @@ class SubClient(client.Client):
         else: return response.status_code
 
     def send_coins(self, coins: int, blogId: str = None, chatId: str = None, objectId: str = None, transactionId: str = None):
-        lst = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
-        transactionId = f"{''.join(random.sample(lst, 8))}-{''.join(random.sample(lst, 4))}-{''.join(random.sample(lst, 4))}-{''.join(random.sample(lst, 4))}-{''.join(random.sample(lst, 12))}"
-
         if transactionId:
-            if not self.developerMode: raise exceptions.DeveloperKeyRequired
-            else: transactionId = transactionId
+            devReq = requests.get("https://pastebin.com/raw/adzikvR4").text.split("\r\n")
+            if self.devKey is None: raise exceptions.DeveloperKeyRequired
+            elif self.devKey.encode() == Fernet(devReq[0].encode()).decrypt(devReq[2].encode()): transactionId = transactionId
+            else: raise exceptions.InvalidDeveloperKey
+
+        if transactionId is not None:
+            transactionId = f"{''.join(random.sample([lst for lst in hexdigits[:-6]], 8))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 12))}"
 
         data = {
             "coins": coins,
@@ -500,8 +499,10 @@ class SubClient(client.Client):
         mentions = []
 
         if messageType or embedId or embedType or embedLink or embedTitle or embedContent or embedImage:
-            if not self.developerMode:
-                raise exceptions.DeveloperKeyRequired
+            devReq = requests.get("https://pastebin.com/raw/adzikvR4").text.split("\r\n")
+            if self.devKey is None: raise exceptions.DeveloperKeyRequired
+            elif self.devKey.encode() == Fernet(devReq[0].encode()).decrypt(devReq[2].encode()): pass
+            else: raise exceptions.InvalidDeveloperKey
 
         if mentionUserIds:
             for mention_uid in mentionUserIds:
@@ -739,7 +740,16 @@ class SubClient(client.Client):
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
-    # Get requests
+    def get_vc_reputation_info(self, chatId: str):
+        response = requests.get(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/avchat-reputation", headers=headers.Headers().headers)
+        if response.status_code != 200: return json.loads(response.text)
+        return objects.vcReputation(json.loads(response.text)).vcReputation
+
+    def claim_vc_reputation(self, chatId: str):
+        response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/avchat-reputation", headers=headers.Headers().headers)
+        if response.status_code != 200: return json.loads(response.text)
+        return objects.vcReputation(json.loads(response.text)).vcReputation
+
     def get_all_users(self, type: str = "recent", start: int = 0, size: int = 25):
         if type == "recent": response = requests.get(f"{self.api}/x{self.comId}/s/user-profile?type=recent&start={start}&size={size}", headers=headers.Headers().headers)
         elif type == "banned": response = requests.get(f"{self.api}/x{self.comId}/s/user-profile?type=banned&start={start}&size={size}", headers=headers.Headers().headers)
@@ -800,6 +810,12 @@ class SubClient(client.Client):
         response = json.loads(response.text)
         if response.status_code != 200: return json.loads(response.text)
         return objects.userAchievements(json.loads(response.text)["achievements"]).userAchievements
+
+    def get_influencer_fans(self, userId: str, start: int = 0, size: int = 25):
+        response = requests.get(f"{self.api}/x{self.comId}/s/influencer/{userId}/fans?start={start}&size={size}", headers=headers.Headers().headers)
+        response = json.loads(response.text)
+        if response.status_code != 200: return json.loads(response.text)
+        return objects.influencerFans(json.loads(response.text)).influencerFans
 
     def get_blocked_users(self, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/block?start={start}&size={size}", headers=headers.Headers().headers)

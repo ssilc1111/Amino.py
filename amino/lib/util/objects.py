@@ -49,7 +49,7 @@ class userProfile:
         self.moodSticker = None
         self.visitorsCount = None
         self.status = None
-        self.id = None
+        self.userId = None
         self.icon = None
         self.nickname = None
         self.privilegeOfCommentOnUserProfile = None
@@ -65,6 +65,15 @@ class userProfile:
         self.warningCount = None
         self.globalStrikeCount = None
         self.lastStrikeTime = None
+        self.verified = None
+        self.activePublicLiveThreadId = None
+        self.influencerInfo = None
+        self.influencerPinned = None
+        self.influencerCreatedTime = None
+        self.influencerMonthlyFee = None
+        self.fansCount = None
+        self.tagList = None
+        self.fanClub = None
 
     @property
     def userProfile(self):
@@ -72,7 +81,7 @@ class userProfile:
         except (KeyError, TypeError): pass
         try: self.icon = self.json["icon"]
         except (KeyError, TypeError): pass
-        try: self.id = self.json["uid"]
+        try: self.userId = self.json["uid"]
         except (KeyError, TypeError): pass
         try: self.status = self.json["status"]
         except (KeyError, TypeError): pass
@@ -103,6 +112,8 @@ class userProfile:
         try: self.isNicknameVerified = self.json["isNicknameVerified"]
         except (KeyError, TypeError): pass
         try: self.mood = self.json["mood"]
+        except (KeyError, TypeError): pass
+        try: self.tagList = self.json["tagList"]
         except (KeyError, TypeError): pass
         try: self.level = self.json["level"]
         except (KeyError, TypeError): pass
@@ -162,6 +173,22 @@ class userProfile:
         except (KeyError, TypeError): pass
         try: self.dateOfBirth = self.json["dateOfBirth"]
         except (KeyError, TypeError): pass
+        try: self.influencerInfo = self.json["influencerInfo"]
+        except (KeyError, TypeError): pass
+        try: self.influencerPinned = self.json["influencerInfo"]["pinned"]
+        except (KeyError, TypeError): pass
+        try: self.influencerCreatedTime = self.json["influencerInfo"]["createdTime"]
+        except (KeyError, TypeError): pass
+        try: self.fanClub = fanClubList(self.json["fanClubList"]).fanClubList
+        except (KeyError, TypeError): pass
+        try: self.fansCount = self.json["influencerInfo"]["fansCount"]
+        except (KeyError, TypeError): pass
+        try: self.influencerMonthlyFee = self.json["influencerInfo"]["monthlyFee"]
+        except (KeyError, TypeError): pass
+        try: self.activePublicLiveThreadId = self.json["activePublicLiveThreadId"]
+        except (KeyError, TypeError): pass
+        try: self.verified = self.json["verified"]
+        except (KeyError, TypeError): pass
         try: self.staffInfo = self.json["adminInfo"]
         except (KeyError, TypeError): pass
         try: self.strikeCount = self.json["adminInfo"]["strikeCount"]
@@ -215,7 +242,7 @@ class userProfileList:
         self.icon = []
         self.status = []
         self.followersCount = []
-        self.id = []
+        self.userId = []
         self.itemsCount = []
         self.modifiedTime = []
         self.moodSticker = []
@@ -246,14 +273,23 @@ class userProfileList:
         self.warningCount = []
         self.globalStrikeCount = []
         self.lastStrikeTime = []
+        self.activePublicLiveThreadId = []
+        self.verified = []
+        self.tagList = []
+        self.influencerInfo = []
+        self.influencerPinned = []
+        self.influencerCreatedTime = []
+        self.influencerMonthlyFee = []
+        self.fanClub = []
+        self.fansCount = []
 
     @property
     def userProfileList(self):
         for x in self.json:
             try: self.nickname.append(x["nickname"])
             except (KeyError, TypeError): self.nickname.append(None)
-            try: self.id.append(x["uid"])
-            except (KeyError, TypeError): self.id.append(None)
+            try: self.userId.append(x["uid"])
+            except (KeyError, TypeError): self.userId.append(None)
             try: self.followersCount.append(x["membersCount"])
             except (KeyError, TypeError): self.followersCount.append(None)
             try: self.status.append(x["status"])
@@ -292,6 +328,8 @@ class userProfileList:
             except (KeyError, TypeError): self.followingCount.append(None)
             try: self.role.append(x["role"])
             except (KeyError, TypeError): self.role.append(None)
+            try: self.tagList.append(x["tagList"])
+            except (KeyError, TypeError): self.tagList.append(None)
             try: self.commentsCount.append(x["commentsCount"])
             except (KeyError, TypeError): self.commentsCount.append(None)
             try: self.aminoId.append(x["aminoId"])
@@ -314,6 +352,22 @@ class userProfileList:
             except (KeyError, TypeError): self.avatarFrame.append(None)
             try: self.avatarFrameId.append(x["avatarFrameId"])
             except (KeyError, TypeError): self.avatarFrameId.append(None)
+            try: self.activePublicLiveThreadId.append(x["activePublicLiveThreadId"])
+            except (KeyError, TypeError): self.activePublicLiveThreadId.append(None)
+            try: self.influencerInfo.append(x["influencerInfo"])
+            except (KeyError, TypeError): self.influencerInfo.append(None)
+            try: self.fanClub.append(fanClubList(x["fanClubList"]).fanClubList)
+            except (KeyError, TypeError): self.fanClub.append(None)
+            try: self.influencerPinned.append(x["influencerInfo"]["pinned"])
+            except (KeyError, TypeError): self.influencerPinned.append(None)
+            try: self.influencerCreatedTime.append(x["influencerInfo"]["createdTime"])
+            except (KeyError, TypeError): self.influencerCreatedTime.append(None)
+            try: self.fansCount.append(x["influencerInfo"]["fansCount"])
+            except (KeyError, TypeError): self.fansCount.append(None)
+            try: self.influencerMonthlyFee.append(x["influencerInfo"]["monthlyFee"])
+            except (KeyError, TypeError): self.influencerMonthlyFee.append(None)
+            try: self.verified.append(x["verified"])
+            except (KeyError, TypeError): self.verified.append(None)
             try: self.staffInfo.append(x["adminInfo"])
             except (KeyError, TypeError): self.staffInfo.append(None)
             try: self.strikeCount.append(x["adminInfo"]["strikeCount"])
@@ -1017,7 +1071,7 @@ class community:
         except (KeyError, TypeError): pass
         try: self.newsfeedPages = self.json["advancedSettings"]["newsfeedPages"]
         except (KeyError, TypeError): pass
-        try: self.rankingTable = rankingTableList(self.json["advancedSettings"]["rankingTable"].rankingTableList)
+        try: self.rankingTable = rankingTableList(self.json["advancedSettings"]["rankingTable"]).rankingTableList()
         except (KeyError, TypeError): pass
         try: self.joinedBaselineCollectionIdList = self.json["advancedSettings"]["joinedBaselineCollectionIdList"]
         except (KeyError, TypeError): pass
@@ -1166,7 +1220,7 @@ class communityList:
             except (KeyError, TypeError): self.facebookAppIdList.append(None)
             try: self.newsfeedPages.append(x["advancedSettings"]["newsfeedPages"])
             except (KeyError, TypeError): self.newsfeedPages.append(None)
-            try: self.rankingTable.append(rankingTableList(x["advancedSettings"]["rankingTable"]).rankingTableList)
+            try: self.rankingTable.append(rankingTableList(x["advancedSettings"]["rankingTable"]).rankingTableList())
             except (KeyError, TypeError): self.rankingTable.append(None)
             try: self.joinedBaselineCollectionIdList.append(x["advancedSettings"]["joinedBaselineCollectionIdList"])
             except (KeyError, TypeError): self.joinedBaselineCollectionIdList.append(None)
@@ -1340,6 +1394,8 @@ class fromCode:
         self.fullPath = None
         self.targetCode = None
         self.objectId = None
+        self.shortUrl = None
+        self.fullUrl = None
 
     @property
     def fromCode(self):
@@ -1354,6 +1410,10 @@ class fromCode:
         try: self.targetCode = self.json["extensions"]["linkInfo"]["targetCode"]
         except (KeyError, TypeError): pass
         try: self.objectId = self.json["extensions"]["linkInfo"]["objectId"]
+        except (KeyError, TypeError): pass
+        try: self.shortUrl = self.json["extensions"]["linkInfo"]["shareURLShortCode"]
+        except (KeyError, TypeError): pass
+        try: self.fullUrl = self.json["extensions"]["linkInfo"]["shareURLFullPath"]
         except (KeyError, TypeError): pass
 
         return self
@@ -1419,6 +1479,76 @@ class walletInfo:
         except (KeyError, TypeError): pass
         try: self.totalBusinessCoinsFloat = self.json["totalBusinessCoinsFloat"]
         except (KeyError, TypeError): pass
+
+        return self
+
+class walletHistory:
+    def __init__(self, data):
+        self.json = data
+        self.taxCoins = []
+        self.bonusCoinsFloat = []
+        self.isPositive = []
+        self.bonusCoins = []
+        self.taxCoinsFloat = []
+        self.transanctionId = []
+        self.changedCoins = []
+        self.totalCoinsFloat = []
+        self.changedCoinsFloat = []
+        self.sourceType = []
+        self.createdTime = []
+        self.totalCoins = []
+        self.originCoinsFloat = []
+        self.originCoins = []
+        self.extData = []
+        self.title = []
+        self.description = []
+        self.icon = []
+        self.objectDeeplinkUrl = []
+        self.sourceIp = []
+
+    @property
+    def walletHistory(self):
+        for x in self.json:
+            try: self.taxCoins.append(x["taxCoins"])
+            except (KeyError, TypeError): self.taxCoins.append(None)
+            try: self.bonusCoinsFloat.append(x["bonusCoinsFloat"])
+            except (KeyError, TypeError): self.bonusCoinsFloat.append(None)
+            try: self.isPositive.append(x["isPositive"])
+            except (KeyError, TypeError): self.isPositive.append(None)
+            try: self.bonusCoins.append(x["bonusCoins"])
+            except (KeyError, TypeError): self.bonusCoins.append(None)
+            try: self.taxCoinsFloat.append(x["taxCoinsFloat"])
+            except (KeyError, TypeError): self.taxCoinsFloat.append(None)
+            try: self.transanctionId.append(x["uid"])
+            except (KeyError, TypeError): self.transanctionId.append(None)
+            try: self.changedCoins.append(x["changedCoins"])
+            except (KeyError, TypeError): self.changedCoins.append(None)
+            try: self.totalCoinsFloat.append(x["totalCoinsFloat"])
+            except (KeyError, TypeError): self.totalCoinsFloat.append(None)
+            try: self.changedCoinsFloat.append(x["changedCoinsFloat"])
+            except (KeyError, TypeError): self.changedCoinsFloat.append(None)
+            try: self.sourceType.append(x["sourceType"])
+            except (KeyError, TypeError): self.sourceType.append(None)
+            try: self.createdTime.append(x["createdTime"])
+            except (KeyError, TypeError): self.createdTime.append(None)
+            try: self.totalCoins.append(x["totalCoins"])
+            except (KeyError, TypeError): self.totalCoins.append(None)
+            try: self.originCoinsFloat.append(x["originCoinsFloat"])
+            except (KeyError, TypeError): self.originCoinsFloat.append(None)
+            try: self.originCoins.append(x["originCoins"])
+            except (KeyError, TypeError): self.originCoins.append(None)
+            try: self.extData.append(x["extData"])
+            except (KeyError, TypeError): self.extData.append(None)
+            try: self.title.append(x["extData"]["description"])
+            except (KeyError, TypeError): self.title.append(None)
+            try: self.icon.append(x["extData"]["icon"])
+            except (KeyError, TypeError): self.icon.append(None)
+            try: self.description.append(x["extData"]["subtitle"])
+            except (KeyError, TypeError): self.description.append(None)
+            try: self.objectDeeplinkUrl.append(x["extData"]["objectDeeplinkUrl"])
+            except (KeyError, TypeError): self.objectDeeplinkUrl.append(None)
+            try: self.sourceIp.append(x["extData"]["sourceIp"])
+            except (KeyError, TypeError): self.sourceIp.append(None)
 
         return self
 
@@ -2405,6 +2535,81 @@ class lotteryLog:
         try: self.awardType = self.json["awardType"]
         except (KeyError, TypeError): pass
         try: self.refObject = self.json["refObject"]
+        except (KeyError, TypeError): pass
+
+        return self
+
+class vcReputation:
+    def __init__(self, data):
+        self.json = data
+        self.availableReputation = None
+        self.maxReputation = None
+        self.reputation = None
+        self.participantCount = None
+        self.totalReputation = None
+        self.duration = None
+
+    @property
+    def vcReputation(self):
+        try: self.availableReputation = self.json["availableReputation"]
+        except (KeyError, TypeError): pass
+        try: self.maxReputation = self.json["maxReputation"]
+        except (KeyError, TypeError): pass
+        try: self.reputation = self.json["reputation"]
+        except (KeyError, TypeError): pass
+        try: self.participantCount = self.json["participantCount"]
+        except (KeyError, TypeError): pass
+        try: self.totalReputation = self.json["totalReputation"]
+        except (KeyError, TypeError): pass
+        try: self.duration = self.json["duration"]
+        except (KeyError, TypeError): pass
+
+        return self
+
+class fanClubList:
+    def __init__(self, data):
+        self.json = data
+        self.userId = []
+        self.lastThankedTime = []
+        self.expiredTime = []
+        self.createdTime = []
+        self.status = []
+        self.profile = []
+        self.targetUserId = []
+        self.targetUserProfile = []
+
+    @property
+    def fanClubList(self):
+        for x in self.json:
+            try: self.userId.append(x["uid"])
+            except (KeyError, TypeError): self.userId.append(None)
+            try: self.lastThankedTime.append(x["lastThankedTime"])
+            except (KeyError, TypeError): self.lastThankedTime.append(None)
+            try: self.expiredTime.append(x["expiredTime"])
+            except (KeyError, TypeError): self.expiredTime.append(None)
+            try: self.createdTime.append(x["createdTime"])
+            except (KeyError, TypeError): self.createdTime.append(None)
+            try: self.status.append(x["fansStatus"])
+            except (KeyError, TypeError): self.status.append(None)
+            try: self.targetUserId.append(x["targetUid"])
+            except (KeyError, TypeError): self.targetUserId.append(None)
+            try: self.targetUserProfile.append(userProfile(x["targetUserProfile"]).userProfile)
+            except (KeyError, TypeError): self.targetUserProfile.append(None)
+            try: self.profile.append(userProfile(x["fansUserProfile"]).userProfile)
+            except (KeyError, TypeError): self.profile.append(None)
+
+        return self
+
+class influencerFans:
+    def __init__(self, data):
+        self.json = data
+        self.influencerProfile = userProfile(data["influencerUserProfile"]).userProfile
+        self.myFanClub = None
+        self.fanClubList = fanClubList
+
+    @property
+    def influencerFans(self):
+        try: self.myFanClub = self.json["myFanClub"]
         except (KeyError, TypeError): pass
 
         return self

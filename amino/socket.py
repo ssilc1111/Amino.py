@@ -2,6 +2,7 @@ import json
 import threading
 import time
 import websocket
+import contextlib
 
 class SocketHandler:
     def __init__(self, client, socket_trace = False):
@@ -26,9 +27,7 @@ class SocketHandler:
             self.start()
 
     def on_ping(self, data):
-        try: self.socket.sock.pong(data)
-        except Exception: pass
-        #except websocket.WebSocketConnectionClosedException: pass
+        contextlib.suppress(self.socket.sock.pong(data))
 
     def handle_message(self, data):
         self.client.handle_socket_message(data)
