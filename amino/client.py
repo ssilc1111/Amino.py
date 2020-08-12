@@ -340,9 +340,7 @@ class Client:
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
-    def send_message(self, chatId: str, message: str = None, messageType: int = 0, filePath = None, replyTo: str = None, mentionUserIds: list = None, stickerId: str = None, embedId: str = None, embedType: int = None, embedLink: str = None, embedTitle: str = None, embedContent: str = None, embedImage: BinaryIO = None, clientRefId: int = int(timestamp() / 10 % 1000000000)):
-        audio_types = ["mp3", "aac", "wav", "ogg", "mkv"]
-        image_types = ["png", "jpg", "jpeg", "gif"]
+    def send_message(self, chatId: str, message: str = None, messageType: int = 0, file: BinaryIO = None, fileType: str = None, replyTo: str = None, mentionUserIds: list = None, stickerId: str = None, embedId: str = None, embedType: int = None, embedLink: str = None, embedTitle: str = None, embedContent: str = None, embedImage: BinaryIO = None, clientRefId: int = int(timestamp() / 10 % 1000000000)):
         mentions = []
 
         if messageType or embedId or embedType or embedLink or embedTitle or embedContent or embedImage:
@@ -381,33 +379,18 @@ class Client:
             data["stickerId"] = stickerId
             data["type"] = 3
 
-        if filePath:
+        if file:
             data["content"] = None
+            if fileType == "audio":
+                data["type"] = 2
+                data["mediaType"] = 110
 
-            with open(filePath, "rb") as file:
-                if filePath.split('.')[-1] in audio_types:
-                    if filePath.split('.')[-1] != "aac":
-                        process = (ffmpeg
-                                   .input(filePath)
-                                   .output(f"{filePath}.aac", audio_bitrate="320k")
-                                   .overwrite_output()
-                                   .run_async(pipe_stdout=True)
-                                   )
+            if fileType == "image":
+                data["mediaType"] = 100
+                data["mediaUploadValueContentType"] = "image/jpg"
+                data["mediaUhqEnabled"] = True
 
-                        process.wait()
-                        file = open(f"{filePath}.aac", "rb")
-
-                    data["type"] = 2
-                    data["mediaType"] = 110
-
-                elif filePath.split('.')[-1] in image_types:
-                    data["mediaType"] = 100
-                    data["mediaUploadValueContentType"] = f"image/{filePath.split('.')[-1]}"
-                    data["mediaUhqEnabled"] = True
-
-                else: raise exceptions.UnsupportedFileExtension
-
-                data["mediaUploadValue"] = base64.b64encode(file.read()).decode()
+            data["mediaUploadValue"] = base64.b64encode(file.read()).decode()
 
         data = json.dumps(data)
         response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/message", headers=headers.Headers(data=data).headers, data=data)
