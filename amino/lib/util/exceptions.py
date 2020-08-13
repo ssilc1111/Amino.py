@@ -138,8 +138,15 @@ class UserNotMemberOfCommunity(Exception):
     def __init__(*args, **kwargs):
         Exception.__init__(*args, **kwargs)
 
+# AMINO ERROR 239
+# Sorry, you can not do this before transferring your Agent status to another member.
+# Unknown Code
+class CantLeaveCommunity(Exception):
+    def __init__(*args, **kwargs):
+        Exception.__init__(*args, **kwargs)
+
 # AMINO ERROR 240
-# Unknown MessageAUTH_ACCOUNT_NOT_EXISTS
+# Unknown Message
 # Unknown Code
 class ReachedTitleLength(Exception):
     def __init__(*args, **kwargs):

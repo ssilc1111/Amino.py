@@ -12,7 +12,6 @@ from .socket import Callbacks, SocketHandler
 from cryptography.fernet import Fernet
 
 device = device.DeviceGenerator()
-clientId = None
 
 class Client:
     def __init__(self, devKey: str = None, callback=Callbacks, socket_trace=False):
@@ -59,7 +58,7 @@ class Client:
             self.authenticated = True
             self.json = json.loads(response.text)
             self.sid = self.json["sid"]
-            self.userId = self.json["auid"]
+            self.userId = self.json["account"]["uid"]
             self.account = objects.userProfile(self.json["account"]).userProfile
             self.profile = objects.userProfile(self.json["userProfile"]).userProfile
             headers.sid = self.sid

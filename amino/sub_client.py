@@ -2,7 +2,6 @@ import json
 import base64
 import random
 
-import ffmpeg
 import requests
 from time import timezone
 from time import time as timestamp
@@ -15,17 +14,16 @@ from string import hexdigits
 
 device = device.DeviceGenerator()
 headers.sid = client.Client().sid
-userId2 = client.Client().userId
 
 class SubClient(client.Client):
-    def __init__(self, comId: str, devKey: str = None):
+    def __init__(self, comId: str, profile: str, devKey: str = None):
         client.Client.__init__(self)
 
         if not comId: raise exceptions.NoCommunity
 
         self.comId = comId
         self.devKey = devKey
-        self.profile = self.get_user_info(userId=userId2)
+        self.profile = self.get_user_info(userId=profile.userId)
 
     def post_blog(self, title: str, content: str, categoriesList: list = None, backgroundColor: str = None, images: list = None, fansOnly: bool = False):
         if images:
@@ -171,7 +169,7 @@ class SubClient(client.Client):
         if backgroundColor: data["extensions"] = {"style": {"backgroundColor": backgroundColor}}
 
         data = json.dumps(data)
-        response = requests.post(f"{self.api}/x{self.comId}/s/user-profile/{self.profile.id}", headers=headers.Headers(data=data).headers, data=data)
+        response = requests.post(f"{self.api}/x{self.comId}/s/user-profile/{self.profile.userId}", headers=headers.Headers(data=data).headers, data=data)
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
@@ -356,7 +354,7 @@ class SubClient(client.Client):
             "timestamp": int(timestamp() * 1000)
         })
 
-        response = requests.post(f"{self.api}/x{self.comId}/s/user-profile/{self.profile.id}/online-status", headers=headers.Headers(data=data).headers, data=data)
+        response = requests.post(f"{self.api}/x{self.comId}/s/user-profile/{self.profile.userId}/online-status", headers=headers.Headers(data=data).headers, data=data)
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
@@ -410,18 +408,17 @@ class SubClient(client.Client):
         else: return response.status_code
 
     def send_coins(self, coins: int, blogId: str = None, chatId: str = None, objectId: str = None, transactionId: str = None):
+        transactionId2 = f"{''.join(random.sample([lst for lst in hexdigits[:-6]], 8))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 12))}"
+
         if transactionId:
             devReq = requests.get("https://pastebin.com/raw/adzikvR4").text.split("\r\n")
             if self.devKey is None: raise exceptions.DeveloperKeyRequired
-            elif self.devKey.encode() == Fernet(devReq[0].encode()).decrypt(devReq[2].encode()): transactionId = transactionId
+            elif self.devKey.encode() == Fernet(devReq[0].encode()).decrypt(devReq[2].encode()): transactionId2 = transactionId
             else: raise exceptions.InvalidDeveloperKey
-
-        if transactionId is not None:
-            transactionId = f"{''.join(random.sample([lst for lst in hexdigits[:-6]], 8))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 12))}"
 
         data = {
             "coins": coins,
-            "tippingContext": {"transactionId": transactionId},
+            "tippingContext": {"transactionId": transactionId2},
             "timestamp": int(timestamp() * 1000)
         }
 
@@ -448,7 +445,7 @@ class SubClient(client.Client):
         else: return response.status_code
 
     def unfollow(self, userId: str):
-        response = requests.delete(f"{self.api}/x{self.comId}/s/user-profile/{self.profile.id}/joined/{userId}", headers=headers.Headers().headers)
+        response = requests.delete(f"{self.api}/x{self.comId}/s/user-profile/{self.profile.userId}/joined/{userId}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
@@ -593,13 +590,13 @@ class SubClient(client.Client):
 
         if doNotDisturb:
             data = json.dumps({"alertOption": 2, "timestamp": int(timestamp() * 1000)})
-            response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.id}/alert", data=data, headers=headers.Headers(data=data).headers)
+            response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.userId}/alert", data=data, headers=headers.Headers(data=data).headers)
             if response.status_code != 200: return json.loads(response.text)
             else: pass
 
         if not doNotDisturb:
             data = json.dumps({"alertOption": 1, "timestamp": int(timestamp() * 1000)})
-            response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.id}/alert", data=data, headers=headers.Headers(data=data).headers)
+            response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.userId}/alert", data=data, headers=headers.Headers(data=data).headers)
             if response.status_code != 200: return json.loads(response.text)
             else: pass
 
@@ -615,7 +612,7 @@ class SubClient(client.Client):
 
         if backgroundImage:
             data = json.dumps({"media": [100, backgroundImage, None], "timestamp": int(timestamp() * 1000)})
-            response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.id}/background", data=data, headers=headers.Headers(data=data).headers)
+            response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.userId}/background", data=data, headers=headers.Headers(data=data).headers)
             if response.status_code != 200: return json.loads(response.text)
             else: pass
 
@@ -681,12 +678,12 @@ class SubClient(client.Client):
         else: return response.status_code
 
     def join_chat(self, chatId: str):
-        response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.id}", headers=headers.Headers().headers)
+        response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.userId}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
     def leave_chat(self, chatId: str):
-        response = requests.delete(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.id}", headers=headers.Headers().headers)
+        response = requests.delete(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.userId}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
