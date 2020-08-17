@@ -1,0 +1,11 @@
+.. _exceptions:
+
+Exceptions
+==============
+
+This is a placeholder
+
+.. automodule:: amino.lib.util.exceptions
+   :members:
+   :undoc-members:
+   :show-inheritance:

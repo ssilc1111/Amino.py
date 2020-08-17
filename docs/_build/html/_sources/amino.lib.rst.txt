@@ -1,0 +1,18 @@
+amino.lib package
+=================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   amino.lib.util
+
+Module contents
+---------------
+
+.. automodule:: amino.lib
+   :members:
+   :undoc-members:
+   :show-inheritance:

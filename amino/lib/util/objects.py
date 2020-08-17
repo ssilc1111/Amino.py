@@ -74,6 +74,7 @@ class userProfile:
         self.fansCount = None
         self.tagList = None
         self.fanClub = None
+        self.customTitles = None
 
     @property
     def userProfile(self):
@@ -219,6 +220,8 @@ class userProfile:
         except (KeyError, TypeError): pass
         try: self.disabledTime = self.json["extensions"]["__disabledTime__"]
         except (KeyError, TypeError): pass
+        try: self.customTitles = self.json["extensions"]["customTitles"]
+        except (KeyError, TypeError): pass
 
         return self
 
@@ -282,6 +285,7 @@ class userProfileList:
         self.influencerMonthlyFee = []
         self.fanClub = []
         self.fansCount = []
+        self.customTitles = []
 
     @property
     def userProfileList(self):
@@ -398,6 +402,8 @@ class userProfileList:
             except (KeyError, TypeError): self.coverAnimation.append(None)
             try: self.backgroundColor.append(self.json["extensions"]["style"]["backgroundColor"])
             except (KeyError, TypeError): self.backgroundColor.append(None)
+            try: self.customTitles.append(self.json["extensions"]["customTitles"])
+            except (KeyError, TypeError): self.customTitles.append(None)
 
         return self
 
@@ -985,7 +991,7 @@ class community:
         except (KeyError, TypeError): pass
         try: self.usersCount = self.json["membersCount"]
         except (KeyError, TypeError): pass
-        try: self.agent = userProfile(self.json["agent"].userProfile)
+        try: self.agent = userProfile(self.json["agent"]).userProfile
         except (KeyError, TypeError): pass
         try: self.createdTime = self.json["createdTime"]
         except (KeyError, TypeError): pass
@@ -2323,8 +2329,14 @@ class message:
 
 class messageList:
     def __init__(self, data):
+        _list = []
         self.json = data
-        self.author = userProfileList([msg["author"] for msg in data]).userProfileList
+
+        for y in data:
+            try: _list.append(y["author"])
+            except (KeyError, TypeError): _list.append(None)
+
+        self.author = userProfileList(_list).userProfileList
         self.content = []
         self.includedInSummary = []
         self.isHidden = []

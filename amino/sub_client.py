@@ -157,7 +157,7 @@ class SubClient(client.Client):
         if response.status_code != 200: return json.loads(response.text)
         else: return objects.lotteryLog(json.loads(response.text)["lotteryLog"]).lotteryLog
 
-    def edit_profile(self, nickname: str = None, content: str = None, icon: str = None, chatRequestPrivilege: str = None, mediaList: list = None, backgroundImage: str = None, backgroundColor: str = None):
+    def edit_profile(self, nickname: str = None, content: str = None, icon: str = None, chatRequestPrivilege: str = None, mediaList: list = None, backgroundImage: str = None, backgroundColor: str = None, titles: list = None):
         data = {"timestamp": int(timestamp() * 1000)}
 
         if nickname: data["nickname"] = nickname
@@ -167,6 +167,7 @@ class SubClient(client.Client):
         if chatRequestPrivilege: data["extensions"] = {"privilegeOfChatInviteRequest": chatRequestPrivilege}
         if backgroundImage: data["extensions"] = {"style": {"backgroundMediaList": [[100, backgroundImage, None, None, None]]}}
         if backgroundColor: data["extensions"] = {"style": {"backgroundColor": backgroundColor}}
+        if titles: data["extensions"] = {"customTitles": titles}
 
         data = json.dumps(data)
         response = requests.post(f"{self.api}/x{self.comId}/s/user-profile/{self.profile.userId}", headers=headers.Headers(data=data).headers, data=data)
@@ -225,7 +226,7 @@ class SubClient(client.Client):
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
-    def like_blog(self, blogId: str = None, wikiId: str = None):
+    def like_blog(self, blogId: str = None, blogIds: list = None, wikiId: str = None):
         data = {
             "value": 4,
             "timestamp": int(timestamp() * 1000)
@@ -236,23 +237,16 @@ class SubClient(client.Client):
             data = json.dumps(data)
             response = requests.post(f"{self.api}/x{self.comId}/s/blog/{blogId}/vote?cv=1.2", headers=headers.Headers(data=data).headers, data=data)
 
+        elif blogIds:
+            data["targetIdList"] = blogIds
+            response = requests.post(f"{self.api}/x{self.comId}/s/feed/vote", headers=headers.Headers(data=data).headers, data=data)
+
         elif wikiId:
             data["eventSource"] = "PostDetailView"
             data = json.dumps(data)
             response = requests.post(f"{self.api}/x{self. comId}/s/item/{wikiId}/vote?cv=1.2", headers=headers.Headers(data=data).headers, data=data)
 
         else: raise exceptions.SpecifyType
-        if response.status_code != 200: return json.loads(response.text)
-        else: return response.status_code
-
-    def like_blogs(self, blogIds: list):
-        data = json.dumps({
-            "value": 4,
-            "targetIdList": blogIds,
-            "timestamp": int(timestamp() * 1000)
-        })
-
-        response = requests.post(f"{self.api}/x{self.comId}/s/feed/vote", headers=headers.Headers(data=data).headers, data=data)
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
@@ -439,8 +433,14 @@ class SubClient(client.Client):
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
-    def follow(self, userId: str):
-        response = requests.post(f"{self.api}/x{self.comId}/s/user-profile/{userId}/member", headers=headers.Headers().headers)
+    def follow(self, userId: str = None, userIds: list = None):
+        if userId: response = requests.post(f"{self.api}/x{self.comId}/s/user-profile/{userId}/member", headers=headers.Headers().headers)
+
+        elif userIds:
+            data = json.dumps({"targetUidList": userIds, "timestamp": int(timestamp() * 1000)})
+            response = requests.post(f"{self.api}/x{self.comId}/s/user-profile/{self.profile.id}/joined", headers=headers.Headers(data=data).headers, data=data)
+
+        else: raise exceptions.SpecifyType
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
@@ -572,6 +572,40 @@ class SubClient(client.Client):
         else: return response.status_code
 
     def edit_chat(self, chatId: str, doNotDisturb: bool = None, pinChat: bool = None, title: str = None, icon: str = None, backgroundImage: str = None, content: str = None, announcement: str = None, coHosts: list = None, keywords: list = None, pinAnnouncement: bool = None, publishToGlobal: bool = None, canTip: bool = None, viewOnly: bool = None, canInvite: bool = None, fansOnly: bool = None):
+        """
+        Send a Message to a Chat.
+
+        **Parameters**
+            - **chatId** : ID of the Chat.
+            - **title** : Title of the Chat.
+            - **content** : Content of the Chat.
+            - **icon** : Icon of the Chat.
+            - **backgroundImage** : Url of the Background Image of the Chat.
+            - **announcement** : Announcement of the Chat.
+            - **pinAnnouncement** : If the Chat Announcement should Pinned or not.
+            - **coHosts** : List of User IDS to be Co-Host.
+            - **keywords** : List of Keywords of the Chat.
+            - **viewOnly** : If the Chat should be on View Only or not.
+            - **canTip** : If the Chat should be Tippable or not.
+            - **canInvite** : If the Chat should be Invitable or not.
+            - **fansOnly** : If the Chat should be Fans Only or not.
+            - **publishToGlobal** : If the Chat should show on Public Chats or not.
+            - **doNotDisturb** : If the Chat should Do Not Disturb or not.
+            - **pinChat** : If the Chat should Pinned or not.
+
+        **Returns**
+            - **200** (int) : **Success**
+
+            - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
+
+            - **106** (:meth:`AccessDenied <amino.lib.util.exceptions.AccessDenied>`) : Access denied.
+
+            - **1600** (:meth:`RequestedNoLongerExists <amino.lib.util.exceptions.RequestedNoLongerExists>`) : Sorry, the requested data no longer exists. Try refreshing the view.
+
+            - **1613** (:meth:`UserNotJoined <amino.lib.util.exceptions.UserNotJoined>`) : Sorry, this user has not joined.
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
         data = {
             "type": 1,
             "timestamp": int(timestamp() * 1000)
@@ -588,74 +622,169 @@ class SubClient(client.Client):
         if publishToGlobal: data["publishToGlobal"] = 0
         if not publishToGlobal: data["publishToGlobal"] = 1
 
+        res = []
+
         if doNotDisturb:
             data = json.dumps({"alertOption": 2, "timestamp": int(timestamp() * 1000)})
             response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.userId}/alert", data=data, headers=headers.Headers(data=data).headers)
-            if response.status_code != 200: return json.loads(response.text)
-            else: pass
+            if response.status_code != 200:
+                response = json.loads(response.text)
+                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                else: res.append(response)
+
+            else: res.append(response.status_code)
 
         if not doNotDisturb:
             data = json.dumps({"alertOption": 1, "timestamp": int(timestamp() * 1000)})
             response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.userId}/alert", data=data, headers=headers.Headers(data=data).headers)
-            if response.status_code != 200: return json.loads(response.text)
-            else: pass
+            if response.status_code != 200:
+                response = json.loads(response.text)
+                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                else: res.append(response)
+
+            else: res.append(response.status_code)
 
         if pinChat:
             response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/pin", headers=headers.Headers().headers)
-            if response.status_code != 200: return json.loads(response.text)
-            else: pass
+            if response.status_code != 200:
+                response = json.loads(response.text)
+                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                else: res.append(response)
+
+            else: res.append(response.status_code)
 
         if not pinChat:
             response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/unpin", headers=headers.Headers().headers)
-            if response.status_code != 200: return json.loads(response.text)
-            else: pass
+            if response.status_code != 200:
+                response = json.loads(response.text)
+                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                else: res.append(response)
+
+            else: res.append(response.status_code)
 
         if backgroundImage:
             data = json.dumps({"media": [100, backgroundImage, None], "timestamp": int(timestamp() * 1000)})
             response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.userId}/background", data=data, headers=headers.Headers(data=data).headers)
-            if response.status_code != 200: return json.loads(response.text)
-            else: pass
+            if response.status_code != 200:
+                response = json.loads(response.text)
+                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                else: res.append(response)
+
+            else: res.append(response.status_code)
 
         if coHosts:
             data = json.dumps({"uidList": coHosts, "timestamp": int(timestamp() * 1000)})
             response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/co-host", data=data, headers=headers.Headers(data=data).headers)
-            if response.status_code != 200: return json.loads(response.text)
-            else: pass
+            if response.status_code != 200:
+                response = json.loads(response.text)
+                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                else: res.append(response)
+
+            else: res.append(response.status_code)
 
         if not viewOnly:
             response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/view-only/disable", headers=headers.Headers(data=data).headers)
-            if response.status_code != 200: return json.loads(response.text)
-            else: pass
+            if response.status_code != 200:
+                response = json.loads(response.text)
+                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                else: res.append(response)
+
+            else: res.append(response.status_code)
 
         if viewOnly:
             response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/view-only/enable", headers=headers.Headers(data=data).headers)
-            if response.status_code != 200: return json.loads(response.text)
-            else: pass
+            if response.status_code != 200:
+                response = json.loads(response.text)
+                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                else: res.append(response)
+
+            else: res.append(response.status_code)
 
         if not canInvite:
             response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/members-can-invite/disable", headers=headers.Headers(data=data).headers)
-            if response.status_code != 200: return json.loads(response.text)
-            else: pass
+            if response.status_code != 200:
+                response = json.loads(response.text)
+                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                else: res.append(response)
+
+            else: res.append(response.status_code)
 
         if canInvite:
             response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/members-can-invite/enable", headers=headers.Headers(data=data).headers)
-            if response.status_code != 200: return json.loads(response.text)
-            else: pass
+            if response.status_code != 200:
+                response = json.loads(response.text)
+                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                else: res.append(response)
+
+            else: res.append(response.status_code)
 
         if not canTip:
             response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/tipping-perm-status/disable", headers=headers.Headers(data=data).headers)
-            if response.status_code != 200: return json.loads(response.text)
-            else: pass
+            if response.status_code != 200:
+                response = json.loads(response.text)
+                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                else: res.append(response)
+
+            else: res.append(response.status_code)
 
         if canTip:
             response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/tipping-perm-status/enable", headers=headers.Headers(data=data).headers)
-            if response.status_code != 200: return json.loads(response.text)
-            else: pass
+            if response.status_code != 200:
+                response = json.loads(response.text)
+                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                else: res.append(response)
+
+            else: res.append(response.status_code)
 
         data = json.dumps(data)
         response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}", headers=headers.Headers(data=data).headers, data=data)
-        if response.status_code != 200: return json.loads(response.text)
-        else: return response.status_code
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+            elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+            elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+            elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+            else: res.append(response)
+
+        else: res.append(response.status_code)
+
+        return res
 
     def transfer_host(self, chatId: str, userIds: list):
         data = json.dumps({
