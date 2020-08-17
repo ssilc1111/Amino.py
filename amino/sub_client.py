@@ -536,10 +536,17 @@ class SubClient(client.Client):
                 data["type"] = 2
                 data["mediaType"] = 110
 
-            if fileType == "image":
+            elif fileType == "image":
                 data["mediaType"] = 100
                 data["mediaUploadValueContentType"] = "image/jpg"
                 data["mediaUhqEnabled"] = True
+
+            elif fileType == "gif":
+                data["mediaType"] = 100
+                data["mediaUploadValueContentType"] = "image/gif"
+                data["mediaUhqEnabled"] = True
+
+            else: raise exceptions.SpecifyType
 
             data["mediaUploadValue"] = base64.b64encode(file.read()).decode()
 
@@ -917,13 +924,11 @@ class SubClient(client.Client):
 
     def get_user_achievements(self, userId: str):
         response = requests.get(f"{self.api}/x{self.comId}/s/user-profile/{userId}/achievements", headers=headers.Headers().headers)
-        response = json.loads(response.text)
         if response.status_code != 200: return json.loads(response.text)
         return objects.userAchievements(json.loads(response.text)["achievements"]).userAchievements
 
     def get_influencer_fans(self, userId: str, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/influencer/{userId}/fans?start={start}&size={size}", headers=headers.Headers().headers)
-        response = json.loads(response.text)
         if response.status_code != 200: return json.loads(response.text)
         return objects.influencerFans(json.loads(response.text)).influencerFans
 

@@ -761,7 +761,7 @@ class Client:
             - **chatId** : ID of the Chat.
             - **file** : File to be sent.
             - **fileType** : Type of the file.
-                - ``audio``, ``image``
+                - ``audio``, ``image``, ``gif``
             - **messageType** : Type of the Message.
             - **mentionUserIds** : List of User IDS to mention. '@' needed in the Message.
             - **replyTo** : Message ID to reply to.
@@ -830,10 +830,17 @@ class Client:
                 data["type"] = 2
                 data["mediaType"] = 110
 
-            if fileType == "image":
+            elif fileType == "image":
                 data["mediaType"] = 100
                 data["mediaUploadValueContentType"] = "image/jpg"
                 data["mediaUhqEnabled"] = True
+
+            elif fileType == "gif":
+                data["mediaType"] = 100
+                data["mediaUploadValueContentType"] = "image/gif"
+                data["mediaUhqEnabled"] = True
+
+            else: raise exceptions.SpecifyType
 
             data["mediaUploadValue"] = base64.b64encode(file.read()).decode()
 
