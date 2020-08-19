@@ -51,7 +51,7 @@ class Client:
 
             - **246** (:meth:`AccountDeleted <amino.lib.util.exceptions.AccountDeleted>`) : ``Unknown Message``
 
-            - **270** (:meth:`VerificationRequired <amino.lib.util.exceptions.VerificationRequired>`) : ``Verification Required.
+            - **270** (:meth:`VerificationRequired <amino.lib.util.exceptions.VerificationRequired>`) : Verification Required.
 
             - **Other** (:meth:`JSON Object <JSONObject>`)
         """

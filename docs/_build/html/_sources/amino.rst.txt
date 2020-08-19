@@ -24,13 +24,6 @@ SubClient
    :undoc-members:
    :show-inheritance:
 
-Media
--------------------
-.. automodule:: amino.media
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Socket
 -------------------
 .. automodule:: amino.socket
@@ -69,7 +62,7 @@ Headers
 
 Helpers
 =============
-.. automodule:: amino.lib.util.Helpers
+.. automodule:: amino.lib.util.helpers
    :members:
    :undoc-members:
    :show-inheritance:
