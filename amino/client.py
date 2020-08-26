@@ -8,12 +8,11 @@ from typing import BinaryIO
 
 from .lib.util import exceptions, headers, device, objects
 from .socket import Callbacks, SocketHandler
-from cryptography.fernet import Fernet
 
 device = device.DeviceGenerator()
 
 class Client:
-    def __init__(self, devKey: str = None, callback=Callbacks, socket_trace=False):
+    def __init__(self, callback=Callbacks, socket_trace=False):
         self.api = "https://service.narvii.com/api/v1"
         self.authenticated = False
         self.configured = False
@@ -28,7 +27,6 @@ class Client:
         self.userId = None
         self.account = None
         self.profile = None
-        self.devKey = devKey
 
         self.check_device(device.device_id)
 
@@ -480,6 +478,44 @@ class Client:
 
         else: return objects.thread(json.loads(response.text)["thread"]).thread
 
+    # TODO : The documentation of this
+    def get_chat_users(self, chatId: str, start: int = 0, size: int = 25):
+        response = requests.get(f"{self.api}/g/s/chat/thread/{chatId}/member?start={start}&size={size}&type=default&cv=1.2", headers=headers.Headers().headers)
+        if response.status_code != 200: return json.loads(response.text)
+        return objects.userProfileList(json.loads(response.text)["memberList"]).userProfileList
+
+    def join_chat(self, chatId: str):
+        """
+        Join an Chat.
+
+        **Parameters**
+            - **chatId** : ID of the Chat.
+
+        **Returns**
+            - **200** (int) : **Success**
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
+        response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/member/{self.userId}", headers=headers.Headers().headers)
+        if response.status_code != 200: return json.loads(response.text)
+        else: return response.status_code
+
+    def leave_chat(self, chatId: str):
+        """
+        Leave an Chat.
+
+        **Parameters**
+            - **chatId** : ID of the Chat.
+
+        **Returns**
+            - **200** (int) : **Success**
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
+        response = requests.delete(f"{self.api}/g/s/chat/thread/{chatId}/member/{self.userId}", headers=headers.Headers().headers)
+        if response.status_code != 200: return json.loads(response.text)
+        else: return response.status_code
+
     def get_chat_messages(self, chatId: str, size: int = 25):
         """
         List of Messages from an Chat.
@@ -556,7 +592,7 @@ class Client:
 
     def get_user_following(self, userId: str, start: int = 0, size: int = 25):
         """
-        List of Users that the User is following.
+        List of Users that the User is Following.
 
         **Parameters**
             - **userId** : ID of the User.
@@ -583,7 +619,7 @@ class Client:
 
     def get_user_followers(self, userId: str, start: int = 0, size: int = 25):
         """
-        List of Users that are following the User.
+        List of Users that are Following the User.
 
         **Parameters**
             - **userId** : ID of the User.
@@ -610,7 +646,7 @@ class Client:
 
     def get_user_visitors(self, userId: str, start: int = 0, size: int = 25):
         """
-        List of users that visited the User.
+        List of Users that Visited the User.
 
         **Parameters**
             - **userId** : ID of the User.
@@ -637,7 +673,7 @@ class Client:
 
     def get_blocked_users(self, start: int = 0, size: int = 25):
         """
-        List of Users that the User blocked.
+        List of Users that the User Blocked.
 
         **Parameters**
             - *start* : Where to start the list.
@@ -654,14 +690,14 @@ class Client:
 
     def get_blocker_users(self, start: int = 0, size: int = 25):
         """
-        List of Users that are blocking the User.
+        List of Users that are Blocking the User.
 
         **Parameters**
             - *start* : Where to start the list.
             - *size* : Size of the list.
 
         **Returns**
-            - **200** (str) : **Success**, :meth:`List of user ids <None>`
+            - **200** (str) : **Success**, :meth:`List of User IDs <None>`
 
             - **Other** (:meth:`JSON Object <JSONObject>`)
         """
@@ -671,7 +707,7 @@ class Client:
 
     def get_wall_comments(self, userId: str, sorting: str, start: int = 0, size: int = 25):
         """
-        List of wall comments of an User.
+        List of Wall Comments of an User.
 
         **Parameters**
             - **userId** : ID of the User.
@@ -708,20 +744,23 @@ class Client:
         Flag a User, Blog or Wiki.
 
         **Parameters**
+            - **reason** : Reason of the Flag.
+            - **flagType** : Type of the Flag.
             - **userId** : ID of the User.
             - **blogId** : ID of the Blog.
             - **wikiId** : ID of the Wiki.
             - *asGuest* : Execute as a Guest.
-            - *start* : Where to start the list.
-            - *size* : Size of the list.
 
         **Returns**
             - **200** (int) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
-            - **Other** (:meth:`SpecifyType <amino.lib.util.exceptions.SpecifyType>`, :meth:`JSON Object <JSONObject>`)
+            - **Other** (:meth:`ReasonNeeded <amino.lib.util.exceptions.ReasonNeeded>`, :meth:`FlagTypeNeeded <amino.lib.util.exceptions.FlagTypeNeeded>`, :meth:`SpecifyType <amino.lib.util.exceptions.SpecifyType>`, :meth:`JSON Object <JSONObject>`)
         """
+        if reason is None: raise exceptions.ReasonNeeded
+        if flagType is None: raise exceptions.FlagTypeNeeded
+
         data = {
             "flagType": flagType,
             "message": reason,
@@ -732,13 +771,15 @@ class Client:
             data["objectId"] = userId
             data["objectType"] = 0
 
-        if blogId:
+        elif blogId:
             data["objectId"] = blogId
             data["objectType"] = 1
 
-        if wikiId:
+        elif wikiId:
             data["objectId"] = wikiId
             data["objectType"] = 2
+
+        else: raise exceptions.SpecifyType
 
         if asGuest: flg = "g-flag"
         else: flg = "flag"
@@ -752,7 +793,7 @@ class Client:
 
         else: return response.status_code
 
-    def send_message(self, chatId: str, message: str = None, messageType: int = 0, file: BinaryIO = None, fileType: str = None, replyTo: str = None, mentionUserIds: list = None, stickerId: str = None, embedId: str = None, embedType: int = None, embedLink: str = None, embedTitle: str = None, embedContent: str = None, embedImage: BinaryIO = None, clientRefId: int = int(timestamp() / 10 % 1000000000)):
+    def send_message(self, chatId: str, message: str = None, file: BinaryIO = None, fileType: str = None, replyTo: str = None, mentionUserIds: list = None, stickerId: str = None):
         """
         Send a Message to a Chat.
 
@@ -762,16 +803,9 @@ class Client:
             - **file** : File to be sent.
             - **fileType** : Type of the file.
                 - ``audio``, ``image``, ``gif``
-            - **messageType** : Type of the Message.
             - **mentionUserIds** : List of User IDS to mention. '@' needed in the Message.
             - **replyTo** : Message ID to reply to.
             - **stickerId** : Sticker ID to be sent.
-            - **embedTitle** : Title of the Embed.
-            - **embedContent** : Content of the Embed.
-            - **embedLink** : Link of the Embed.
-            - **embedImage** : Image of the Embed.
-            - **embedId** : ID of the Embed.
-            - *clientRefId* : Reference ID of the Message.
 
         **Returns**
             - **200** (int) : **Success**
@@ -786,33 +820,15 @@ class Client:
 
             - **Other** (:meth:`SpecifyType <amino.lib.util.exceptions.SpecifyType>`, :meth:`DeveloperKeyRequired <amino.lib.util.exceptions.DeveloperKeyRequired>`, :meth:`InvalidDeveloperKey <amino.lib.util.exceptions.InvalidDeveloperKey>`, :meth:`JSON Object <JSONObject>`)
         """
-        if messageType or embedId or embedType or embedLink or embedTitle or embedContent or embedImage:
-            devReq = requests.get("https://pastebin.com/raw/adzikvR4").text.split("\r\n")
-            if self.devKey is None: raise exceptions.DeveloperKeyRequired
-            elif self.devKey.encode() == Fernet(devReq[0].encode()).decrypt(devReq[2].encode()): pass
-            else: raise exceptions.InvalidDeveloperKey
-
         mentions = []
-
         if mentionUserIds:
             for mention_uid in mentionUserIds:
                 mentions.append({"uid": mention_uid})
 
-        if embedImage:
-            embedImage = [[100, self.upload_media(embedImage), None]]
-
         data = {
-            "type": messageType,
+            "type": 0,
             "content": message,
-            "clientRefId": clientRefId,
-            "attachedObject": {
-                "objectId": embedId,
-                "objectType": embedType,
-                "link": embedLink,
-                "title": embedTitle,
-                "content": embedContent,
-                "mediaList": embedImage
-            },
+            "clientRefId": int(timestamp() / 10 % 1000000000),
             "extensions": {"mentionedArray": mentions},
             "timestamp": int(timestamp() * 1000)
         }
@@ -1153,9 +1169,9 @@ class Client:
 
         else: return response.status_code
 
-    def follow(self, userId: str):
+    def follow(self, userId: str = None, userIds: list = None):
         """
-        Follow an User.
+        Follow an User or Multiple Users.
 
         **Parameters**
             - **userId** : ID of the User.
@@ -1167,9 +1183,17 @@ class Client:
 
             - **225** (:meth:`UserUnavailable <amino.lib.util.exceptions.UserUnavailable>`) : This user is unavailable.
 
-            - **Other** (:meth:`JSON Object <JSONObject>`)
+            - **Other** (:meth:`SpecifyType <amino.lib.util.exceptions.SpecifyType>`, :meth:`JSON Object <JSONObject>`)
         """
-        response = requests.post(f"{self.api}/g/s/user-profile/{userId}/member", headers=headers.Headers().headers)
+        if userId:
+            response = requests.post(f"{self.api}/g/s/user-profile/{userId}/member", headers=headers.Headers().headers)
+
+        elif userIds:
+            data = json.dumps({"targetUidList": userIds, "timestamp": int(timestamp() * 1000)})
+            response = requests.post(f"{self.api}/g/s/user-profile/{self.userId}/joined", headers=headers.Headers(data=data).headers, data=data)
+
+        else: raise exceptions.SpecifyType
+
         if response.status_code != 200:
             response = json.loads(response.text)
             if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
@@ -1357,8 +1381,8 @@ class Client:
 
         **Parameters**
             - **comId** : ID of the Community.
-            - **reason** : Reason of action.
-            - **flag** : Type of flag.
+            - **reason** : Reason of the Flag.
+            - **flagType** : Type of Flag.
 
         **Returns**
             - **200** (int) : **Success**
@@ -1371,8 +1395,11 @@ class Client:
 
             - **833** (:meth:`CommunityDeleted <amino.lib.util.exceptions.CommunityDeleted>`) : This Community has been deleted.
 
-            - **Other** (:meth:`JSON Object <JSONObject>`)
+            - **Other** (:meth:`ReasonNeeded <amino.lib.util.exceptions.ReasonNeeded>`, :meth:`FlagTypeNeeded <amino.lib.util.exceptions.FlagTypeNeeded>`, :meth:`SpecifyType <amino.lib.util.exceptions.SpecifyType>`, :meth:`JSON Object <JSONObject>`)
         """
+        if reason is None: raise exceptions.ReasonNeeded
+        if flagType is None: raise exceptions.FlagTypeNeeded
+
         data = json.dumps({
             "objectId": comId,
             "objectType": 16,

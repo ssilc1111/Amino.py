@@ -651,24 +651,31 @@ class UnsupportedLanguage(Exception):
     def __init__(*args, **kwargs):
         Exception.__init__(*args, **kwargs)
 
+class CommunityNeeded(Exception):
+    """
+    Raised when you try to execute an command but a Community needs to be specified.
+    """
+    def __init__(*args, **kwargs):
+        Exception.__init__(*args, **kwargs)
+
+class FlagTypeNeeded(Exception):
+    """
+    Raised when you try to flag a community, blog or user but a Flag Type needs to be specified.
+    """
+    def __init__(*args, **kwargs):
+        Exception.__init__(*args, **kwargs)
+
+class ReasonNeeded(Exception):
+    """
+    Raised when you try to execute an command but a Reason needs to be specified.
+    """
+    def __init__(*args, **kwargs):
+        Exception.__init__(*args, **kwargs)
+
 
 class LibraryUpdateAvailable(Exception):
     """
     Raised when a new library update is available.
-    """
-    def __init__(*args, **kwargs):
-        Exception.__init__(*args, **kwargs)
-
-class InvalidDeveloperKey(Exception):
-    """
-    Raised when the developer key is invalid.
-    """
-    def __init__(*args, **kwargs):
-        Exception.__init__(*args, **kwargs)
-
-class DeveloperKeyRequired(Exception):
-    """
-    Raised when you try to make an action but an developer key is required.
     """
     def __init__(*args, **kwargs):
         Exception.__init__(*args, **kwargs)

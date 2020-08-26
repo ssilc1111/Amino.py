@@ -1,8 +1,8 @@
 __title__ = 'Amino.py'
 __author__ = 'Slimakoi'
-__license__ = 'GPLv3'
+__license__ = 'MIT'
 __copyright__ = 'Copyright 2020-2020 Slimakoi'
-__version__ = '1.1.2'
+__version__ = '1.1.3'
 
 from .acm import ACM
 from .client import Client

@@ -9,35 +9,24 @@ from typing import BinaryIO
 
 from . import client
 from .lib.util import exceptions, headers, device, objects
-from cryptography.fernet import Fernet
 from string import hexdigits
 
 device = device.DeviceGenerator()
 headers.sid = client.Client().sid
 
 class SubClient(client.Client):
-    def __init__(self, comId: str, profile: str, devKey: str = None):
+    def __init__(self, comId: str, profile: str):
         client.Client.__init__(self)
 
         if not comId: raise exceptions.NoCommunity
 
         self.comId = comId
-        self.devKey = devKey
         self.profile = self.get_user_info(userId=profile.userId)
 
-    def post_blog(self, title: str, content: str, categoriesList: list = None, backgroundColor: str = None, images: list = None, fansOnly: bool = False):
-        if images:
-            images_list = []
-            for item in images:
-                content = content.replace(item.replace_key, f"[IMG={item.replace_key}]")
-                images_list.append(item.media_list_item)
-
-        else: images_list = None
-
+    def post_blog(self, title: str, content: str, categoriesList: list = None, backgroundColor: str = None, fansOnly: bool = False):
         data = {
             "address": None,
             "content": content,
-            "mediaList": images_list,
             "title": title,
             "extensions": {},
             "latitude": 0,
@@ -258,26 +247,37 @@ class SubClient(client.Client):
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
-    def like_comment(self, commentId: str, userId: str = None, blogId: str = None):
+    def like_comment(self, commentId: str, userId: str = None, blogId: str = None, wikiId: str = None):
         data = {
             "value": 1,
             "timestamp": int(timestamp() * 1000)
         }
 
-        if blogId:
-            data["eventSource"] = "PostDetailView"
-            data = json.dumps(data)
-            response = requests.post(f"{self.api}/x{self.comId}/s/blog/{blogId}/comment/{commentId}/vote?cv=1.2&value=1", headers=headers.Headers(data=data).headers, data=data)
-        elif userId:
+        if userId:
             data["eventSource"] = "UserProfileView"
             data = json.dumps(data)
             response = requests.post(f"{self.api}/x{self.comId}/s/user-profile/{userId}/comment/{commentId}/vote?cv=1.2&value=1", headers=headers.Headers(data=data).headers, data=data)
+
+        elif blogId:
+            data["eventSource"] = "PostDetailView"
+            data = json.dumps(data)
+            response = requests.post(f"{self.api}/x{self.comId}/s/blog/{blogId}/comment/{commentId}/vote?cv=1.2&value=1", headers=headers.Headers(data=data).headers, data=data)
+
+        elif wikiId:
+            data["eventSource"] = "PostDetailView"
+            data = json.dumps(data)
+            response = requests.post(f"{self.api}/x{self.comId}/s/item/{wikiId}/comment/{commentId}/g-vote?cv=1.2&value=1", headers=headers.Headers(data=data).headers, data=data)
+
         else: raise exceptions.SpecifyType
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
-    def unlike_comment(self, blogId: str, commentId: str):
-        response = requests.delete(f"{self.api}/x{self.comId}/s/blog/{blogId}/comment/{commentId}/vote?eventSource=PostDetailView", headers=headers.Headers().headers)
+    def unlike_comment(self, commentId: str, userId: str = None, blogId: str = None, wikiId: str = None):
+        if userId: response = requests.delete(f"{self.api}/x{self.comId}/s/user-profile/{userId}/comment/{commentId}/g-vote?eventSource=UserProfileView", headers=headers.Headers().headers)
+        elif blogId: response = requests.delete(f"{self.api}/x{self.comId}/s/blog/{blogId}/comment/{commentId}/g-vote?eventSource=PostDetailView", headers=headers.Headers().headers)
+        elif wikiId: response = requests.delete(f"{self.api}/x{self.comId}/s/item/{wikiId}/comment/{commentId}/g-vote?eventSource=PostDetailView", headers=headers.Headers().headers)
+        else: raise exceptions.SpecifyType
+
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
@@ -401,18 +401,10 @@ class SubClient(client.Client):
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
-    def send_coins(self, coins: int, blogId: str = None, chatId: str = None, objectId: str = None, transactionId: str = None):
-        transactionId2 = f"{''.join(random.sample([lst for lst in hexdigits[:-6]], 8))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 12))}"
-
-        if transactionId:
-            devReq = requests.get("https://pastebin.com/raw/adzikvR4").text.split("\r\n")
-            if self.devKey is None: raise exceptions.DeveloperKeyRequired
-            elif self.devKey.encode() == Fernet(devReq[0].encode()).decrypt(devReq[2].encode()): transactionId2 = transactionId
-            else: raise exceptions.InvalidDeveloperKey
-
+    def send_coins(self, coins: int, blogId: str = None, chatId: str = None, objectId: str = None):
         data = {
             "coins": coins,
-            "tippingContext": {"transactionId": transactionId2},
+            "tippingContext": {"transactionId": f"{''.join(random.sample([lst for lst in hexdigits[:-6]], 8))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 12))}"},
             "timestamp": int(timestamp() * 1000)
         }
 
@@ -434,37 +426,160 @@ class SubClient(client.Client):
         else: return response.status_code
 
     def follow(self, userId: str = None, userIds: list = None):
-        if userId: response = requests.post(f"{self.api}/x{self.comId}/s/user-profile/{userId}/member", headers=headers.Headers().headers)
+        """
+        Follow an User or Multiple Users.
+
+        **Parameters**
+            - **userId** : ID of the User.
+
+        **Returns**
+            - **200** (int) : **Success**
+
+            - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
+
+            - **225** (:meth:`UserUnavailable <amino.lib.util.exceptions.UserUnavailable>`) : This user is unavailable.
+
+            - **Other** (:meth:`SpecifyType <amino.lib.util.exceptions.SpecifyType>`, :meth:`JSON Object <JSONObject>`)
+        """
+        if userId:
+            response = requests.post(f"{self.api}/x{self.comId}/s/user-profile/{userId}/member", headers=headers.Headers().headers)
 
         elif userIds:
             data = json.dumps({"targetUidList": userIds, "timestamp": int(timestamp() * 1000)})
             response = requests.post(f"{self.api}/x{self.comId}/s/user-profile/{self.profile.id}/joined", headers=headers.Headers(data=data).headers, data=data)
 
         else: raise exceptions.SpecifyType
-        if response.status_code != 200: return json.loads(response.text)
+
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
+            elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
+            else: return response
+
         else: return response.status_code
 
     def unfollow(self, userId: str):
+        """
+        Unfollow an User.
+
+        **Parameters**
+            - **userId** : ID of the User.
+
+        **Returns**
+            - **200** (int) : **Success**
+
+            - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
+
+            - **225** (:meth:`UserUnavailable <amino.lib.util.exceptions.UserUnavailable>`) : This user is unavailable.
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
         response = requests.delete(f"{self.api}/x{self.comId}/s/user-profile/{self.profile.userId}/joined/{userId}", headers=headers.Headers().headers)
-        if response.status_code != 200: return json.loads(response.text)
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
+            elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
+            else: return response
+
         else: return response.status_code
 
     def block(self, userId: str):
+        """
+        Block an User.
+
+        **Parameters**
+            - **userId** : ID of the User.
+
+        **Returns**
+            - **200** (int) : **Success**
+
+            - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
+
+            - **225** (:meth:`UserUnavailable <amino.lib.util.exceptions.UserUnavailable>`) : This user is unavailable.
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
         response = requests.post(f"{self.api}/x{self.comId}/s/block/{userId}", headers=headers.Headers().headers)
-        if response.status_code != 200: return json.loads(response.text)
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
+            elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
+            else: return response
+
         else: return response.status_code
 
     def unblock(self, userId: str):
+        """
+        Unblock an User.
+
+        **Parameters**
+            - **userId** : ID of the User.
+
+        **Returns**
+            - **200** (int) : **Success**
+
+            - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
+
+            - **225** (:meth:`UserUnavailable <amino.lib.util.exceptions.UserUnavailable>`) : This user is unavailable.
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
         response = requests.delete(f"{self.api}/x{self.comId}/s/block/{userId}", headers=headers.Headers().headers)
-        if response.status_code != 200: return json.loads(response.text)
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
+            elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
+            else: return response
+
         else: return response.status_code
 
     def visit(self, userId: str):
+        """
+        Visit an User.
+
+        **Parameters**
+            - **userId** : ID of the User.
+
+        **Returns**
+            - **200** (int) : **Success**
+
+            - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
+
+            - **225** (:meth:`UserUnavailable <amino.lib.util.exceptions.UserUnavailable>`) : This user is unavailable.
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
         response = requests.get(f"{self.api}/x{self.comId}/s/user-profile/{userId}?action=visit", headers=headers.Headers().headers)
-        if response.status_code != 200: return json.loads(response.text)
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
+            elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
+            else: return response
+
         else: return response.status_code
 
     def flag(self, reason: str, flagType: int, userId: str = None, blogId: str = None, wikiId: str = None, asGuest: bool = False):
+        """
+        Flag a User, Blog or Wiki.
+
+        **Parameters**
+            - **reason** : Reason of the Flag.
+            - **flagType** : Type of the Flag.
+            - **userId** : ID of the User.
+            - **blogId** : ID of the Blog.
+            - **wikiId** : ID of the Wiki.
+            - *asGuest* : Execute as a Guest.
+
+        **Returns**
+            - **200** (int) : **Success**
+
+            - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
+
+            - **Other** (:meth:`ReasonNeeded <amino.lib.util.exceptions.ReasonNeeded>`, :meth:`FlagTypeNeeded <amino.lib.util.exceptions.FlagTypeNeeded>`, :meth:`SpecifyType <amino.lib.util.exceptions.SpecifyType>`, :meth:`JSON Object <JSONObject>`)
+        """
+        if reason is None: raise exceptions.ReasonNeeded
+        if flagType is None: raise exceptions.FlagTypeNeeded
+
         data = {
             "flagType": flagType,
             "message": reason,
@@ -475,50 +590,64 @@ class SubClient(client.Client):
             data["objectId"] = userId
             data["objectType"] = 0
 
-        if blogId:
+        elif blogId:
             data["objectId"] = blogId
             data["objectType"] = 1
 
-        if wikiId:
+        elif wikiId:
             data["objectId"] = wikiId
             data["objectType"] = 2
+
+        else: raise exceptions.SpecifyType
 
         if asGuest: flg = "g-flag"
         else: flg = "flag"
 
         data = json.dumps(data)
         response = requests.post(f"{self.api}/x{self.comId}/s/{flg}", data=data, headers=headers.Headers(data=data).headers)
-        if response.status_code != 200: return json.loads(response.text)
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
+            else: return response
+
         else: return response.status_code
 
-    def send_message(self, chatId: str, message: str = None, messageType: int = 0, file: BinaryIO = None, fileType: str = None, replyTo: str = None, mentionUserIds: list = None, stickerId: str = None, embedId: str = None, embedType: int = None, embedLink: str = None, embedTitle: str = None, embedContent: str = None, embedImage: BinaryIO = None, clientRefId: int = int(timestamp() / 10 % 1000000000)):
+    def send_message(self, chatId: str, message: str = None, file: BinaryIO = None, fileType: str = None, replyTo: str = None, mentionUserIds: list = None, stickerId: str = None):
+        """
+        Send a Message to a Chat.
+
+        **Parameters**
+            - **message** : Message to be sent
+            - **chatId** : ID of the Chat.
+            - **file** : File to be sent.
+            - **fileType** : Type of the file.
+                - ``audio``, ``image``, ``gif``
+            - **mentionUserIds** : List of User IDS to mention. '@' needed in the Message.
+            - **replyTo** : Message ID to reply to.
+            - **stickerId** : Sticker ID to be sent.
+
+        **Returns**
+            - **200** (int) : **Success**
+
+            - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
+
+            - **106** (:meth:`AccessDenied <amino.lib.util.exceptions.AccessDenied>`) : Access denied.
+
+            - **1605** (:meth:`ChatFull <amino.lib.util.exceptions.ChatFull>`) : ``Unknown Message``
+
+            - **1663** (:meth:`ChatViewOnly <amino.lib.util.exceptions.ChatViewOnly>`) : ``Unknown Message``
+
+            - **Other** (:meth:`SpecifyType <amino.lib.util.exceptions.SpecifyType>`, :meth:`DeveloperKeyRequired <amino.lib.util.exceptions.DeveloperKeyRequired>`, :meth:`InvalidDeveloperKey <amino.lib.util.exceptions.InvalidDeveloperKey>`, :meth:`JSON Object <JSONObject>`)
+        """
         mentions = []
-
-        if messageType or embedId or embedType or embedLink or embedTitle or embedContent or embedImage:
-            devReq = requests.get("https://pastebin.com/raw/adzikvR4").text.split("\r\n")
-            if self.devKey is None: raise exceptions.DeveloperKeyRequired
-            elif self.devKey.encode() == Fernet(devReq[0].encode()).decrypt(devReq[2].encode()): pass
-            else: raise exceptions.InvalidDeveloperKey
-
         if mentionUserIds:
             for mention_uid in mentionUserIds:
                 mentions.append({"uid": mention_uid})
 
-        if embedImage:
-            embedImage = [[100, self.upload_media(embedImage), None]]
-
         data = {
-            "type": messageType,
+            "type": 0,
             "content": message,
-            "clientRefId": clientRefId,
-            "attachedObject": {
-                "objectId": embedId,
-                "objectType": embedType,
-                "link": embedLink,
-                "title": embedTitle,
-                "content": embedContent,
-                "mediaList": embedImage
-            },
+            "clientRefId": int(timestamp() / 10 % 1000000000),
             "extensions": {"mentionedArray": mentions},
             "timestamp": int(timestamp() * 1000)
         }
@@ -552,10 +681,35 @@ class SubClient(client.Client):
 
         data = json.dumps(data)
         response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/message", headers=headers.Headers(data=data).headers, data=data)
-        if response.status_code != 200: return json.loads(response.text)
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
+            elif response["api:statuscode"] == 106: raise exceptions.AccessDenied(response)
+            elif response["api:statuscode"] == 1605: raise exceptions.ChatFull(response)
+            elif response["api:statuscode"] == 1663: raise exceptions.ChatViewOnly(response)
+            else: return response
+
         else: return response.status_code
 
     def delete_message(self, chatId: str, messageId: str, asStaff: bool = False, reason: str = None):
+        """
+        Delete a Message from a Chat.
+
+        **Parameters**
+            - **messageId** : ID of the Message.
+            - **chatId** : ID of the Chat.
+            - **asStaff** : If execute as a Staff member (Leader or Curator).
+            - **reason** : Reason of the action to show on the Moderation History.
+
+        **Returns**
+            - **200** (int) : **Success**
+
+            - **104** (:meth:`InvalidRequest <amino.lib.util.exceptions.InvalidRequest>`) : Invalid Request. Please update to the latest version. If the problem continues, please contact us.
+
+            - **106** (:meth:`AccessDenied <amino.lib.util.exceptions.AccessDenied>`) : Access denied.
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
         data = {
             "adminOpName": 102,
             "adminOpNote": {"content": reason},
@@ -565,10 +719,27 @@ class SubClient(client.Client):
         data = json.dumps(data)
         if not asStaff: response = requests.delete(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/message/{messageId}", headers=headers.Headers().headers)
         else: response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/message/{messageId}/admin", headers=headers.Headers(data=data).headers, data=data)
-        if response.status_code != 200: return json.loads(response.text)
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 104: raise exceptions.InvalidRequest(response)
+            elif response["api:statuscode"] == 106: raise exceptions.AccessDenied(response)
+            else: return response
+
         else: return response.status_code
 
     def mark_as_read(self, chatId: str, messageId: str):
+        """
+        Mark a Message from a Chat as Read.
+
+        **Parameters**
+            - **messageId** : ID of the Message.
+            - **chatId** : ID of the Chat.
+
+        **Returns**
+            - **200** (int) : **Success**
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
         data = json.dumps({
             "messageId": messageId,
             "timestamp": int(timestamp() * 1000)
@@ -814,20 +985,41 @@ class SubClient(client.Client):
         else: return response.status_code
 
     def join_chat(self, chatId: str):
+        """
+        Join an Chat.
+
+        **Parameters**
+            - **chatId** : ID of the Chat.
+
+        **Returns**
+            - **200** (int) : **Success**
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
         response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.userId}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
     def leave_chat(self, chatId: str):
+        """
+        Leave an Chat.
+
+        **Parameters**
+            - **chatId** : ID of the Chat.
+
+        **Returns**
+            - **200** (int) : **Success**
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
         response = requests.delete(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.userId}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
     def subscribe(self, userId: str, autoRenew: str = False):
-        lst = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
         data = json.dumps({
             "paymentContext": {
-                "transactionId": f"{''.join(random.sample(lst, 8))}-{''.join(random.sample(lst, 4))}-{''.join(random.sample(lst, 4))}-{''.join(random.sample(lst, 4))}-{''.join(random.sample(lst, 12))}",
+                "transactionId": f"{''.join(random.sample([lst for lst in hexdigits[:-6]], 8))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 12))}",
                 "isAutoRenew": autoRenew
             },
             "timestamp": int(timestamp() * 1000)
@@ -888,24 +1080,110 @@ class SubClient(client.Client):
         return objects.userProfileCountList(json.loads(response.text)).userProfileCountList
 
     def get_user_info(self, userId: str):
+        """
+        Information of an User.
+
+        **Parameters**
+            - **userId** : ID of the User.
+
+        **Returns**
+            - **200** (:meth:`User Object <amino.lib.util.objects.userProfile>`) : **Success**
+
+            - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
+
+            - **225** (:meth:`UserUnavailable <amino.lib.util.exceptions.UserUnavailable>`) : This user is unavailable.
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
         response = requests.get(f"{self.api}/x{self.comId}/s/user-profile/{userId}", headers=headers.Headers().headers)
-        if response.status_code != 200: return json.loads(response.text)
-        return objects.userProfile(json.loads(response.text)["userProfile"]).userProfile
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
+            elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
+            else: return response
+
+        else: return objects.userProfile(json.loads(response.text)["userProfile"]).userProfile
 
     def get_user_following(self, userId: str, start: int = 0, size: int = 25):
+        """
+        List of Users that the User is Following.
+
+        **Parameters**
+            - **userId** : ID of the User.
+            - *start* : Where to start the list.
+            - *size* : Size of the list.
+
+        **Returns**
+            - **200** (:meth:`User List <amino.lib.util.objects.userProfileList>`) : **Success**
+
+            - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
+
+            - **225** (:meth:`UserUnavailable <amino.lib.util.exceptions.UserUnavailable>`) : This user is unavailable.
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
         response = requests.get(f"{self.api}/x{self.comId}/s/user-profile/{userId}/joined?start={start}&size={size}", headers=headers.Headers().headers)
-        if response.status_code != 200: return json.loads(response.text)
-        return objects.userProfileList(json.loads(response.text)["userProfileList"]).userProfileList
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
+            elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
+            else: return response
+
+        else: return objects.userProfileList(json.loads(response.text)["userProfileList"]).userProfileList
 
     def get_user_followers(self, userId: str, start: int = 0, size: int = 25):
+        """
+        List of Users that are Following the User.
+
+        **Parameters**
+            - **userId** : ID of the User.
+            - *start* : Where to start the list.
+            - *size* : Size of the list.
+
+        **Returns**
+            - **200** (:meth:`User List <amino.lib.util.objects.userProfileList>`) : **Success**
+
+            - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
+
+            - **225** (:meth:`UserUnavailable <amino.lib.util.exceptions.UserUnavailable>`) : This user is unavailable.
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
         response = requests.get(f"{self.api}/x{self.comId}/s/user-profile/{userId}/member?start={start}&size={size}", headers=headers.Headers().headers)
-        if response.status_code != 200: return json.loads(response.text)
-        return objects.userProfileList(json.loads(response.text)["userProfileList"]).userProfileList
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
+            elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
+            else: return response
+
+        else: return objects.userProfileList(json.loads(response.text)["userProfileList"]).userProfileList
 
     def get_user_visitors(self, userId: str, start: int = 0, size: int = 25):
+        """
+        List of Users that Visited the User.
+
+        **Parameters**
+            - **userId** : ID of the User.
+            - *start* : Where to start the list.
+            - *size* : Size of the list.
+
+        **Returns**
+            - **200** (:meth:`Visitors List <amino.lib.util.objects.visitorsList>`) : **Success**
+
+            - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
+
+            - **225** (:meth:`UserUnavailable <amino.lib.util.exceptions.UserUnavailable>`) : This user is unavailable.
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
         response = requests.get(f"{self.api}/x{self.comId}/s/user-profile/{userId}/visitors?start={start}&size={size}", headers=headers.Headers().headers)
-        if response.status_code != 200: return json.loads(response.text)
-        return objects.visitorsList(json.loads(response.text)).visitorsList
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
+            elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
+            else: return response
+
+        else: return objects.visitorsList(json.loads(response.text)).visitorsList
 
     def get_user_checkins(self, userId: str):
         response = requests.get(f"{self.api}/x{self.comId}/s/check-in/stats/{userId}?timezone={-timezone // 1000}", headers=headers.Headers().headers)
@@ -933,9 +1211,38 @@ class SubClient(client.Client):
         return objects.influencerFans(json.loads(response.text)).influencerFans
 
     def get_blocked_users(self, start: int = 0, size: int = 25):
-        response = requests.get(f"{self.api}/x{self.comId}/s/block?start={start}&size={size}", headers=headers.Headers().headers)
+        """
+        List of Users that the User Blocked.
+
+        **Parameters**
+            - *start* : Where to start the list.
+            - *size* : Size of the list.
+
+        **Returns**
+            - **200** (:meth:`Users List <amino.lib.util.objects.userProfileList>`) : **Success**
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
+        response = requests.get(f"{self.api}/{self.comId}/s/block?start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.userProfileList(json.loads(response.text)["userProfileList"]).userProfileList
+        else: return objects.userProfileList(json.loads(response.text)["userProfileList"]).userProfileList
+
+    def get_blocker_users(self, start: int = 0, size: int = 25):
+        """
+        List of Users that are Blocking the User.
+
+        **Parameters**
+            - *start* : Where to start the list.
+            - *size* : Size of the list.
+
+        **Returns**
+            - **200** (str) : **Success**, :meth:`List of User IDs <None>`
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
+        response = requests.get(f"{self.api}/x{self.comId}/s/block/full-list?start={start}&size={size}", headers=headers.Headers().headers)
+        if response.status_code != 200: return json.loads(response.text)
+        else: return json.loads(response.text)["blockerUidList"]
 
     def search_users(self, nickname: str, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/user-profile?type=name&q={nickname}&start={start}&size={size}", headers=headers.Headers().headers)
@@ -986,29 +1293,106 @@ class SubClient(client.Client):
         return objects.tippedUsersSummary(json.loads(response.text)).tippedUsersSummary
 
     def get_chat_threads(self, start: int = 0, size: int = 25):
+        """
+        List of Chats the account is in.
+
+        **Parameters**
+            - *start* : Where to start the list.
+            - *size* : Size of the list.
+
+        **Returns**
+            - **200** (:meth:`Chat List <amino.lib.util.objects.threadList>`) : **Success**
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
         response = requests.get(f"{self.api}/x{self.comId}/s/chat/thread?type=joined-me&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
         return objects.threadList(json.loads(response.text)["threadList"]).threadList
 
     def get_public_chat_threads(self, type: str = "recommended", start: int = 0, size: int = 25):
+        """
+        List of Public Chats of the Community.
+
+        **Parameters**
+            - *start* : Where to start the list.
+            - *size* : Size of the list.
+
+        **Returns**
+            - **200** (:meth:`Chat List <amino.lib.util.objects.threadList>`) : **Success**
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
         response = requests.get(f"{self.api}/x{self.comId}/s/chat/thread?type=public-all&filterType={type}&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
         return objects.threadList(json.loads(response.text)["threadList"]).threadList
 
     def get_chat_thread(self, chatId: str):
+        """
+        Get the Chat Object from an Chat ID.
+
+        **Parameters**
+            - **chatId** : ID of the Chat.
+
+        **Returns**
+            - **200** (:meth:`Chat Object <amino.lib.util.objects.thread>`) : **Success**
+
+            - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
         response = requests.get(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}", headers=headers.Headers().headers)
-        if response.status_code != 200: return json.loads(response.text)
-        return objects.thread(json.loads(response.text)["thread"]).thread
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
+            else: return response
+
+        else: return objects.thread(json.loads(response.text)["thread"]).thread
 
     def get_chat_messages(self, chatId: str, size: int = 25):
+        """
+        List of Messages from an Chat.
+
+        **Parameters**
+            - **chatId** : ID of the Chat.
+            - *size* : Size of the list.
+
+        **Returns**
+            - **200** (:meth:`Message List <amino.lib.util.objects.messageList>`) : **Success**
+
+            - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
         response = requests.get(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/message?v=2&pagingType=t&size={size}", headers=headers.Headers().headers)
-        if response.status_code != 200: return json.loads(response.text)
-        return objects.messageList(json.loads(response.text)["messageList"]).messageList
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
+            else: return response
+
+        else: return objects.messageList(json.loads(response.text)["messageList"]).messageList
 
     def get_message_info(self, chatId: str, messageId: str):
+        """
+        Information of an Message from an Chat.
+
+        **Parameters**
+            - **chatId** : ID of the Chat.
+            - **message** : ID of the Message.
+
+        **Returns**
+            - **200** (:meth:`Message Object <amino.lib.util.objects.message>`) : **Success**
+
+            - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
+
+            - **Other** (:meth:`JSON Object <JSONObject>`)
+        """
         response = requests.get(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/message/{messageId}", headers=headers.Headers().headers)
-        if response.status_code != 200: return json.loads(response.text)
-        return objects.message(json.loads(response.text)["message"]).message
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
+            else: return response
+
+        else: return objects.message(json.loads(response.text)["message"]).message
 
     def get_blog_info(self, blogId: str = None, wikiId: str = None):
         if blogId:
@@ -1040,13 +1424,39 @@ class SubClient(client.Client):
         if response.status_code != 200: return json.loads(response.text)
         return objects.blogCategoryList(json.loads(response.text)["blogCategoryList"]).blogCategoryList
 
-    def get_wall_comments(self, userId: str, sorting: str = "newest", start: int = 0, size: int = 25):
+    def get_wall_comments(self, userId: str, sorting: str, start: int = 0, size: int = 25):
+        """
+        List of Wall Comments of an User.
+
+        **Parameters**
+            - **userId** : ID of the User.
+            - **sorting** : Order of the Comments.
+                - ``newest``, ``oldest``, ``top``
+            - *start* : Where to start the list.
+            - *size* : Size of the list.
+
+        **Returns**
+            - **200** (:meth:`Comments List <amino.lib.util.objects.commentList>`) : **Success**
+
+            - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
+
+            - **225** (:meth:`UserUnavailable <amino.lib.util.exceptions.UserUnavailable>`) : This user is unavailable.
+
+            - **Other** (:meth:`SpecifyType <amino.lib.util.exceptions.SpecifyType>`, :meth:`JSON Object <JSONObject>`)
+        """
         if sorting == "newest": sorting = "newest"
         elif sorting == "oldest": sorting = "oldest"
         elif sorting == "top": sorting = "vote"
+        else: raise exceptions.SpecifyType
+
         response = requests.get(f"{self.api}/x{self.comId}/s/user-profile/{userId}/comment?sort={sorting}&start={start}&size={size}", headers=headers.Headers().headers)
-        if response.status_code != 200: return json.loads(response.text)
-        return objects.commentList(json.loads(response.text)["commentList"]).commentList
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
+            elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
+            else: return response
+
+        else: return objects.commentList(json.loads(response.text)["commentList"]).commentList
 
     def get_recent_blogs(self, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/feed/blog-all?pagingType=t&start={start}&size={size}", headers=headers.Headers().headers)

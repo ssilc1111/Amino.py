@@ -5,13 +5,13 @@ with open("README.md", "r") as stream:
 
 setup(
     name = 'Amino.py',
-    version = '1.1.2',
+    version = '1.1.3',
     url = 'https://github.com/Slimakoi/Amino.py',
     download_url = 'https://github.com/Slimakoi/Amino.py/tarball/master',
-    license = 'GPLv3',
+    license = 'MIT',
     author = 'Slimakoi',
     author_email = 'slimeytoficial@gmail.com',
-    description = 'Unofficial python wrapper for the Amino web api',
+    description = 'A library to create Amino bots.',
     long_description = long_description,
     long_description_content_type = 'text/markdown',
     keywords = [
@@ -31,9 +31,7 @@ setup(
         'setuptools',
         'requests',
         'six',
-        'websocket-client',
-        'ffmpeg-python',
-        'cryptography'
+        'websocket-client'
     ],
     setup_requires = [
         'wheel'

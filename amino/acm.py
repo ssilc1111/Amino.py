@@ -10,10 +10,8 @@ device = device.DeviceGenerator()
 headers.sid = client.Client().sid
 
 class ACM(client.Client):
-    def __init__(self, comId: str, profile: str):
+    def __init__(self, profile: str, comId: str = None):
         client.Client.__init__(self)
-
-        if not comId: raise exceptions.NoCommunity
 
         self.profile = profile
         self.comId = comId
@@ -60,6 +58,7 @@ class ACM(client.Client):
             "deviceID": device.device_id
         })
 
+        if self.comId is None: raise exceptions.CommunityNeeded
         response = requests.post(f"{self.api}/g/s-x{self.comId}/community/delete-request", headers=headers.Headers(data=data).headers, data=data)
         if response.status_code != 200:
             response = json.loads(response.text)
@@ -91,10 +90,12 @@ class ACM(client.Client):
             "timestamp": int(timestamp() * 1000)
         })
 
+        if self.comId is None: raise exceptions.CommunityNeeded
         response = requests.post(f"{self.api}/x{self.comId}/s/community/configuration", headers=headers.Headers(data=data).headers, data=data)
         return json.loads(response.text)
 
     def get_categories(self, start: int = 0, size: int = 25):
+        if self.comId is None: raise exceptions.CommunityNeeded
         response = requests.get(f"{self.api}/x{self.comId}/s/blog-category?start={start}&size={size}", headers=headers.Headers().headers)
         return json.loads(response.text)
 
@@ -105,22 +106,24 @@ class ACM(client.Client):
             "timestamp": int(timestamp() * 1000)
         })
 
+        if self.comId is None: raise exceptions.CommunityNeeded
         response = requests.post(f"{self.api}/x{self.comId}/s/community/configuration", headers=headers.Headers(data=data).headers, data=data)
         if response.status_code == 200: return response.status_code
         else: return json.loads(response.text)
 
-    def upload_themepack_raw(self, file: str):
-        data = open(file, "rb").read()
-        response = requests.post(f"{self.api}/x{self.comId}/s/media/upload/target/community-theme-pack", data=data, headers=headers.Headers(data=data).headers)
+    def upload_themepack_raw(self, file: BinaryIO):
+        if self.comId is None: raise exceptions.CommunityNeeded
+        response = requests.post(f"{self.api}/x{self.comId}/s/media/upload/target/community-theme-pack", data=file.read(), headers=headers.Headers(data=file.read()).headers)
         if response.status_code == 200: return json.loads(response.text)["mediaValue"]
         else: return json.loads(response.text)
 
-    def upload_theme(self, ndthemepack: str):
+    def upload_theme(self, themePackUrl: str):
         data = json.dumps({
-            "themePackUrl": ndthemepack,
+            "themePackUrl": themePackUrl,
             "timestamp": int(timestamp() * 1000)
         })
 
+        if self.comId is None: raise exceptions.CommunityNeeded
         response = requests.post(f"{self.api}/x{self.comId}/s/community/settings", data=data, headers=headers.Headers(data=data).headers)
         if response.status_code == 200: return response.status_code
         else: return json.loads(response.text)
