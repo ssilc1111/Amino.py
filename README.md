@@ -2,7 +2,7 @@
 A library to create Amino bots.
 
 ### API Referance
-Read The Docs: [Link Here](https://aminopy.readthedocs.io/en/latest/)
+RTD: [Link Here](https://aminopy.readthedocs.io/en/latest/)
 
 #### What is this?
 Amino.py is a python api for communicating with amino servers while pretending that you are an app user. This is mostly accomplished by spoofing device configuration headers, though actually generating those is still in progress. It is also for objectifying and organizing amino response data, so that actually doing anything is easier.
