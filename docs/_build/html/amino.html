@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Modules &mdash; Amino.py 1.1.2 documentation</title>
+  <title>Modules &mdash; Amino.py 1.1.4 documentation</title>
   
 
   
@@ -102,6 +102,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="contact.html">Contact</a></li>
 </ul>
+<p>&nbsp;</p>
+<iframe src="https://discordapp.com/widget?id=715911730550800514&theme=dark" width="300" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>         
+  
 
             
           
@@ -526,11 +529,11 @@ categories: module.topicCategories.enabled</p>
 
 <dl class="py method">
 <dt id="amino.client.Client.follow">
-<code class="sig-name descname">follow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">userId</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">userIds</span><span class="p">:</span> <span class="n">list</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.client.Client.follow" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">follow</code><span class="sig-paren">(</span><em class="sig-param">userId: [&lt;class 'str'&gt;, &lt;class 'list'&gt;]</em><span class="sig-paren">)</span><a class="headerlink" href="#amino.client.Client.follow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Follow an User or Multiple Users.</p>
 <dl class="simple">
 <dt><strong>Parameters</strong></dt><dd><ul class="simple">
-<li><p><strong>userId</strong> : ID of the User.</p></li>
+<li><p><strong>userId</strong> : ID of the User or List of IDs of the Users.</p></li>
 </ul>
 </dd>
 <dt><strong>Returns</strong></dt><dd><ul class="simple">
@@ -1087,12 +1090,11 @@ categories: module.topicCategories.enabled</p>
 
 <dl class="py method">
 <dt id="amino.client.Client.like_blog">
-<code class="sig-name descname">like_blog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">blogId</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">blogIds</span><span class="p">:</span> <span class="n">list</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">wikiId</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.client.Client.like_blog" title="Permalink to this definition">¶</a></dt>
-<dd><p>Like a Blog or Wiki.</p>
+<code class="sig-name descname">like_blog</code><span class="sig-paren">(</span><em class="sig-param">blogId: [&lt;class 'str'&gt;</em>, <em class="sig-param">&lt;class 'list'&gt;] = None</em>, <em class="sig-param">wikiId: str = None</em><span class="sig-paren">)</span><a class="headerlink" href="#amino.client.Client.like_blog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like a Blog, Multiple Blogs or a Wiki.</p>
 <dl class="simple">
 <dt><strong>Parameters</strong></dt><dd><ul class="simple">
-<li><p><strong>blogId</strong> : ID of the Blog. (for Blogs)</p></li>
-<li><p><strong>blogIds</strong> : List of Blog IDs (for multiple Blogs)</p></li>
+<li><p><strong>blogId</strong> : ID of the Blog or List of IDs of the Blogs. (for Blogs)</p></li>
 <li><p><strong>wikiId</strong> : ID of the Wiki. (for Wikis)</p></li>
 </ul>
 </dd>
@@ -1145,6 +1147,7 @@ categories: module.topicCategories.enabled</p>
 <li><p><strong>200</strong> (<a class="reference internal" href="#amino.lib.util.exceptions.InvalidAccountOrPassword" title="amino.lib.util.exceptions.InvalidAccountOrPassword"><code class="xref py py-meth docutils literal notranslate"><span class="pre">InvalidAccountOrPassword</span></code></a>) : <code class="docutils literal notranslate"><span class="pre">Unknown</span> <span class="pre">Message</span></code></p></li>
 <li><p><strong>213</strong> (<a class="reference internal" href="#amino.lib.util.exceptions.InvalidEmail" title="amino.lib.util.exceptions.InvalidEmail"><code class="xref py py-meth docutils literal notranslate"><span class="pre">InvalidEmail</span></code></a>) : Invalid email address.</p></li>
 <li><p><strong>214</strong> (<a class="reference internal" href="#amino.lib.util.exceptions.InvalidPassword" title="amino.lib.util.exceptions.InvalidPassword"><code class="xref py py-meth docutils literal notranslate"><span class="pre">InvalidPassword</span></code></a>) : Invalid password. Password must be 6 characters or more and contain no spaces.</p></li>
+<li><p><strong>216</strong> (<a class="reference internal" href="#amino.lib.util.exceptions.AccountDoesntExist" title="amino.lib.util.exceptions.AccountDoesntExist"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AccountDoesntExist</span></code></a>) : Account does not exist.</p></li>
 <li><p><strong>246</strong> (<a class="reference internal" href="#amino.lib.util.exceptions.AccountDeleted" title="amino.lib.util.exceptions.AccountDeleted"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AccountDeleted</span></code></a>) : <code class="docutils literal notranslate"><span class="pre">Unknown</span> <span class="pre">Message</span></code></p></li>
 <li><p><strong>270</strong> (<a class="reference internal" href="#amino.lib.util.exceptions.VerificationRequired" title="amino.lib.util.exceptions.VerificationRequired"><code class="xref py py-meth docutils literal notranslate"><span class="pre">VerificationRequired</span></code></a>) : Verification Required.</p></li>
 <li><p><strong>Other</strong> (<code class="xref py py-meth docutils literal notranslate"><span class="pre">JSON</span> <span class="pre">Object</span></code>)</p></li>
@@ -1310,6 +1313,7 @@ categories: module.topicCategories.enabled</p>
 <li><p><strong>200</strong> (<a class="reference internal" href="#amino.lib.util.exceptions.InvalidAccountOrPassword" title="amino.lib.util.exceptions.InvalidAccountOrPassword"><code class="xref py py-meth docutils literal notranslate"><span class="pre">InvalidAccountOrPassword</span></code></a>) : <code class="docutils literal notranslate"><span class="pre">Unknown</span> <span class="pre">Message</span></code></p></li>
 <li><p><strong>213</strong> (<a class="reference internal" href="#amino.lib.util.exceptions.InvalidEmail" title="amino.lib.util.exceptions.InvalidEmail"><code class="xref py py-meth docutils literal notranslate"><span class="pre">InvalidEmail</span></code></a>) : Invalid email address.</p></li>
 <li><p><strong>214</strong> (<a class="reference internal" href="#amino.lib.util.exceptions.InvalidPassword" title="amino.lib.util.exceptions.InvalidPassword"><code class="xref py py-meth docutils literal notranslate"><span class="pre">InvalidPassword</span></code></a>) : Invalid password. Password must be 6 characters or more and contain no spaces.</p></li>
+<li><p><strong>216</strong> (<a class="reference internal" href="#amino.lib.util.exceptions.AccountDoesntExist" title="amino.lib.util.exceptions.AccountDoesntExist"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AccountDoesntExist</span></code></a>) : Account does not exist.</p></li>
 <li><p><strong>270</strong> (<a class="reference internal" href="#amino.lib.util.exceptions.VerificationRequired" title="amino.lib.util.exceptions.VerificationRequired"><code class="xref py py-meth docutils literal notranslate"><span class="pre">VerificationRequired</span></code></a>) : Verification Required.</p></li>
 <li><p><strong>2800</strong> (<a class="reference internal" href="#amino.lib.util.exceptions.AccountAlreadyRestored" title="amino.lib.util.exceptions.AccountAlreadyRestored"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AccountAlreadyRestored</span></code></a>) : Account already restored.</p></li>
 <li><p><strong>Other</strong> (<code class="xref py py-meth docutils literal notranslate"><span class="pre">JSON</span> <span class="pre">Object</span></code>)</p></li>
@@ -1552,7 +1556,7 @@ categories: module.topicCategories.enabled</p>
 <span id="subclient"></span><h2>SubClient<a class="headerlink" href="#module-amino.sub_client" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="amino.sub_client.SubClient">
-<em class="property">class </em><code class="sig-prename descclassname">amino.sub_client.</code><code class="sig-name descname">SubClient</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">comId</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">profile</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">amino.sub_client.</code><code class="sig-name descname">SubClient</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">comId</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">profile</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#amino.lib.util.objects.userProfile" title="amino.lib.util.objects.userProfile">amino.lib.util.objects.userProfile</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#amino.client.Client" title="amino.client.Client"><code class="xref py py-class docutils literal notranslate"><span class="pre">amino.client.Client</span></code></a></p>
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.activity_status">
@@ -1797,11 +1801,11 @@ categories: module.topicCategories.enabled</p>
 
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.follow">
-<code class="sig-name descname">follow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">userId</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">userIds</span><span class="p">:</span> <span class="n">list</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.follow" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">follow</code><span class="sig-paren">(</span><em class="sig-param">userId: [&lt;class 'str'&gt;, &lt;class 'list'&gt;]</em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.follow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Follow an User or Multiple Users.</p>
 <dl class="simple">
 <dt><strong>Parameters</strong></dt><dd><ul class="simple">
-<li><p><strong>userId</strong> : ID of the User.</p></li>
+<li><p><strong>userId</strong> : ID of the User or List of IDs of the Users.</p></li>
 </ul>
 </dd>
 <dt><strong>Returns</strong></dt><dd><ul class="simple">
@@ -2225,7 +2229,7 @@ categories: module.topicCategories.enabled</p>
 
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.invite_to_chat">
-<code class="sig-name descname">invite_to_chat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">userIds</span><span class="p">:</span> <span class="n">list</span></em>, <em class="sig-param"><span class="n">chatId</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.invite_to_chat" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">invite_to_chat</code><span class="sig-paren">(</span><em class="sig-param">userId: [&lt;class 'str'&gt;, &lt;class 'list'&gt;], chatId: str</em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.invite_to_chat" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -2269,12 +2273,11 @@ categories: module.topicCategories.enabled</p>
 
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.like_blog">
-<code class="sig-name descname">like_blog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">blogId</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">blogIds</span><span class="p">:</span> <span class="n">list</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">wikiId</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.like_blog" title="Permalink to this definition">¶</a></dt>
-<dd><p>Like a Blog or Wiki.</p>
+<code class="sig-name descname">like_blog</code><span class="sig-paren">(</span><em class="sig-param">blogId: [&lt;class 'str'&gt;</em>, <em class="sig-param">&lt;class 'list'&gt;] = None</em>, <em class="sig-param">wikiId: str = None</em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.like_blog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like a Blog, Multiple Blogs or a Wiki.</p>
 <dl class="simple">
 <dt><strong>Parameters</strong></dt><dd><ul class="simple">
-<li><p><strong>blogId</strong> : ID of the Blog. (for Blogs)</p></li>
-<li><p><strong>blogIds</strong> : List of Blog IDs (for multiple Blogs)</p></li>
+<li><p><strong>blogId</strong> : ID of the Blog or List of IDs of the Blogs. (for Blogs)</p></li>
 <li><p><strong>wikiId</strong> : ID of the Wiki. (for Wikis)</p></li>
 </ul>
 </dd>
@@ -2426,7 +2429,7 @@ categories: module.topicCategories.enabled</p>
 
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.start_chat">
-<code class="sig-name descname">start_chat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">userIds</span><span class="p">:</span> <span class="n">list</span></em>, <em class="sig-param"><span class="n">message</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.start_chat" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">start_chat</code><span class="sig-paren">(</span><em class="sig-param">userId: [&lt;class 'str'&gt;, &lt;class 'list'&gt;], message: str</em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.start_chat" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -3949,6 +3952,13 @@ categories: module.topicCategories.enabled</p>
 <li><p><strong>API Message</strong> : This member has disabled commenting on their wall.</p></li>
 <li><p><strong>API String</strong> : <code class="docutils literal notranslate"><span class="pre">Unknown</span> <span class="pre">String</span></code></p></li>
 </ul>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="amino.lib.util.exceptions.WrongType">
+<em class="property">exception </em><code class="sig-prename descclassname">amino.lib.util.exceptions.</code><code class="sig-name descname">WrongType</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.lib.util.exceptions.WrongType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Raised when you attribute the function the wrong type.</p>
 </dd></dl>
 
 <dl class="py exception">

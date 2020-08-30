@@ -581,6 +581,13 @@ class SpecifyType(Exception):
     def __init__(*args, **kwargs):
         Exception.__init__(*args, **kwargs)
 
+class WrongType(Exception):
+    """
+    Raised when you attribute the function the wrong type.
+    """
+    def __init__(*args, **kwargs):
+        Exception.__init__(*args, **kwargs)
+
 class UnknownResponse(Exception):
     """
     Raised when an error occurs but the reason is unknown.

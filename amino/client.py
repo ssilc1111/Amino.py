@@ -47,6 +47,8 @@ class Client:
 
             - **214** (:meth:`InvalidPassword <amino.lib.util.exceptions.InvalidPassword>`) : Invalid password. Password must be 6 characters or more and contain no spaces.
 
+            - **216** (:meth:`AccountDoesntExist <amino.lib.util.exceptions.AccountDoesntExist>`) : Account does not exist.
+
             - **246** (:meth:`AccountDeleted <amino.lib.util.exceptions.AccountDeleted>`) : ``Unknown Message``
 
             - **270** (:meth:`VerificationRequired <amino.lib.util.exceptions.VerificationRequired>`) : Verification Required.
@@ -69,6 +71,7 @@ class Client:
             if response["api:statuscode"] == 200: raise exceptions.InvalidAccountOrPassword(response)
             elif response["api:statuscode"] == 213: raise exceptions.InvalidEmail(response)
             elif response["api:statuscode"] == 214: raise exceptions.InvalidPassword(response)
+            elif response["api:statuscode"] == 216: raise exceptions.AccountDoesntExist(response)
             elif response["api:statuscode"] == 246: raise exceptions.AccountDeleted(response)
             elif response["api:statuscode"] == 270: raise exceptions.VerificationRequired(response)
             else: return response
@@ -155,6 +158,8 @@ class Client:
 
             - **214** (:meth:`InvalidPassword <amino.lib.util.exceptions.InvalidPassword>`) : Invalid password. Password must be 6 characters or more and contain no spaces.
 
+            - **216** (:meth:`AccountDoesntExist <amino.lib.util.exceptions.AccountDoesntExist>`) : Account does not exist.
+
             - **270** (:meth:`VerificationRequired <amino.lib.util.exceptions.VerificationRequired>`) : Verification Required.
 
             - **2800** (:meth:`AccountAlreadyRestored <amino.lib.util.exceptions.AccountAlreadyRestored>`) : Account already restored.
@@ -175,6 +180,7 @@ class Client:
             if response["api:statuscode"] == 200: raise exceptions.InvalidAccountOrPassword(response)
             elif response["api:statuscode"] == 213: raise exceptions.InvalidEmail(response)
             elif response["api:statuscode"] == 214: raise exceptions.InvalidPassword(response)
+            elif response["api:statuscode"] == 216: raise exceptions.AccountDoesntExist(response)
             elif response["api:statuscode"] == 270: raise exceptions.VerificationRequired(response)
             elif response["api:statuscode"] == 2800: raise exceptions.AccountAlreadyRestored(response)
             else: return response
@@ -964,10 +970,7 @@ class Client:
 
             - **Other** (:meth:`JSON Object <JSONObject>`)
         """
-        data = {
-            "type": 1,
-            "timestamp": int(timestamp() * 1000)
-        }
+        data = {"timestamp": int(timestamp() * 1000)}
 
         if title: data["title"] = title
         if content: data["content"] = content
@@ -1169,12 +1172,12 @@ class Client:
 
         else: return response.status_code
 
-    def follow(self, userId: str = None, userIds: list = None):
+    def follow(self, userId: [str, list]):
         """
         Follow an User or Multiple Users.
 
         **Parameters**
-            - **userId** : ID of the User.
+            - **userId** : ID of the User or List of IDs of the Users.
 
         **Returns**
             - **200** (int) : **Success**
@@ -1185,14 +1188,14 @@ class Client:
 
             - **Other** (:meth:`SpecifyType <amino.lib.util.exceptions.SpecifyType>`, :meth:`JSON Object <JSONObject>`)
         """
-        if userId:
+        if isinstance(userId, str):
             response = requests.post(f"{self.api}/g/s/user-profile/{userId}/member", headers=headers.Headers().headers)
 
-        elif userIds:
-            data = json.dumps({"targetUidList": userIds, "timestamp": int(timestamp() * 1000)})
+        elif isinstance(userId, list):
+            data = json.dumps({"targetUidList": userId, "timestamp": int(timestamp() * 1000)})
             response = requests.post(f"{self.api}/g/s/user-profile/{self.userId}/joined", headers=headers.Headers(data=data).headers, data=data)
 
-        else: raise exceptions.SpecifyType
+        else: raise exceptions.WrongType
 
         if response.status_code != 200:
             response = json.loads(response.text)
@@ -1722,13 +1725,12 @@ class Client:
             else: return response
         else: return response.status_code
 
-    def like_blog(self, blogId: str = None, blogIds: list = None, wikiId: str = None):
+    def like_blog(self, blogId: [str, list] = None, wikiId: str = None):
         """
-        Like a Blog or Wiki.
+        Like a Blog, Multiple Blogs or a Wiki.
 
         **Parameters**
-            - **blogId** : ID of the Blog. (for Blogs)
-            - **blogIds** : List of Blog IDs (for multiple Blogs)
+            - **blogId** : ID of the Blog or List of IDs of the Blogs. (for Blogs)
             - **wikiId** : ID of the Wiki. (for Wikis)
 
         **Returns**
@@ -1748,14 +1750,17 @@ class Client:
         }
 
         if blogId:
-            data["eventSource"] = "UserProfileView"
-            data = json.dumps(data)
-            response = requests.post(f"{self.api}/g/s/blog/{blogId}/g-vote?cv=1.2", headers=headers.Headers(data=data).headers, data=data)
+            if isinstance(blogId, str):
+                data["eventSource"] = "UserProfileView"
+                data = json.dumps(data)
+                response = requests.post(f"{self.api}/g/s/blog/{blogId}/g-vote?cv=1.2", headers=headers.Headers(data=data).headers, data=data)
 
-        elif blogIds:
-            data["targetIdList"] = blogIds
-            data = json.dumps(data)
-            response = requests.post(f"{self.api}/g/s/feed/g-vote", headers=headers.Headers(data=data).headers, data=data)
+            elif isinstance(blogId, list):
+                data["targetIdList"] = blogId
+                data = json.dumps(data)
+                response = requests.post(f"{self.api}/g/s/feed/g-vote", headers=headers.Headers(data=data).headers, data=data)
+
+            else: raise exceptions.WrongType
 
         elif wikiId:
             data["eventSource"] = "PostDetailView"

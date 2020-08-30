@@ -15,13 +15,14 @@ device = device.DeviceGenerator()
 headers.sid = client.Client().sid
 
 class SubClient(client.Client):
-    def __init__(self, comId: str, profile: str):
+    def __init__(self, comId: str, profile: objects.userProfile):
         client.Client.__init__(self)
 
         if not comId: raise exceptions.NoCommunity
 
         self.comId = comId
-        self.profile = self.get_user_info(userId=profile.userId)
+        try: self.profile = self.get_user_info(userId=profile.userId)
+        except AttributeError: raise exceptions.FailedLogin
 
     def post_blog(self, title: str, content: str, categoriesList: list = None, backgroundColor: str = None, fansOnly: bool = False):
         data = {
@@ -215,20 +216,41 @@ class SubClient(client.Client):
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
-    def like_blog(self, blogId: str = None, blogIds: list = None, wikiId: str = None):
+    def like_blog(self, blogId: [str, list] = None, wikiId: str = None):
+        """
+        Like a Blog, Multiple Blogs or a Wiki.
+
+        **Parameters**
+            - **blogId** : ID of the Blog or List of IDs of the Blogs. (for Blogs)
+            - **wikiId** : ID of the Wiki. (for Wikis)
+
+        **Returns**
+            - **200** (int) : **Success**
+
+            - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
+
+            - **104** (:meth:`InvalidRequest <amino.lib.util.exceptions.InvalidRequest>`) : Invalid Request. Please update to the latest version. If the problem continues, please contact us.
+
+            - **700** (:meth:`RequestedNoLongerExists <amino.lib.util.exceptions.RequestedNoLongerExists>`) : Sorry, the requested data no longer exists. Try refreshing the view.
+
+            - **Other** (:meth:`SpecifyType <amino.lib.util.exceptions.SpecifyType>`, :meth:`JSON Object <JSONObject>`)
+        """
         data = {
             "value": 4,
             "timestamp": int(timestamp() * 1000)
         }
 
         if blogId:
-            data["eventSource"] = "UserProfileView"
-            data = json.dumps(data)
-            response = requests.post(f"{self.api}/x{self.comId}/s/blog/{blogId}/vote?cv=1.2", headers=headers.Headers(data=data).headers, data=data)
+            if isinstance(blogId, str):
+                data["eventSource"] = "UserProfileView"
+                data = json.dumps(data)
+                response = requests.post(f"{self.api}/x{self.comId}/s/blog/{blogId}/vote?cv=1.2", headers=headers.Headers(data=data).headers, data=data)
 
-        elif blogIds:
-            data["targetIdList"] = blogIds
-            response = requests.post(f"{self.api}/x{self.comId}/s/feed/vote", headers=headers.Headers(data=data).headers, data=data)
+            elif isinstance(blogId, list):
+                data["targetIdList"] = blogId
+                response = requests.post(f"{self.api}/x{self.comId}/s/feed/vote", headers=headers.Headers(data=data).headers, data=data)
+
+            else: raise exceptions.WrongType
 
         elif wikiId:
             data["eventSource"] = "PostDetailView"
@@ -323,7 +345,6 @@ class SubClient(client.Client):
         else: return response.status_code
 
     # TODO : Fix stay online object, returning Invalid Request
-
     def send_active_obj(self):
         data = json.dumps({
             "userActiveTimeChunkList": [{
@@ -353,7 +374,6 @@ class SubClient(client.Client):
         else: return response.status_code
 
     # TODO : Finish this
-
     def watch_ad(self):
         response = requests.post(f"{self.api}/g/s/wallet/ads/video/start", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
@@ -374,7 +394,11 @@ class SubClient(client.Client):
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
-    def start_chat(self, userIds: list, message: str):
+    def start_chat(self, userId: [str, list], message: str):
+        if isinstance(userId, str): userIds = [userId]
+        elif isinstance(userId, list): userIds = userId
+        else: raise exceptions.WrongType
+
         data = json.dumps({
             "type": 0,
             "inviteeUids": userIds,
@@ -386,7 +410,11 @@ class SubClient(client.Client):
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
-    def invite_to_chat(self, userIds: list, chatId: str):
+    def invite_to_chat(self, userId: [str, list], chatId: str):
+        if isinstance(userId, str): userIds = [userId]
+        elif isinstance(userId, list): userIds = userId
+        else: raise exceptions.WrongType
+
         data = json.dumps({
             "uids": userIds,
             "timestamp": int(timestamp() * 1000)
@@ -425,12 +453,12 @@ class SubClient(client.Client):
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
-    def follow(self, userId: str = None, userIds: list = None):
+    def follow(self, userId: [str, list]):
         """
         Follow an User or Multiple Users.
 
         **Parameters**
-            - **userId** : ID of the User.
+            - **userId** : ID of the User or List of IDs of the Users.
 
         **Returns**
             - **200** (int) : **Success**
@@ -441,11 +469,11 @@ class SubClient(client.Client):
 
             - **Other** (:meth:`SpecifyType <amino.lib.util.exceptions.SpecifyType>`, :meth:`JSON Object <JSONObject>`)
         """
-        if userId:
+        if isinstance(userId, str):
             response = requests.post(f"{self.api}/x{self.comId}/s/user-profile/{userId}/member", headers=headers.Headers().headers)
 
-        elif userIds:
-            data = json.dumps({"targetUidList": userIds, "timestamp": int(timestamp() * 1000)})
+        elif isinstance(userId, list):
+            data = json.dumps({"targetUidList": userId, "timestamp": int(timestamp() * 1000)})
             response = requests.post(f"{self.api}/x{self.comId}/s/user-profile/{self.profile.id}/joined", headers=headers.Headers(data=data).headers, data=data)
 
         else: raise exceptions.SpecifyType
@@ -784,10 +812,7 @@ class SubClient(client.Client):
 
             - **Other** (:meth:`JSON Object <JSONObject>`)
         """
-        data = {
-            "type": 1,
-            "timestamp": int(timestamp() * 1000)
-        }
+        data = {"timestamp": int(timestamp() * 1000)}
 
         if title: data["title"] = title
         if content: data["content"] = content
