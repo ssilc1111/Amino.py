@@ -1,5 +1,5 @@
 import json
-from amino.lib.util import helpers
+from .helpers import generate_device_info
 
 class DeviceGenerator:
     def __init__(self):
@@ -11,7 +11,7 @@ class DeviceGenerator:
                 self.device_id_sig = data["device_id_sig"]
 
         except (FileNotFoundError, json.decoder.JSONDecodeError):
-            device = helpers.generate_device_info()
+            device = generate_device_info()
             with open("device.json", "w") as stream:
                 json.dump(device, stream)
 

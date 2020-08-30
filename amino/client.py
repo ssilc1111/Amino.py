@@ -81,8 +81,8 @@ class Client:
             self.json = json.loads(response.text)
             self.sid = self.json["sid"]
             self.userId = self.json["account"]["uid"]
-            self.account = objects.userProfile(self.json["account"]).userProfile
-            self.profile = objects.userProfile(self.json["userProfile"]).userProfile
+            self.account = objects.UserProfile(self.json["account"]).UserProfile
+            self.profile = objects.UserProfile(self.json["userProfile"]).UserProfile
             headers.sid = self.sid
             self.socket.start()
             return response.status_code
@@ -411,14 +411,14 @@ class Client:
             - *size* : Size of the list.
 
         **Returns**
-            - **200** (:meth:`Community List <amino.lib.util.objects.communityList>`) : **Success**
+            - **200** (:meth:`Community List <amino.lib.util.objects.CommunityList>`) : **Success**
 
             - **Other** (:meth:`NotLoggedIn <amino.lib.util.exceptions.NotLoggedIn>`, :meth:`JSON Object <JSONObject>`)
         """
         if not self.authenticated: raise exceptions.NotLoggedIn
         response = requests.get(f"{self.api}/g/s/community/joined?v=1&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        else: return objects.communityList(json.loads(response.text)["communityList"]).communityList
+        else: return objects.CommunityList(json.loads(response.text)["communityList"]).CommunityList
 
     def get_user_info(self, userId: str):
         """
@@ -428,7 +428,7 @@ class Client:
             - **userId** : ID of the User.
 
         **Returns**
-            - **200** (:meth:`User Object <amino.lib.util.objects.userProfile>`) : **Success**
+            - **200** (:meth:`User Object <amino.lib.util.objects.UserProfile>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -443,7 +443,7 @@ class Client:
             elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
             else: return response
 
-        else: return objects.userProfile(json.loads(response.text)["userProfile"]).userProfile
+        else: return objects.UserProfile(json.loads(response.text)["userProfile"]).UserProfile
 
     def get_chat_threads(self, start: int = 0, size: int = 25):
         """
@@ -454,13 +454,13 @@ class Client:
             - *size* : Size of the list.
 
         **Returns**
-            - **200** (:meth:`Chat List <amino.lib.util.objects.threadList>`) : **Success**
+            - **200** (:meth:`Chat List <amino.lib.util.objects.ThreadList>`) : **Success**
 
             - **Other** (:meth:`JSON Object <JSONObject>`)
         """
         response = requests.get(f"{self.api}/g/s/chat/thread?type=joined-me&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.threadList(json.loads(response.text)["threadList"]).threadList
+        return objects.ThreadList(json.loads(response.text)["threadList"]).ThreadList
 
     def get_chat_thread(self, chatId: str):
         """
@@ -470,7 +470,7 @@ class Client:
             - **chatId** : ID of the Chat.
 
         **Returns**
-            - **200** (:meth:`Chat Object <amino.lib.util.objects.thread>`) : **Success**
+            - **200** (:meth:`Chat Object <amino.lib.util.objects.Thread>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -482,13 +482,13 @@ class Client:
             if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
             else: return response
 
-        else: return objects.thread(json.loads(response.text)["thread"]).thread
+        else: return objects.Thread(json.loads(response.text)["thread"]).Thread
 
     # TODO : The documentation of this
     def get_chat_users(self, chatId: str, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/g/s/chat/thread/{chatId}/member?start={start}&size={size}&type=default&cv=1.2", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.userProfileList(json.loads(response.text)["memberList"]).userProfileList
+        return objects.UserProfileList(json.loads(response.text)["memberList"]).UserProfileList
 
     def join_chat(self, chatId: str):
         """
@@ -531,7 +531,7 @@ class Client:
             - *size* : Size of the list.
 
         **Returns**
-            - **200** (:meth:`Message List <amino.lib.util.objects.messageList>`) : **Success**
+            - **200** (:meth:`Message List <amino.lib.util.objects.MessageList>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -543,7 +543,7 @@ class Client:
             if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
             else: return response
 
-        else: return objects.messageList(json.loads(response.text)["messageList"]).messageList
+        else: return objects.MessageList(json.loads(response.text)["messageList"]).MessageList
 
     def get_message_info(self, chatId: str, messageId: str):
         """
@@ -554,7 +554,7 @@ class Client:
             - **message** : ID of the Message.
 
         **Returns**
-            - **200** (:meth:`Message Object <amino.lib.util.objects.message>`) : **Success**
+            - **200** (:meth:`Message Object <amino.lib.util.objects.Message>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -566,7 +566,7 @@ class Client:
             if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
             else: return response
 
-        else: return objects.message(json.loads(response.text)["message"]).message
+        else: return objects.Message(json.loads(response.text)["message"]).Message
 
     def get_community_info(self, comId: str):
         """
@@ -576,7 +576,7 @@ class Client:
             - **comId** : ID of the Community.
 
         **Returns**
-            - **200** (:meth:`Community Object <amino.lib.util.objects.community>`) : **Success**
+            - **200** (:meth:`Community Object <amino.lib.util.objects.Community>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -594,7 +594,7 @@ class Client:
             elif response["api:statuscode"] == 833: raise exceptions.CommunityDeleted(response)
             else: return response
 
-        else: return objects.community(json.loads(response.text)["community"]).community
+        else: return objects.Community(json.loads(response.text)["community"]).Community
 
     def get_user_following(self, userId: str, start: int = 0, size: int = 25):
         """
@@ -606,7 +606,7 @@ class Client:
             - *size* : Size of the list.
 
         **Returns**
-            - **200** (:meth:`User List <amino.lib.util.objects.userProfileList>`) : **Success**
+            - **200** (:meth:`User List <amino.lib.util.objects.UserProfileList>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -621,7 +621,7 @@ class Client:
             elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
             else: return response
 
-        else: return objects.userProfileList(json.loads(response.text)["userProfileList"]).userProfileList
+        else: return objects.UserProfileList(json.loads(response.text)["userProfileList"]).UserProfileList
 
     def get_user_followers(self, userId: str, start: int = 0, size: int = 25):
         """
@@ -633,7 +633,7 @@ class Client:
             - *size* : Size of the list.
 
         **Returns**
-            - **200** (:meth:`User List <amino.lib.util.objects.userProfileList>`) : **Success**
+            - **200** (:meth:`User List <amino.lib.util.objects.UserProfileList>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -648,7 +648,7 @@ class Client:
             elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
             else: return response
 
-        else: return objects.userProfileList(json.loads(response.text)["userProfileList"]).userProfileList
+        else: return objects.UserProfileList(json.loads(response.text)["userProfileList"]).UserProfileList
 
     def get_user_visitors(self, userId: str, start: int = 0, size: int = 25):
         """
@@ -660,7 +660,7 @@ class Client:
             - *size* : Size of the list.
 
         **Returns**
-            - **200** (:meth:`Visitors List <amino.lib.util.objects.visitorsList>`) : **Success**
+            - **200** (:meth:`Visitors List <amino.lib.util.objects.VisitorsList>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -675,7 +675,7 @@ class Client:
             elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
             else: return response
 
-        else: return objects.visitorsList(json.loads(response.text)).visitorsList
+        else: return objects.VisitorsList(json.loads(response.text)).VisitorsList
 
     def get_blocked_users(self, start: int = 0, size: int = 25):
         """
@@ -686,13 +686,13 @@ class Client:
             - *size* : Size of the list.
 
         **Returns**
-            - **200** (:meth:`Users List <amino.lib.util.objects.userProfileList>`) : **Success**
+            - **200** (:meth:`Users List <amino.lib.util.objects.UserProfileList>`) : **Success**
 
             - **Other** (:meth:`JSON Object <JSONObject>`)
         """
         response = requests.get(f"{self.api}/g/s/block?start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        else: return objects.userProfileList(json.loads(response.text)["userProfileList"]).userProfileList
+        else: return objects.UserProfileList(json.loads(response.text)["userProfileList"]).UserProfileList
 
     def get_blocker_users(self, start: int = 0, size: int = 25):
         """
@@ -723,7 +723,7 @@ class Client:
             - *size* : Size of the list.
 
         **Returns**
-            - **200** (:meth:`Comments List <amino.lib.util.objects.commentList>`) : **Success**
+            - **200** (:meth:`Comments List <amino.lib.util.objects.CommentList>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -743,7 +743,7 @@ class Client:
             elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
             else: return response
 
-        else: return objects.commentList(json.loads(response.text)["commentList"]).commentList
+        else: return objects.CommentList(json.loads(response.text)["commentList"]).CommentList
 
     def flag(self, reason: str, flagType: int, userId: str = None, blogId: str = None, wikiId: str = None, asGuest: bool = False):
         """
@@ -799,7 +799,7 @@ class Client:
 
         else: return response.status_code
 
-    def send_message(self, chatId: str, message: str = None, file: BinaryIO = None, fileType: str = None, replyTo: str = None, mentionUserIds: list = None, stickerId: str = None):
+    def send_message(self, chatId: str, message: str = None, messageType: int = 0, file: BinaryIO = None, fileType: str = None, replyTo: str = None, mentionUserIds: list = None, stickerId: str = None, embedId: str = None, embedType: int = None, embedLink: str = None, embedTitle: str = None, embedContent: str = None, embedImage: BinaryIO = None):
         """
         Send a Message to a Chat.
 
@@ -809,9 +809,15 @@ class Client:
             - **file** : File to be sent.
             - **fileType** : Type of the file.
                 - ``audio``, ``image``, ``gif``
+            - **messageType** : Type of the Message.
             - **mentionUserIds** : List of User IDS to mention. '@' needed in the Message.
             - **replyTo** : Message ID to reply to.
             - **stickerId** : Sticker ID to be sent.
+            - **embedTitle** : Title of the Embed.
+            - **embedContent** : Content of the Embed.
+            - **embedLink** : Link of the Embed.
+            - **embedImage** : Image of the Embed.
+            - **embedId** : ID of the Embed.
 
         **Returns**
             - **200** (int) : **Success**
@@ -831,10 +837,21 @@ class Client:
             for mention_uid in mentionUserIds:
                 mentions.append({"uid": mention_uid})
 
+        if embedImage:
+            embedImage = [[100, self.upload_media(embedImage), None]]
+
         data = {
-            "type": 0,
+            "type": messageType,
             "content": message,
             "clientRefId": int(timestamp() / 10 % 1000000000),
+            "attachedObject": {
+                "objectId": embedId,
+                "objectType": embedType,
+                "link": embedLink,
+                "title": embedTitle,
+                "content": embedContent,
+                "mediaList": embedImage
+            },
             "extensions": {"mentionedArray": mentions},
             "timestamp": int(timestamp() * 1000)
         }
@@ -985,162 +1002,167 @@ class Client:
 
         res = []
 
-        if doNotDisturb:
-            data = json.dumps({"alertOption": 2, "timestamp": int(timestamp() * 1000)})
-            response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/member/{self.userId}/alert", data=data, headers=headers.Headers(data=data).headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService(response))
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied(response))
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists(response))
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined(response))
-                else: res.append(response)
+        if doNotDisturb is not None:
+            if doNotDisturb:
+                data = json.dumps({"alertOption": 2, "timestamp": int(timestamp() * 1000)})
+                response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/member/{self.userId}/alert", data=data, headers=headers.Headers(data=data).headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
-        if not doNotDisturb:
-            data = json.dumps({"alertOption": 1, "timestamp": int(timestamp() * 1000)})
-            response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/member/{self.userId}/alert", data=data, headers=headers.Headers(data=data).headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService(response))
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied(response))
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists(response))
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined(response))
-                else: res.append(response)
+            if not doNotDisturb:
+                data = json.dumps({"alertOption": 1, "timestamp": int(timestamp() * 1000)})
+                response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/member/{self.userId}/alert", data=data, headers=headers.Headers(data=data).headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
-        if pinChat:
-            response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/pin", headers=headers.Headers().headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService(response))
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied(response))
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists(response))
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined(response))
-                else: res.append(response)
+        if pinChat is not None:
+            if pinChat:
+                response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/pin", data=data, headers=headers.Headers().headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
-        if not pinChat:
-            response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/unpin", headers=headers.Headers().headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService(response))
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied(response))
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists(response))
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined(response))
-                else: res.append(response)
+            if not pinChat:
+                response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/unpin", data=data, headers=headers.Headers().headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
-        if backgroundImage:
+        if backgroundImage is not None:
             data = json.dumps({"media": [100, backgroundImage, None], "timestamp": int(timestamp() * 1000)})
             response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/member/{self.userId}/background", data=data, headers=headers.Headers(data=data).headers)
             if response.status_code != 200:
                 response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService(response))
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied(response))
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists(response))
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined(response))
+                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
                 else: res.append(response)
 
             else: res.append(response.status_code)
 
-        if coHosts:
+        if coHosts is not None:
             data = json.dumps({"uidList": coHosts, "timestamp": int(timestamp() * 1000)})
             response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/co-host", data=data, headers=headers.Headers(data=data).headers)
             if response.status_code != 200:
                 response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService(response))
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied(response))
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists(response))
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined(response))
+                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
                 else: res.append(response)
 
             else: res.append(response.status_code)
 
-        if not viewOnly:
-            response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/view-only/disable", headers=headers.Headers(data=data).headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService(response))
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied(response))
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists(response))
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined(response))
-                else: res.append(response)
+        if viewOnly is not None:
+            if viewOnly:
+                response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/view-only/enable", data=data, headers=headers.Headers(data=data).headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
-        if viewOnly:
-            response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/view-only/enable", headers=headers.Headers(data=data).headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService(response))
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied(response))
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists(response))
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined(response))
-                else: res.append(response)
+            if not viewOnly:
+                response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/view-only/disable", data=data, headers=headers.Headers(data=data).headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
-        if not canInvite:
-            response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/members-can-invite/disable", headers=headers.Headers(data=data).headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService(response))
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied(response))
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists(response))
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined(response))
-                else: res.append(response)
+        if canInvite is not None:
+            if canInvite:
+                response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/members-can-invite/enable", data=data, headers=headers.Headers(data=data).headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
-        if canInvite:
-            response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/members-can-invite/enable", headers=headers.Headers(data=data).headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService(response))
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied(response))
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists(response))
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined(response))
-                else: res.append(response)
+            if not canInvite:
+                response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/members-can-invite/disable", data=data, headers=headers.Headers(data=data).headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
-        if not canTip:
-            response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/tipping-perm-status/disable", headers=headers.Headers(data=data).headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService(response))
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied(response))
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists(response))
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined(response))
-                else: res.append(response)
+        if canTip is not None:
+            if canTip:
+                response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/tipping-perm-status/enable", data=data, headers=headers.Headers(data=data).headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
-        if canTip:
-            response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/tipping-perm-status/enable", headers=headers.Headers(data=data).headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService(response))
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied(response))
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists(response))
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined(response))
-                else: res.append(response)
+            if not canTip:
+                response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/tipping-perm-status/disable", data=data, headers=headers.Headers(data=data).headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
         data = json.dumps(data)
         response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}", headers=headers.Headers(data=data).headers, data=data)
         if response.status_code != 200:
             response = json.loads(response.text)
-            if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService(response))
-            elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied(response))
-            elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists(response))
-            elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined(response))
+            if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+            elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+            elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+            elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
             else: res.append(response)
 
         else: res.append(response.status_code)
@@ -1524,7 +1546,7 @@ class Client:
             - **userId** : ID of the User.
 
         **Returns**
-            - **200** (:meth:`Community List <amino.lib.util.objects.communityList>`) : **Success**
+            - **200** (:meth:`Community List <amino.lib.util.objects.CommunityList>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -1538,7 +1560,7 @@ class Client:
             if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
             elif response["api:statuscode"] == 106: raise exceptions.AccessDenied(response)
             else: return response
-        else: return objects.communityList(json.loads(response.text)["linkedCommunityList"]).communityList
+        else: return objects.CommunityList(json.loads(response.text)["linkedCommunityList"]).CommunityList
 
     def get_unlinked_communities(self, userId: str):
         """
@@ -1548,7 +1570,7 @@ class Client:
             - **userId** : ID of the User.
 
         **Returns**
-            - **200** (:meth:`Community List <amino.lib.util.objects.communityList>`) : **Success**
+            - **200** (:meth:`Community List <amino.lib.util.objects.CommunityList>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -1562,7 +1584,7 @@ class Client:
             if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
             elif response["api:statuscode"] == 106: raise exceptions.AccessDenied(response)
             else: return response
-        else: return objects.communityList(json.loads(response.text)["unlinkedCommunityList"]).communityList
+        else: return objects.CommunityList(json.loads(response.text)["unlinkedCommunityList"]).CommunityList
 
     def reorder_linked_communities(self, comIds: list):
         """
@@ -1901,13 +1923,13 @@ class Client:
             - No parameters required.
 
         **Returns**
-            - **200** (:meth:`Membership Object <amino.lib.util.objects.membership>`) : **Success**
+            - **200** (:meth:`Membership Object <amino.lib.util.objects.Membership>`) : **Success**
 
             - **Other** (:meth:`JSON Object <JSONObject>`)
         """
         response = requests.get(f"{self.api}/g/s/membership?force=true", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        else: return objects.membership(json.loads(response.text)).membership
+        else: return objects.Membership(json.loads(response.text)).Membership
 
     def get_ta_announcements(self, language: str = "en", start: int = 0, size: int = 25):
         """
@@ -1920,14 +1942,14 @@ class Client:
             - *size* : Size of the list.
 
         **Returns**
-            - **200** (:meth:`Blogs List <amino.lib.util.objects.blogList>`) : **Success**
+            - **200** (:meth:`Blogs List <amino.lib.util.objects.BlogList>`) : **Success**
 
             - **Other** (:meth:`UnsupportedLanguage <amino.lib.util.exceptions.UnsupportedLanguage>`, :meth:`JSON Object <JSONObject>`)
         """
         if language not in self.get_supported_languages(): raise exceptions.UnsupportedLanguage
         response = requests.get(f"{self.api}/g/s/announcement?language={language}&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        else: return objects.blogList(json.loads(response.text)["blogList"]).blogList
+        else: return objects.BlogList(json.loads(response.text)["blogList"]).BlogList
 
     def get_wallet_info(self):
         """
@@ -1937,13 +1959,13 @@ class Client:
             - No parameters required.
 
         **Returns**
-            - **200** (:meth:`Wallet Object <amino.lib.util.objects.walletInfo>`) : **Success**
+            - **200** (:meth:`Wallet Object <amino.lib.util.objects.WalletInfo>`) : **Success**
 
             - **Other** (:meth:`JSON Object <JSONObject>`)
         """
         response = requests.get(f"{self.api}/g/s/wallet", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        else: return objects.walletInfo(json.loads(response.text)["wallet"]).walletInfo
+        else: return objects.WalletInfo(json.loads(response.text)["wallet"]).WalletInfo
 
     def get_wallet_history(self, start: int = 0, size: int = 25):
         """
@@ -1954,13 +1976,13 @@ class Client:
             - *size* : Size of the list.
 
         **Returns**
-            - **200** (:meth:`Wallet Object <amino.lib.util.objects.walletInfo>`) : **Success**
+            - **200** (:meth:`Wallet Object <amino.lib.util.objects.WalletInfo>`) : **Success**
 
             - **Other** (:meth:`JSON Object <JSONObject>`)
         """
         response = requests.get(f"{self.api}/g/s/wallet/coin/history?start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        else: return objects.walletHistory(json.loads(response.text)["coinHistoryList"]).walletHistory
+        else: return objects.WalletHistory(json.loads(response.text)["coinHistoryList"]).WalletHistory
 
     def get_from_deviceid(self, deviceId: str):
         """
@@ -1970,7 +1992,7 @@ class Client:
             - **deviceID** : ID of the Device.
 
         **Returns**
-            - **200** (:meth:`User ID <amino.lib.util.objects.userProfile.userId>`) : **Success**
+            - **200** (:meth:`User ID <amino.lib.util.objects.UserProfile.userId>`) : **Success**
 
             - **218** (:meth:`InvalidDevice <amino.lib.util.exceptions.InvalidDevice>`) : Error! Your device is currently not supported, or the app is out of date. Please update to the latest version.
 
@@ -1992,7 +2014,7 @@ class Client:
                 - ``http://aminoapps.com/p/EXAMPLE``, the ``code`` is 'EXAMPLE'.
 
         **Returns**
-            - **200** (:meth:`From Code Object <amino.lib.util.objects.fromCode>`) : **Success**
+            - **200** (:meth:`From Code Object <amino.lib.util.objects.FromCode>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -2007,7 +2029,7 @@ class Client:
             elif response["api:statuscode"] == 107: raise exceptions.UnexistentData(response)
             else: return response
 
-        else: return objects.fromCode(json.loads(response.text)["linkInfoV2"]).fromCode
+        else: return objects.FromCode(json.loads(response.text)["linkInfoV2"]).FromCode
 
     def get_from_id(self, objectId: str, objectType: int, comId: str = None):
         """
@@ -2019,7 +2041,7 @@ class Client:
             - *comId* : ID of the Community. Use if the Object is in a Community.
 
         **Returns**
-            - **200** (:meth:`From Code Object <amino.lib.util.objects.fromCode>`) : **Success**
+            - **200** (:meth:`From Code Object <amino.lib.util.objects.FromCode>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -2042,7 +2064,7 @@ class Client:
             elif response["api:statuscode"] == 107: raise exceptions.UnexistentData(response)
             else: return response
 
-        else: return objects.fromCode(json.loads(response.text)["linkInfoV2"]).fromCode
+        else: return objects.FromCode(json.loads(response.text)["linkInfoV2"]).FromCode
 
     def get_supported_languages(self):
         """
@@ -2092,23 +2114,3 @@ class Client:
         response = requests.get(f"{self.api}/g/s/store/subscription?objectType=122&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
         else: return json.loads(response.text)["storeSubscriptionItemList"]
-
-    @staticmethod
-    def punishmentTypes():
-        punishments = ["0 - Bullying",
-                       "1 - Inappropriate Content"
-                       "2 - Spam",
-                       "3 - Art Theft",
-                       "4 - Off-Topic",
-                       "5 - Trolling",
-                       "100 - Sexually Explicit",
-                       "101 - Extreme Violence",
-                       "102 - Inappropriate Requests",
-                       "106 - Violence, Graphic Content or Dangerous Activity",
-                       "107 - Hate Speech & Bigotry",
-                       "108 - Self-Injury & Suicide",
-                       "109 - Harassment & Trolling",
-                       "110 - Nudity & Pornography",
-                       "104, 105, 200 - Others"]
-
-        return punishments

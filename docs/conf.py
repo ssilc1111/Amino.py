@@ -23,7 +23,7 @@ license = 'MIT'
 author = 'Slimakoi'
 
 # The full version, including alpha/beta/rc tags
-release = '1.1.4'
+release = '1.1.5'
 
 # -- General configuration ---------------------------------------------------
 

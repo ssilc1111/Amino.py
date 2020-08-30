@@ -15,7 +15,7 @@ device = device.DeviceGenerator()
 headers.sid = client.Client().sid
 
 class SubClient(client.Client):
-    def __init__(self, comId: str, profile: objects.userProfile):
+    def __init__(self, comId: str, profile: objects.UserProfile):
         client.Client.__init__(self)
 
         if not comId: raise exceptions.NoCommunity
@@ -145,7 +145,7 @@ class SubClient(client.Client):
 
         response = requests.post(f"{self.api}/x{self.comId}/s/check-in/lottery", headers=headers.Headers(data=data).headers, data=data)
         if response.status_code != 200: return json.loads(response.text)
-        else: return objects.lotteryLog(json.loads(response.text)["lotteryLog"]).lotteryLog
+        else: return objects.LotteryLog(json.loads(response.text)["lotteryLog"]).LotteryLog
 
     def edit_profile(self, nickname: str = None, content: str = None, icon: str = None, chatRequestPrivilege: str = None, mediaList: list = None, backgroundImage: str = None, backgroundColor: str = None, titles: list = None):
         data = {"timestamp": int(timestamp() * 1000)}
@@ -429,10 +429,12 @@ class SubClient(client.Client):
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
-    def send_coins(self, coins: int, blogId: str = None, chatId: str = None, objectId: str = None):
+    def send_coins(self, coins: int, blogId: str = None, chatId: str = None, objectId: str = None, transactionId: str = None):
+        if not transactionId: transactionId = f"{''.join(random.sample([lst for lst in hexdigits[:-6]], 8))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 12))}"
+
         data = {
             "coins": coins,
-            "tippingContext": {"transactionId": f"{''.join(random.sample([lst for lst in hexdigits[:-6]], 8))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 4))}-{''.join(random.sample([lst for lst in hexdigits[:-6]], 12))}"},
+            "tippingContext": {"transactionId": transactionId},
             "timestamp": int(timestamp() * 1000)
         }
 
@@ -640,7 +642,7 @@ class SubClient(client.Client):
 
         else: return response.status_code
 
-    def send_message(self, chatId: str, message: str = None, file: BinaryIO = None, fileType: str = None, replyTo: str = None, mentionUserIds: list = None, stickerId: str = None):
+    def send_message(self, chatId: str, message: str = None, messageType: int = 0, file: BinaryIO = None, fileType: str = None, replyTo: str = None, mentionUserIds: list = None, stickerId: str = None, embedId: str = None, embedType: int = None, embedLink: str = None, embedTitle: str = None, embedContent: str = None, embedImage: BinaryIO = None):
         """
         Send a Message to a Chat.
 
@@ -650,9 +652,15 @@ class SubClient(client.Client):
             - **file** : File to be sent.
             - **fileType** : Type of the file.
                 - ``audio``, ``image``, ``gif``
+            - **messageType** : Type of the Message.
             - **mentionUserIds** : List of User IDS to mention. '@' needed in the Message.
             - **replyTo** : Message ID to reply to.
             - **stickerId** : Sticker ID to be sent.
+            - **embedTitle** : Title of the Embed.
+            - **embedContent** : Content of the Embed.
+            - **embedLink** : Link of the Embed.
+            - **embedImage** : Image of the Embed.
+            - **embedId** : ID of the Embed.
 
         **Returns**
             - **200** (int) : **Success**
@@ -672,10 +680,21 @@ class SubClient(client.Client):
             for mention_uid in mentionUserIds:
                 mentions.append({"uid": mention_uid})
 
+        if embedImage:
+            embedImage = [[100, self.upload_media(embedImage), None]]
+
         data = {
-            "type": 0,
+            "type": messageType,
             "content": message,
             "clientRefId": int(timestamp() / 10 % 1000000000),
+            "attachedObject": {
+                "objectId": embedId,
+                "objectType": embedType,
+                "link": embedLink,
+                "title": embedTitle,
+                "content": embedContent,
+                "mediaList": embedImage
+            },
             "extensions": {"mentionedArray": mentions},
             "timestamp": int(timestamp() * 1000)
         }
@@ -827,57 +846,59 @@ class SubClient(client.Client):
 
         res = []
 
-        if doNotDisturb:
-            data = json.dumps({"alertOption": 2, "timestamp": int(timestamp() * 1000)})
-            response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.userId}/alert", data=data, headers=headers.Headers(data=data).headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
-                else: res.append(response)
+        if doNotDisturb is not None:
+            if doNotDisturb:
+                data = json.dumps({"alertOption": 2, "timestamp": int(timestamp() * 1000)})
+                response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.userId}/alert", data=data, headers=headers.Headers(data=data).headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
-        if not doNotDisturb:
-            data = json.dumps({"alertOption": 1, "timestamp": int(timestamp() * 1000)})
-            response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.userId}/alert", data=data, headers=headers.Headers(data=data).headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
-                else: res.append(response)
+            if not doNotDisturb:
+                data = json.dumps({"alertOption": 1, "timestamp": int(timestamp() * 1000)})
+                response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.userId}/alert", data=data, headers=headers.Headers(data=data).headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
-        if pinChat:
-            response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/pin", headers=headers.Headers().headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
-                else: res.append(response)
+        if pinChat is not None:
+            if pinChat:
+                response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/pin", data=data, headers=headers.Headers().headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
-        if not pinChat:
-            response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/unpin", headers=headers.Headers().headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
-                else: res.append(response)
+            if not pinChat:
+                response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/unpin", data=data, headers=headers.Headers().headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
-        if backgroundImage:
+        if backgroundImage is not None:
             data = json.dumps({"media": [100, backgroundImage, None], "timestamp": int(timestamp() * 1000)})
             response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.userId}/background", data=data, headers=headers.Headers(data=data).headers)
             if response.status_code != 200:
@@ -890,7 +911,7 @@ class SubClient(client.Client):
 
             else: res.append(response.status_code)
 
-        if coHosts:
+        if coHosts is not None:
             data = json.dumps({"uidList": coHosts, "timestamp": int(timestamp() * 1000)})
             response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/co-host", data=data, headers=headers.Headers(data=data).headers)
             if response.status_code != 200:
@@ -903,77 +924,80 @@ class SubClient(client.Client):
 
             else: res.append(response.status_code)
 
-        if not viewOnly:
-            response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/view-only/disable", headers=headers.Headers(data=data).headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
-                else: res.append(response)
+        if viewOnly is not None:
+            if viewOnly:
+                response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/view-only/enable", data=data, headers=headers.Headers(data=data).headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
-        if viewOnly:
-            response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/view-only/enable", headers=headers.Headers(data=data).headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
-                else: res.append(response)
+            if not viewOnly:
+                response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/view-only/disable", data=data, headers=headers.Headers(data=data).headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
-        if not canInvite:
-            response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/members-can-invite/disable", headers=headers.Headers(data=data).headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
-                else: res.append(response)
+        if canInvite is not None:
+            if canInvite:
+                response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/members-can-invite/enable", data=data, headers=headers.Headers(data=data).headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
-        if canInvite:
-            response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/members-can-invite/enable", headers=headers.Headers(data=data).headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
-                else: res.append(response)
+            if not canInvite:
+                response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/members-can-invite/disable", data=data, headers=headers.Headers(data=data).headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
-        if not canTip:
-            response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/tipping-perm-status/disable", headers=headers.Headers(data=data).headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
-                else: res.append(response)
+        if canTip is not None:
+            if canTip:
+                response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/tipping-perm-status/enable", data=data, headers=headers.Headers(data=data).headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
-        if canTip:
-            response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/tipping-perm-status/enable", headers=headers.Headers(data=data).headers)
-            if response.status_code != 200:
-                response = json.loads(response.text)
-                if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
-                elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
-                elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
-                elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
-                else: res.append(response)
+            if not canTip:
+                response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/tipping-perm-status/disable", data=data, headers=headers.Headers(data=data).headers)
+                if response.status_code != 200:
+                    response = json.loads(response.text)
+                    if response["api:statuscode"] == 100: res.append(exceptions.UnsupportedService)
+                    elif response["api:statuscode"] == 106: res.append(exceptions.AccessDenied)
+                    elif response["api:statuscode"] == 1600: res.append(exceptions.RequestedNoLongerExists)
+                    elif response["api:statuscode"] == 1613: res.append(exceptions.UserNotJoined)
+                    else: res.append(response)
 
-            else: res.append(response.status_code)
+                else: res.append(response.status_code)
 
         data = json.dumps(data)
         response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}", headers=headers.Headers(data=data).headers, data=data)
@@ -1077,12 +1101,12 @@ class SubClient(client.Client):
     def get_vc_reputation_info(self, chatId: str):
         response = requests.get(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/avchat-reputation", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.vcReputation(json.loads(response.text)).vcReputation
+        return objects.VcReputation(json.loads(response.text)).VcReputation
 
     def claim_vc_reputation(self, chatId: str):
         response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/avchat-reputation", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.vcReputation(json.loads(response.text)).vcReputation
+        return objects.VcReputation(json.loads(response.text)).VcReputation
 
     def get_all_users(self, type: str = "recent", start: int = 0, size: int = 25):
         if type == "recent": response = requests.get(f"{self.api}/x{self.comId}/s/user-profile?type=recent&start={start}&size={size}", headers=headers.Headers().headers)
@@ -1092,17 +1116,17 @@ class SubClient(client.Client):
         elif type == "curators": response = requests.get(f"{self.api}/x{self.comId}/s/user-profile?type=curators&start={start}&size={size}", headers=headers.Headers().headers)
         else: raise exceptions.SpecifyType
         if response.status_code != 200: return json.loads(response.text)
-        return objects.userProfileCountList(json.loads(response.text)).userProfileCountList
+        return objects.UserProfileCountList(json.loads(response.text)).UserProfileCountList
 
     def get_online_users(self, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/live-layer?topic=ndtopic:x{self.comId}:online-members&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.userProfileCountList(json.loads(response.text)).userProfileCountList
+        return objects.UserProfileCountList(json.loads(response.text)).UserProfileCountList
 
     def get_online_favorite_users(self, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/user-group/quick-access?type=online&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.userProfileCountList(json.loads(response.text)).userProfileCountList
+        return objects.UserProfileCountList(json.loads(response.text)).UserProfileCountList
 
     def get_user_info(self, userId: str):
         """
@@ -1112,7 +1136,7 @@ class SubClient(client.Client):
             - **userId** : ID of the User.
 
         **Returns**
-            - **200** (:meth:`User Object <amino.lib.util.objects.userProfile>`) : **Success**
+            - **200** (:meth:`User Object <amino.lib.util.objects.UserProfile>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -1127,7 +1151,7 @@ class SubClient(client.Client):
             elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
             else: return response
 
-        else: return objects.userProfile(json.loads(response.text)["userProfile"]).userProfile
+        else: return objects.UserProfile(json.loads(response.text)["userProfile"]).UserProfile
 
     def get_user_following(self, userId: str, start: int = 0, size: int = 25):
         """
@@ -1139,7 +1163,7 @@ class SubClient(client.Client):
             - *size* : Size of the list.
 
         **Returns**
-            - **200** (:meth:`User List <amino.lib.util.objects.userProfileList>`) : **Success**
+            - **200** (:meth:`User List <amino.lib.util.objects.UserProfileList>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -1154,7 +1178,7 @@ class SubClient(client.Client):
             elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
             else: return response
 
-        else: return objects.userProfileList(json.loads(response.text)["userProfileList"]).userProfileList
+        else: return objects.UserProfileList(json.loads(response.text)["userProfileList"]).UserProfileList
 
     def get_user_followers(self, userId: str, start: int = 0, size: int = 25):
         """
@@ -1166,7 +1190,7 @@ class SubClient(client.Client):
             - *size* : Size of the list.
 
         **Returns**
-            - **200** (:meth:`User List <amino.lib.util.objects.userProfileList>`) : **Success**
+            - **200** (:meth:`User List <amino.lib.util.objects.UserProfileList>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -1181,7 +1205,7 @@ class SubClient(client.Client):
             elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
             else: return response
 
-        else: return objects.userProfileList(json.loads(response.text)["userProfileList"]).userProfileList
+        else: return objects.UserProfileList(json.loads(response.text)["userProfileList"]).UserProfileList
 
     def get_user_visitors(self, userId: str, start: int = 0, size: int = 25):
         """
@@ -1208,32 +1232,32 @@ class SubClient(client.Client):
             elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
             else: return response
 
-        else: return objects.visitorsList(json.loads(response.text)).visitorsList
+        else: return objects.VisitorsList(json.loads(response.text)).VisitorsList
 
     def get_user_checkins(self, userId: str):
         response = requests.get(f"{self.api}/x{self.comId}/s/check-in/stats/{userId}?timezone={-timezone // 1000}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.userCheckIns(json.loads(response.text)).userCheckIns
+        return objects.UserCheckIns(json.loads(response.text)).UserCheckIns
 
     def get_user_blogs(self, userId: str, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/blog?type=user&q={userId}&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.blogList(json.loads(response.text)["blogList"]).blogList
+        return objects.BlogList(json.loads(response.text)["blogList"]).BlogList
 
     def get_user_wikis(self, userId: str, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/item?type=user-all&start={start}&size={size}&cv=1.2&uid={userId}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.wikiList(json.loads(response.text)["itemList"]).wikiList
+        return objects.WikiList(json.loads(response.text)["itemList"]).WikiList
 
     def get_user_achievements(self, userId: str):
         response = requests.get(f"{self.api}/x{self.comId}/s/user-profile/{userId}/achievements", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.userAchievements(json.loads(response.text)["achievements"]).userAchievements
+        return objects.UserAchievements(json.loads(response.text)["achievements"]).UserAchievements
 
     def get_influencer_fans(self, userId: str, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/influencer/{userId}/fans?start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.influencerFans(json.loads(response.text)).influencerFans
+        return objects.InfluencerFans(json.loads(response.text)).InfluencerFans
 
     def get_blocked_users(self, start: int = 0, size: int = 25):
         """
@@ -1244,13 +1268,13 @@ class SubClient(client.Client):
             - *size* : Size of the list.
 
         **Returns**
-            - **200** (:meth:`Users List <amino.lib.util.objects.userProfileList>`) : **Success**
+            - **200** (:meth:`Users List <amino.lib.util.objects.UserProfileList>`) : **Success**
 
             - **Other** (:meth:`JSON Object <JSONObject>`)
         """
         response = requests.get(f"{self.api}/{self.comId}/s/block?start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        else: return objects.userProfileList(json.loads(response.text)["userProfileList"]).userProfileList
+        else: return objects.UserProfileList(json.loads(response.text)["userProfileList"]).UserProfileList
 
     def get_blocker_users(self, start: int = 0, size: int = 25):
         """
@@ -1272,12 +1296,12 @@ class SubClient(client.Client):
     def search_users(self, nickname: str, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/user-profile?type=name&q={nickname}&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.userProfileList(json.loads(response.text)["userProfileList"]).userProfileList
+        return objects.UserProfileList(json.loads(response.text)["userProfileList"]).UserProfileList
 
     def get_saved_blogs(self, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/bookmark?start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.userSavedBlogs(json.loads(response.text)["bookmarkList"]).userSavedBlogs
+        return objects.UserSavedBlogs(json.loads(response.text)["bookmarkList"]).UserSavedBlogs
 
     def get_leaderboard_info(self, type: str, start: int = 0, size: int = 25):
         if "24" in type or "hour" in type: response = requests.get(f"{self.api}/g/s-x{self.comId}/community/leaderboard?rankingType=1&start={start}&size={size}", headers=headers.Headers().headers)
@@ -1287,27 +1311,27 @@ class SubClient(client.Client):
         elif "quiz" in type: response = requests.get(f"{self.api}/g/s-x{self.comId}/community/leaderboard?rankingType=5&start={start}&size={size}", headers=headers.Headers().headers)
         else: raise exceptions.SpecifyType
         if response.status_code != 200: return json.loads(response.text)
-        return objects.userProfileList(json.loads(response.text)["userProfileList"]).userProfileList
+        return objects.UserProfileList(json.loads(response.text)["userProfileList"]).UserProfileList
 
     def get_wiki_info(self, wikiId: str):
         response = requests.get(f"{self.api}/x{self.comId}/s/item/{wikiId}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.getWikiInfo(json.loads(response.text)).getWikiInfo
+        return objects.GetWikiInfo(json.loads(response.text)).GetWikiInfo
 
     def get_recent_wiki_items(self, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/item?type=catalog-all&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.wikiList(json.loads(response.text)["itemList"]).wikiList
+        return objects.WikiList(json.loads(response.text)["itemList"]).WikiList
 
     def get_wiki_categories(self, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/item-category?start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.wikiCategoryList(json.loads(response.text)["itemCategoryList"]).wikiCategoryList
+        return objects.WikiCategoryList(json.loads(response.text)["itemCategoryList"]).WikiCategoryList
 
     def get_wiki_category(self, categoryId: str, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/item-category/{categoryId}?start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.wikiCategory(json.loads(response.text)).wikiCategory
+        return objects.WikiCategory(json.loads(response.text)).WikiCategory
 
     def get_tipped_users(self, blogId: str = None, wikiId: str = None, chatId: str = None, start: int = 0, size: int = 25):
         if blogId: response = requests.get(f"{self.api}/x{self.comId}/s/blog/{blogId}/tipping/tipped-users-summary?start={start}&size={size}", headers=headers.Headers().headers)
@@ -1315,7 +1339,7 @@ class SubClient(client.Client):
         elif chatId: response = requests.get(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/tipping/tipped-users-summary?start={start}&size={size}", headers=headers.Headers().headers)
         else: raise exceptions.SpecifyType
         if response.status_code != 200: return json.loads(response.text)
-        return objects.tippedUsersSummary(json.loads(response.text)).tippedUsersSummary
+        return objects.TippedUsersSummary(json.loads(response.text)).TippedUsersSummary
 
     def get_chat_threads(self, start: int = 0, size: int = 25):
         """
@@ -1326,13 +1350,13 @@ class SubClient(client.Client):
             - *size* : Size of the list.
 
         **Returns**
-            - **200** (:meth:`Chat List <amino.lib.util.objects.threadList>`) : **Success**
+            - **200** (:meth:`Chat List <amino.lib.util.objects.ThreadList>`) : **Success**
 
             - **Other** (:meth:`JSON Object <JSONObject>`)
         """
         response = requests.get(f"{self.api}/x{self.comId}/s/chat/thread?type=joined-me&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.threadList(json.loads(response.text)["threadList"]).threadList
+        return objects.ThreadList(json.loads(response.text)["threadList"]).ThreadList
 
     def get_public_chat_threads(self, type: str = "recommended", start: int = 0, size: int = 25):
         """
@@ -1343,13 +1367,13 @@ class SubClient(client.Client):
             - *size* : Size of the list.
 
         **Returns**
-            - **200** (:meth:`Chat List <amino.lib.util.objects.threadList>`) : **Success**
+            - **200** (:meth:`Chat List <amino.lib.util.objects.ThreadList>`) : **Success**
 
             - **Other** (:meth:`JSON Object <JSONObject>`)
         """
         response = requests.get(f"{self.api}/x{self.comId}/s/chat/thread?type=public-all&filterType={type}&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.threadList(json.loads(response.text)["threadList"]).threadList
+        return objects.ThreadList(json.loads(response.text)["threadList"]).ThreadList
 
     def get_chat_thread(self, chatId: str):
         """
@@ -1359,7 +1383,7 @@ class SubClient(client.Client):
             - **chatId** : ID of the Chat.
 
         **Returns**
-            - **200** (:meth:`Chat Object <amino.lib.util.objects.thread>`) : **Success**
+            - **200** (:meth:`Chat Object <amino.lib.util.objects.Thread>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -1371,7 +1395,7 @@ class SubClient(client.Client):
             if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
             else: return response
 
-        else: return objects.thread(json.loads(response.text)["thread"]).thread
+        else: return objects.Thread(json.loads(response.text)["thread"]).Thread
 
     def get_chat_messages(self, chatId: str, size: int = 25):
         """
@@ -1382,7 +1406,7 @@ class SubClient(client.Client):
             - *size* : Size of the list.
 
         **Returns**
-            - **200** (:meth:`Message List <amino.lib.util.objects.messageList>`) : **Success**
+            - **200** (:meth:`Message List <amino.lib.util.objects.MessageList>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -1394,7 +1418,7 @@ class SubClient(client.Client):
             if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
             else: return response
 
-        else: return objects.messageList(json.loads(response.text)["messageList"]).messageList
+        else: return objects.MessageList(json.loads(response.text)["messageList"]).MessageList
 
     def get_message_info(self, chatId: str, messageId: str):
         """
@@ -1405,7 +1429,7 @@ class SubClient(client.Client):
             - **message** : ID of the Message.
 
         **Returns**
-            - **200** (:meth:`Message Object <amino.lib.util.objects.message>`) : **Success**
+            - **200** (:meth:`Message Object <amino.lib.util.objects.Message>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -1417,18 +1441,18 @@ class SubClient(client.Client):
             if response["api:statuscode"] == 100: raise exceptions.UnsupportedService(response)
             else: return response
 
-        else: return objects.message(json.loads(response.text)["message"]).message
+        else: return objects.Message(json.loads(response.text)["message"]).Message
 
     def get_blog_info(self, blogId: str = None, wikiId: str = None):
         if blogId:
             response = requests.get(f"{self.api}/x{self.comId}/s/blog/{blogId}", headers=headers.Headers().headers)
             if response.status_code != 200: return json.loads(response.text)
-            return objects.getBlogInfo(json.loads(response.text)).getBlogInfo
+            return objects.GetBlogInfo(json.loads(response.text)).GetBlogInfo
 
         elif wikiId:
             response = requests.get(f"{self.api}/x{self.comId}/s/item/{wikiId}", headers=headers.Headers().headers)
             if response.status_code != 200: return json.loads(response.text)
-            return objects.getWikiInfo(json.loads(response.text)).getWikiInfo
+            return objects.GetWikiInfo(json.loads(response.text)).GetWikiInfo
 
         else: raise exceptions.SpecifyType
 
@@ -1442,12 +1466,12 @@ class SubClient(client.Client):
         else: raise exceptions.SpecifyType
 
         if response.status_code != 200: return json.loads(response.text)
-        return objects.commentList(json.loads(response.text)["commentList"]).commentList
+        return objects.CommentList(json.loads(response.text)["commentList"]).CommentList
 
     def get_blog_categories(self, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/blog-category?size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.blogCategoryList(json.loads(response.text)["blogCategoryList"]).blogCategoryList
+        return objects.BlogCategoryList(json.loads(response.text)["blogCategoryList"]).BlogCategoryList
 
     def get_wall_comments(self, userId: str, sorting: str, start: int = 0, size: int = 25):
         """
@@ -1461,7 +1485,7 @@ class SubClient(client.Client):
             - *size* : Size of the list.
 
         **Returns**
-            - **200** (:meth:`Comments List <amino.lib.util.objects.commentList>`) : **Success**
+            - **200** (:meth:`Comments List <amino.lib.util.objects.CommentList>`) : **Success**
 
             - **100** (:meth:`UnsupportedService <amino.lib.util.exceptions.UnsupportedService>`) : Unsupported service. Your client may be out of date. Please update it to the latest version.
 
@@ -1481,22 +1505,22 @@ class SubClient(client.Client):
             elif response["api:statuscode"] == 225: raise exceptions.UserUnavailable(response)
             else: return response
 
-        else: return objects.commentList(json.loads(response.text)["commentList"]).commentList
+        else: return objects.CommentList(json.loads(response.text)["commentList"]).CommentList
 
     def get_recent_blogs(self, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/feed/blog-all?pagingType=t&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.blogList(json.loads(response.text)["blogList"]).blogList
+        return objects.BlogList(json.loads(response.text)["blogList"]).BlogList
 
     def get_chat_users(self, chatId: str, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member?start={start}&size={size}&type=default&cv=1.2", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.userProfileList(json.loads(response.text)["memberList"]).userProfileList
+        return objects.UserProfileList(json.loads(response.text)["memberList"]).UserProfileList
 
     def get_notifications(self, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/notification?pagingType=t&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.notificationList(json.loads(response.text)["notificationList"]).notificationList
+        return objects.NotificationList(json.loads(response.text)["notificationList"]).NotificationList
 
     # TODO : Get notice to finish this
     def get_notices(self, start: int = 0, size: int = 25):
@@ -1513,7 +1537,7 @@ class SubClient(client.Client):
     def get_sticker_pack_info(self, sticker_pack_id: str):
         response = requests.get(f"{self.api}/x{self.comId}/s/sticker-collection/{sticker_pack_id}?includeStickers=true", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.stickerCollection(json.loads(response.text)["stickerCollection"]).stickerCollection
+        return objects.StickerCollection(json.loads(response.text)["stickerCollection"]).StickerCollection
 
     # TODO : Finish this
     def get_store_chat_bubbles(self, start: int = 0, size: int = 25):
@@ -1536,12 +1560,12 @@ class SubClient(client.Client):
     def get_community_stickers(self):
         response = requests.get(f"{self.api}/x{self.comId}/s/sticker-collection?type=community-shared", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.communityStickerCollection(json.loads(response.text)).communityStickerCollection
+        return objects.CommunityStickerCollection(json.loads(response.text)).CommunityStickerCollection
 
     def get_sticker_collection(self, collectionId: str):
         response = requests.get(f"{self.api}/x{self.comId}/s/sticker-collection/{collectionId}?includeStickers=true", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.stickerCollection(json.loads(response.text)["stickerCollection"]).stickerCollection
+        return objects.StickerCollection(json.loads(response.text)["stickerCollection"]).StickerCollection
 
     #
     # MODERATION MENU
@@ -1552,7 +1576,7 @@ class SubClient(client.Client):
         elif blogId: response = requests.get(f"{self.api}/x{self.comId}/s/admin/operation?objectId={blogId}&objectType=1&pagingType=t&size={size}", headers=headers.Headers().headers)
         else: response = requests.get(f"{self.api}/x{self.comId}/s/admin/operation?pagingType=t&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.adminLogList(json.loads(response.text)["adminLogList"]).adminLogList
+        return objects.AdminLogList(json.loads(response.text)["adminLogList"]).AdminLogList
 
     def feature(self, time: int, userId: str = None, chatId: str = None, blogId: str = None, wikiId: str = None):
         if chatId:
@@ -1803,14 +1827,14 @@ class SubClient(client.Client):
     def get_banned_users(self, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/user-profile?type=banned&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.userProfileCountList(json.loads(response.text)).userProfileCountList
+        return objects.UserProfileCountList(json.loads(response.text)).UserProfileCountList
 
     def get_hidden_blogs(self, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/feed/blog-disabled?start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.blogList(json.loads(response.text)["blogList"]).blogList
+        return objects.BlogList(json.loads(response.text)["blogList"]).BlogList
 
     def get_featured_users(self, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/user-profile?type=featured&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
-        return objects.userProfileCountList(json.loads(response.text)).userProfileCountList
+        return objects.UserProfileCountList(json.loads(response.text)).UserProfileCountList
