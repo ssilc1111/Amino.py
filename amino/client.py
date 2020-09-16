@@ -11,6 +11,7 @@ from .socket import Callbacks, SocketHandler
 
 device = device.DeviceGenerator()
 
+
 class Client:
     def __init__(self, callback=Callbacks, socket_trace=False):
         self.api = "https://service.narvii.com/api/v1"
@@ -276,16 +277,18 @@ class Client:
             if response["api:statuscode"] == 213: raise exceptions.InvalidEmail(response)
             elif response["api:statuscode"] == 219: raise exceptions.TooManyRequests(response)
             elif response["api:statuscode"] == 3102: raise exceptions.IncorrectVerificationCode(response)
-            else: return response
+            else:
+                return response
 
         else: return response.status_code
 
-    def request_verify_code(self, email: str):
+    def request_verify_code(self, email: str, resetPassword: bool = False):
         """
         Request an verification code to the targeted email.
 
         **Parameters**
             - **email** : Email of the account.
+            - **resetPassword** : If the code should be for Password Reset.
 
         **Returns**
             - **200** (int) : **Success**
@@ -296,12 +299,17 @@ class Client:
 
             - **Other** (:meth:`JSON Object <JSONObject>`)
         """
-        data = json.dumps({
+        data = {
             "identity": email,
             "type": 1,
             "deviceID": device.device_id
-        })
+        }
 
+        if resetPassword is True:
+            data["level"] = 2
+            data["purpose"] = "reset-password"
+
+        data = json.dumps(data)
         response = requests.post(f"{self.api}/g/s/auth/request-security-validation", headers=headers.Headers(data=data).headers, data=data)
         if response.status_code != 200:
             response = json.loads(response.text)
@@ -340,6 +348,31 @@ class Client:
             response = json.loads(response.text)
             if response["api:statuscode"] == 213: raise exceptions.InvalidEmail(response)
             elif response["api:statuscode"] == 219: raise exceptions.TooManyRequests(response)
+            else: return response
+
+        else: return response.status_code
+
+    def change_password(self, email: str, password: str, code: str):
+        data = json.dumps({
+            "updateSecret": f"0 {password}",
+            "emailValidationContext": {
+                "data": {
+                    "code": code
+                },
+                "type": 1,
+                "identity": email,
+                "level": 2,
+                "deviceID": device.device_id
+            },
+            "phoneNumberValidationContext": None,
+            "deviceID": device.device_id
+        })
+
+        response = requests.post(f"{self.api}/g/s/auth/reset-password", headers=headers.Headers(data=data).headers, data=data)
+        if response.status_code != 200:
+            response = json.loads(response.text)
+            if response["api:statuscode"] == 213: raise exceptions.InvalidEmail(response)
+            elif response["api:statuscode"] == 3102: raise exceptions.IncorrectVerificationCode(response)
             else: return response
 
         else: return response.status_code
@@ -595,6 +628,26 @@ class Client:
             else: return response
 
         else: return objects.Community(json.loads(response.text)["community"]).Community
+
+    def search_community(self, aminoId: str):
+        """
+        Search a Community byt its Amino ID.
+
+        **Parameters**
+            - **aminoId** : Amino ID of the Community.
+
+        **Returns**
+            - **200** (:meth:`Community List <amino.lib.util.objects.CommunityList>`) : **Success**
+
+            - **Other** (:meth:`CommunityNotFound <amino.lib.util.exceptions.CommunityNotFound>`, :meth:`JSON Object <JSONObject>`)
+        """
+        response = requests.get(f"{self.api}/g/s/search/amino-id-and-link?q={aminoId}", headers=headers.Headers().headers)
+        if response.status_code != 200:
+            return json.loads(response.text)
+        else:
+            response = json.loads(response.text)["resultList"]
+            if len(response) == 0: raise exceptions.CommunityNotFound
+            else: return objects.CommunityList([com["refObject"] for com in response]).CommunityList
 
     def get_user_following(self, userId: str, start: int = 0, size: int = 25):
         """

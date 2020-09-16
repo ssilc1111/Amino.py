@@ -609,6 +609,13 @@ class NoCommunity(Exception):
     def __init__(*args, **kwargs):
         Exception.__init__(*args, **kwargs)
 
+class CommunityNotFound(Exception):
+    """
+    Raised when you search for a community but nothing is found.
+    """
+    def __init__(*args, **kwargs):
+        Exception.__init__(*args, **kwargs)
+
 class NoChatThread(Exception):
     """
     Raised when you try to make an action but no chat was selected.

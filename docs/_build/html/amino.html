@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Modules &mdash; Amino.py 1.1.5 documentation</title>
+  <title>Modules &mdash; Amino.py 1.1.6 documentation</title>
   
 
   
@@ -289,6 +289,11 @@ categories: module.topicCategories.enabled</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="amino.client.Client.change_password">
+<code class="sig-name descname">change_password</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">email</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">password</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">code</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.client.Client.change_password" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="amino.client.Client.check_device">
@@ -1273,11 +1278,12 @@ categories: module.topicCategories.enabled</p>
 
 <dl class="py method">
 <dt id="amino.client.Client.request_verify_code">
-<code class="sig-name descname">request_verify_code</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">email</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.client.Client.request_verify_code" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">request_verify_code</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">email</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">resetPassword</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.client.Client.request_verify_code" title="Permalink to this definition">¶</a></dt>
 <dd><p>Request an verification code to the targeted email.</p>
 <dl class="simple">
 <dt><strong>Parameters</strong></dt><dd><ul class="simple">
 <li><p><strong>email</strong> : Email of the account.</p></li>
+<li><p><strong>resetPassword</strong> : If the code should be for Password Reset.</p></li>
 </ul>
 </dd>
 <dt><strong>Returns</strong></dt><dd><ul class="simple">
@@ -1309,6 +1315,23 @@ categories: module.topicCategories.enabled</p>
 <li><p><strong>270</strong> (<a class="reference internal" href="#amino.lib.util.exceptions.VerificationRequired" title="amino.lib.util.exceptions.VerificationRequired"><code class="xref py py-meth docutils literal notranslate"><span class="pre">VerificationRequired</span></code></a>) : Verification Required.</p></li>
 <li><p><strong>2800</strong> (<a class="reference internal" href="#amino.lib.util.exceptions.AccountAlreadyRestored" title="amino.lib.util.exceptions.AccountAlreadyRestored"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AccountAlreadyRestored</span></code></a>) : Account already restored.</p></li>
 <li><p><strong>Other</strong> (<code class="xref py py-meth docutils literal notranslate"><span class="pre">JSON</span> <span class="pre">Object</span></code>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="amino.client.Client.search_community">
+<code class="sig-name descname">search_community</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">aminoId</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.client.Client.search_community" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search a Community byt its Amino ID.</p>
+<dl class="simple">
+<dt><strong>Parameters</strong></dt><dd><ul class="simple">
+<li><p><strong>aminoId</strong> : Amino ID of the Community.</p></li>
+</ul>
+</dd>
+<dt><strong>Returns</strong></dt><dd><ul class="simple">
+<li><p><strong>200</strong> (<a class="reference internal" href="#amino.lib.util.objects.CommunityList" title="amino.lib.util.objects.CommunityList"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Community</span> <span class="pre">List</span></code></a>) : <strong>Success</strong></p></li>
+<li><p><strong>Other</strong> (<a class="reference internal" href="#amino.lib.util.exceptions.CommunityNotFound" title="amino.lib.util.exceptions.CommunityNotFound"><code class="xref py py-meth docutils literal notranslate"><span class="pre">CommunityNotFound</span></code></a>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">JSON</span> <span class="pre">Object</span></code>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -1874,7 +1897,7 @@ categories: module.topicCategories.enabled</p>
 
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.get_blog_info">
-<code class="sig-name descname">get_blog_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">blogId</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">wikiId</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.get_blog_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_blog_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">blogId</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">wikiId</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">quizId</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.get_blog_info" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1884,6 +1907,7 @@ categories: module.topicCategories.enabled</p>
 <dl class="simple">
 <dt><strong>Parameters</strong></dt><dd><ul class="simple">
 <li><p><strong>chatId</strong> : ID of the Chat.</p></li>
+<li><p><em>start</em> : Where to start the list.</p></li>
 <li><p><em>size</em> : Size of the list.</p></li>
 </ul>
 </dd>
@@ -2031,8 +2055,13 @@ categories: module.topicCategories.enabled</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="amino.sub_client.SubClient.get_quiz_rankings">
+<code class="sig-name descname">get_quiz_rankings</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">quizId</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">start</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">size</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">25</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.get_quiz_rankings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="amino.sub_client.SubClient.get_recent_blogs">
-<code class="sig-name descname">get_recent_blogs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">size</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">25</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.get_recent_blogs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_recent_blogs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pageToken</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">start</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">size</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">25</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.get_recent_blogs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -2339,6 +2368,11 @@ categories: module.topicCategories.enabled</p>
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.moderation_history">
 <code class="sig-name descname">moderation_history</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">userId</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">blogId</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">size</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">25</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.moderation_history" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="amino.sub_client.SubClient.play_quiz">
+<code class="sig-name descname">play_quiz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">quizId</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">questionIdsList</span><span class="p">:</span> <span class="n">list</span></em>, <em class="sig-param"><span class="n">answerIdsList</span><span class="p">:</span> <span class="n">list</span></em>, <em class="sig-param"><span class="n">quizMode</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.play_quiz" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -2800,7 +2834,7 @@ categories: module.topicCategories.enabled</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt id="amino.lib.util.objects.CommunityStickerCollection.CommunityStickerCollection">
-<code class="sig-name descname">CommunityStickerCollection</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#amino.lib.util.objects.CommunityStickerCollection.CommunityStickerCollection" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">CommunityStickerCollection</code><a class="headerlink" href="#amino.lib.util.objects.CommunityStickerCollection.CommunityStickerCollection" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2916,12 +2950,67 @@ categories: module.topicCategories.enabled</p>
 </dd></dl>
 
 <dl class="py class">
+<dt id="amino.lib.util.objects.QuizQuestionList">
+<em class="property">class </em><code class="sig-prename descclassname">amino.lib.util.objects.</code><code class="sig-name descname">QuizQuestionList</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.lib.util.objects.QuizQuestionList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="amino.lib.util.objects.QuizQuestionList.QuizQuestionList">
+<em class="property">property </em><code class="sig-name descname">QuizQuestionList</code><a class="headerlink" href="#amino.lib.util.objects.QuizQuestionList.QuizQuestionList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="amino.lib.util.objects.QuizRanking">
+<em class="property">class </em><code class="sig-prename descclassname">amino.lib.util.objects.</code><code class="sig-name descname">QuizRanking</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.lib.util.objects.QuizRanking" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="amino.lib.util.objects.QuizRanking.QuizRanking">
+<em class="property">property </em><code class="sig-name descname">QuizRanking</code><a class="headerlink" href="#amino.lib.util.objects.QuizRanking.QuizRanking" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="amino.lib.util.objects.QuizRankingList">
+<em class="property">class </em><code class="sig-prename descclassname">amino.lib.util.objects.</code><code class="sig-name descname">QuizRankingList</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.lib.util.objects.QuizRankingList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="amino.lib.util.objects.QuizRankingList.QuizRankingList">
+<em class="property">property </em><code class="sig-name descname">QuizRankingList</code><a class="headerlink" href="#amino.lib.util.objects.QuizRankingList.QuizRankingList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="amino.lib.util.objects.QuizRankings">
+<em class="property">class </em><code class="sig-prename descclassname">amino.lib.util.objects.</code><code class="sig-name descname">QuizRankings</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.lib.util.objects.QuizRankings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="amino.lib.util.objects.QuizRankings.QuizRankings">
+<em class="property">property </em><code class="sig-name descname">QuizRankings</code><a class="headerlink" href="#amino.lib.util.objects.QuizRankings.QuizRankings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt id="amino.lib.util.objects.RankingTableList">
 <em class="property">class </em><code class="sig-prename descclassname">amino.lib.util.objects.</code><code class="sig-name descname">RankingTableList</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.lib.util.objects.RankingTableList" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt id="amino.lib.util.objects.RankingTableList.RankingTableList">
-<code class="sig-name descname">RankingTableList</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#amino.lib.util.objects.RankingTableList.RankingTableList" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">RankingTableList</code><a class="headerlink" href="#amino.lib.util.objects.RankingTableList.RankingTableList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="amino.lib.util.objects.RecentBlogs">
+<em class="property">class </em><code class="sig-prename descclassname">amino.lib.util.objects.</code><code class="sig-name descname">RecentBlogs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.lib.util.objects.RecentBlogs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="amino.lib.util.objects.RecentBlogs.RecentBlogs">
+<em class="property">property </em><code class="sig-name descname">RecentBlogs</code><a class="headerlink" href="#amino.lib.util.objects.RecentBlogs.RecentBlogs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -3516,6 +3605,13 @@ categories: module.topicCategories.enabled</p>
 <li><p><strong>API Message</strong> : This Community no longer exists.</p></li>
 <li><p><strong>API String</strong> : <code class="docutils literal notranslate"><span class="pre">Unknown</span> <span class="pre">String</span></code></p></li>
 </ul>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="amino.lib.util.exceptions.CommunityNotFound">
+<em class="property">exception </em><code class="sig-prename descclassname">amino.lib.util.exceptions.</code><code class="sig-name descname">CommunityNotFound</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.lib.util.exceptions.CommunityNotFound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Raised when you search for a community but nothing is found.</p>
 </dd></dl>
 
 <dl class="py exception">

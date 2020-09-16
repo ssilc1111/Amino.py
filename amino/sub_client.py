@@ -248,6 +248,7 @@ class SubClient(client.Client):
 
             elif isinstance(blogId, list):
                 data["targetIdList"] = blogId
+                data = json.dumps(data)
                 response = requests.post(f"{self.api}/x{self.comId}/s/feed/vote", headers=headers.Headers(data=data).headers, data=data)
 
             else: raise exceptions.WrongType
@@ -1083,6 +1084,28 @@ class SubClient(client.Client):
         if response.status_code != 200: return json.loads(response.text)
         else: return response.status_code
 
+    def play_quiz(self, quizId: str, questionIdsList: list, answerIdsList: list, quizMode: int = 0):
+        quizAnswerList = []
+
+        for question, answer in zip(questionIdsList, answerIdsList):
+            part = json.dumps({
+                "optIdList": [question],
+                "quizQuestionId": answer,
+                "timeSpent": 0.0
+            })
+
+            quizAnswerList.append(json.loads(part))
+
+        data = json.dumps({
+            "mode": quizMode,
+            "quizAnswerList": quizAnswerList,
+            "timestamp": int(timestamp() * 1000)
+        })
+
+        response = requests.post(f"{self.api}/x{self.comId}/s/blog/{quizId}/quiz/result", headers=headers.Headers(data=data).headers, data=data)
+        if response.status_code != 200: return json.loads(response.text)
+        else: return response.status_code
+
     def vc_permission(self, chatId: str, permission: int):
         """Voice Chat Join Permissions
         1 - Open to Everyone
@@ -1403,6 +1426,7 @@ class SubClient(client.Client):
 
         **Parameters**
             - **chatId** : ID of the Chat.
+            - *start* : Where to start the list.
             - *size* : Size of the list.
 
         **Returns**
@@ -1443,8 +1467,9 @@ class SubClient(client.Client):
 
         else: return objects.Message(json.loads(response.text)["message"]).Message
 
-    def get_blog_info(self, blogId: str = None, wikiId: str = None):
-        if blogId:
+    def get_blog_info(self, blogId: str = None, wikiId: str = None, quizId: str = None):
+        if blogId or quizId:
+            if quizId: blogId = quizId
             response = requests.get(f"{self.api}/x{self.comId}/s/blog/{blogId}", headers=headers.Headers().headers)
             if response.status_code != 200: return json.loads(response.text)
             return objects.GetBlogInfo(json.loads(response.text)).GetBlogInfo
@@ -1472,6 +1497,11 @@ class SubClient(client.Client):
         response = requests.get(f"{self.api}/x{self.comId}/s/blog-category?size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
         return objects.BlogCategoryList(json.loads(response.text)["blogCategoryList"]).BlogCategoryList
+
+    def get_quiz_rankings(self, quizId: str, start: int = 0, size: int = 25):
+        response = requests.get(f"{self.api}/x{self.comId}/s/blog/{quizId}/quiz/result?start={start}&size={size}", headers=headers.Headers().headers)
+        if response.status_code != 200: return json.loads(response.text)
+        return objects.QuizRankings(json.loads(response.text)).QuizRankings
 
     def get_wall_comments(self, userId: str, sorting: str, start: int = 0, size: int = 25):
         """
@@ -1507,10 +1537,14 @@ class SubClient(client.Client):
 
         else: return objects.CommentList(json.loads(response.text)["commentList"]).CommentList
 
-    def get_recent_blogs(self, start: int = 0, size: int = 25):
-        response = requests.get(f"{self.api}/x{self.comId}/s/feed/blog-all?pagingType=t&start={start}&size={size}", headers=headers.Headers().headers)
+    def get_recent_blogs(self, pageToken: str = None, start: int = 0, size: int = 25):
+        if pageToken is not None:
+            response = requests.get(f"{self.api}/x{self.comId}/s/feed/blog-all?pagingType=t&pageToken={pageToken}&size={size}", headers=headers.Headers().headers)
+        else:
+            response = requests.get(f"{self.api}/x{self.comId}/s/feed/blog-all?pagingType=t&start={start}&size={size}", headers=headers.Headers().headers)
+
         if response.status_code != 200: return json.loads(response.text)
-        return objects.BlogList(json.loads(response.text)["blogList"]).BlogList
+        return objects.RecentBlogs(json.loads(response.text)).RecentBlogs
 
     def get_chat_users(self, chatId: str, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member?start={start}&size={size}&type=default&cv=1.2", headers=headers.Headers().headers)
