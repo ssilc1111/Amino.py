@@ -479,7 +479,7 @@ class SubClient(client.Client):
             data = json.dumps({"targetUidList": userId, "timestamp": int(timestamp() * 1000)})
             response = requests.post(f"{self.api}/x{self.comId}/s/user-profile/{self.profile.id}/joined", headers=headers.Headers(data=data).headers, data=data)
 
-        else: raise exceptions.SpecifyType
+        else: raise exceptions.WrongType
 
         if response.status_code != 200:
             response = json.loads(response.text)
@@ -1356,10 +1356,13 @@ class SubClient(client.Client):
         if response.status_code != 200: return json.loads(response.text)
         return objects.WikiCategory(json.loads(response.text)).WikiCategory
 
-    def get_tipped_users(self, blogId: str = None, wikiId: str = None, chatId: str = None, start: int = 0, size: int = 25):
-        if blogId: response = requests.get(f"{self.api}/x{self.comId}/s/blog/{blogId}/tipping/tipped-users-summary?start={start}&size={size}", headers=headers.Headers().headers)
+    def get_tipped_users(self, blogId: str = None, wikiId: str = None, quizId: str = None, fileId: str = None, chatId: str = None, start: int = 0, size: int = 25):
+        if blogId or quizId:
+            if quizId is not None: blogId = quizId
+            response = requests.get(f"{self.api}/x{self.comId}/s/blog/{blogId}/tipping/tipped-users-summary?start={start}&size={size}", headers=headers.Headers().headers)
         elif wikiId: response = requests.get(f"{self.api}/x{self.comId}/s/item/{wikiId}/tipping/tipped-users-summary?start={start}&size={size}", headers=headers.Headers().headers)
         elif chatId: response = requests.get(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/tipping/tipped-users-summary?start={start}&size={size}", headers=headers.Headers().headers)
+        elif fileId: response = requests.get(f"{self.api}/x{self.comId}/s/shared-folder/files/{fileId}/tipping/tipped-users-summary?start={start}&size={size}", headers=headers.Headers().headers)
         else: raise exceptions.SpecifyType
         if response.status_code != 200: return json.loads(response.text)
         return objects.TippedUsersSummary(json.loads(response.text)).TippedUsersSummary
@@ -1467,9 +1470,9 @@ class SubClient(client.Client):
 
         else: return objects.Message(json.loads(response.text)["message"]).Message
 
-    def get_blog_info(self, blogId: str = None, wikiId: str = None, quizId: str = None):
+    def get_blog_info(self, blogId: str = None, wikiId: str = None, quizId: str = None, fileId: str = None):
         if blogId or quizId:
-            if quizId: blogId = quizId
+            if quizId is not None: blogId = quizId
             response = requests.get(f"{self.api}/x{self.comId}/s/blog/{blogId}", headers=headers.Headers().headers)
             if response.status_code != 200: return json.loads(response.text)
             return objects.GetBlogInfo(json.loads(response.text)).GetBlogInfo
@@ -1479,15 +1482,23 @@ class SubClient(client.Client):
             if response.status_code != 200: return json.loads(response.text)
             return objects.GetWikiInfo(json.loads(response.text)).GetWikiInfo
 
+        elif fileId:
+            response = requests.get(f"{self.api}/x{self.comId}/s/shared-folder/files/{fileId}", headers=headers.Headers().headers)
+            if response.status_code != 200: return json.loads(response.text)
+            return objects.SharedFolderFile(json.loads(response.text)["file"]).SharedFolderFile
+
         else: raise exceptions.SpecifyType
 
-    def get_blog_comments(self, blogId: str = None, wikiId: str = None, sorting: str = "newest", start: int = 0, size: int = 25):
+    def get_blog_comments(self, blogId: str = None, wikiId: str = None, quizId: str = None, fileId: str = None, sorting: str = "newest", start: int = 0, size: int = 25):
         if sorting == "newest": sorting = "newest"
         elif sorting == "oldest": sorting = "oldest"
         elif sorting == "top": sorting = "vote"
 
-        if blogId: response = requests.get(f"{self.api}/x{self.comId}/s/blog/{blogId}/comment?sort={sorting}&start={start}&size={size}", headers=headers.Headers().headers)
+        if blogId or quizId:
+            if quizId is not None: blogId = quizId
+            response = requests.get(f"{self.api}/x{self.comId}/s/blog/{blogId}/comment?sort={sorting}&start={start}&size={size}", headers=headers.Headers().headers)
         elif wikiId: response = requests.get(f"{self.api}/x{self.comId}/s/item/{wikiId}/comment?sort={sorting}&start={start}&size={size}", headers=headers.Headers().headers)
+        elif fileId: response = requests.get(f"{self.api}/x{self.comId}/s/shared-folder/files/{fileId}/comment?sort={sorting}&start={start}&size={size}", headers=headers.Headers().headers)
         else: raise exceptions.SpecifyType
 
         if response.status_code != 200: return json.loads(response.text)
@@ -1601,13 +1612,26 @@ class SubClient(client.Client):
         if response.status_code != 200: return json.loads(response.text)
         return objects.StickerCollection(json.loads(response.text)["stickerCollection"]).StickerCollection
 
+    def get_shared_folder_info(self):
+        response = requests.get(f"{self.api}/x{self.comId}/s/shared-folder/stats", headers=headers.Headers().headers)
+        if response.status_code != 200: return json.loads(response.text)
+        return objects.GetSharedFolderInfo(json.loads(response.text)["stats"]).GetSharedFolderInfo
+
+    def get_shared_folder_files(self, type: str = "latest", start: int = 0, size: int = 25):
+        response = requests.get(f"{self.api}/x{self.comId}/s/shared-folder/files?type={type}&start={start}&size={size}", headers=headers.Headers().headers)
+        if response.status_code != 200: return json.loads(response.text)
+        return objects.SharedFolderFileList(json.loads(response.text)["fileList"]).SharedFolderFileList
+
     #
     # MODERATION MENU
     #
 
-    def moderation_history(self, userId: str = None, blogId: str = None, size: int = 25):
+    def moderation_history(self, userId: str = None, blogId: str = None, wikiId: str = None, quizId: str = None, fileId: str = None, size: int = 25):
         if userId: response = requests.get(f"{self.api}/x{self.comId}/s/admin/operation?objectId={userId}&objectType=0&pagingType=t&size={size}", headers=headers.Headers().headers)
         elif blogId: response = requests.get(f"{self.api}/x{self.comId}/s/admin/operation?objectId={blogId}&objectType=1&pagingType=t&size={size}", headers=headers.Headers().headers)
+        elif quizId: response = requests.get(f"{self.api}/x{self.comId}/s/admin/operation?objectId={quizId}&objectType=1&pagingType=t&size={size}", headers=headers.Headers().headers)
+        elif wikiId: response = requests.get(f"{self.api}/x{self.comId}/s/admin/operation?objectId={wikiId}&objectType=2&pagingType=t&size={size}", headers=headers.Headers().headers)
+        elif fileId: response = requests.get(f"{self.api}/x{self.comId}/s/admin/operation?objectId={fileId}&objectType=109&pagingType=t&size={size}", headers=headers.Headers().headers)
         else: response = requests.get(f"{self.api}/x{self.comId}/s/admin/operation?pagingType=t&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
         return objects.AdminLogList(json.loads(response.text)["adminLogList"]).AdminLogList
@@ -1687,7 +1711,7 @@ class SubClient(client.Client):
         if response.status_code == 200: return response.status_code
         else: return json.loads(response.text)
 
-    def hide(self, userId: str = None, chatId: str = None, blogId: str = None, wikiId: str = None, reason: str = None):
+    def hide(self, userId: str = None, chatId: str = None, blogId: str = None, wikiId: str = None, quizId: str = None, fileId: str = None, reason: str = None):
         data = {
             "adminOpNote": {
                 "content": reason
@@ -1706,6 +1730,12 @@ class SubClient(client.Client):
             data = json.dumps(data)
             response = requests.post(f"{self.api}/x{self.comId}/s/blog/{blogId}/admin", headers=headers.Headers(data=data).headers, data=data)
 
+        elif quizId:
+            data["adminOpName"] = 110
+            data["adminOpValue"] = 9
+            data = json.dumps(data)
+            response = requests.post(f"{self.api}/x{self.comId}/s/blog/{quizId}/admin", headers=headers.Headers(data=data).headers, data=data)
+
         elif wikiId:
             data["adminOpName"] = 110
             data["adminOpValue"] = 9
@@ -1718,11 +1748,17 @@ class SubClient(client.Client):
             data = json.dumps(data)
             response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/admin", headers=headers.Headers(data=data).headers, data=data)
 
+        elif fileId:
+            data["adminOpName"] = 110
+            data["adminOpValue"] = 9
+            data = json.dumps(data)
+            response = requests.post(f"{self.api}/x{self.comId}/s/shared-folder/files/{fileId}/admin", headers=headers.Headers(data=data).headers, data=data)
+
         else: raise exceptions.SpecifyType
         if response.status_code == 200: return response.status_code
         else: return json.loads(response.text)
 
-    def unhide(self, userId: str = None, chatId: str = None, blogId: str = None, wikiId: str = None, reason: str = None):
+    def unhide(self, userId: str = None, chatId: str = None, blogId: str = None, wikiId: str = None, quizId: str = None, fileId: str = None, reason: str = None):
         data = {
             "adminOpNote": {
                 "content": reason
@@ -1741,6 +1777,12 @@ class SubClient(client.Client):
             data = json.dumps(data)
             response = requests.post(f"{self.api}/x{self.comId}/s/blog/{blogId}/admin", headers=headers.Headers(data=data).headers, data=data)
 
+        elif quizId:
+            data["adminOpName"] = 110
+            data["adminOpValue"] = 0
+            data = json.dumps(data)
+            response = requests.post(f"{self.api}/x{self.comId}/s/blog/{quizId}/admin", headers=headers.Headers(data=data).headers, data=data)
+
         elif wikiId:
             data["adminOpName"] = 110
             data["adminOpValue"] = 0
@@ -1752,6 +1794,12 @@ class SubClient(client.Client):
             data["adminOpValue"] = 0
             data = json.dumps(data)
             response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/admin", headers=headers.Headers(data=data).headers, data=data)
+
+        elif fileId:
+            data["adminOpName"] = 110
+            data["adminOpValue"] = 0
+            data = json.dumps(data)
+            response = requests.post(f"{self.api}/x{self.comId}/s/shared-folder/files/{fileId}/admin", headers=headers.Headers(data=data).headers, data=data)
 
         else: raise exceptions.SpecifyType
         if response.status_code == 200: return response.status_code
@@ -1872,3 +1920,8 @@ class SubClient(client.Client):
         response = requests.get(f"{self.api}/x{self.comId}/s/user-profile?type=featured&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
         return objects.UserProfileCountList(json.loads(response.text)).UserProfileCountList
+
+    def review_quiz_questions(self, quizId: str):
+        response = requests.get(f"{self.api}/x{self.comId}/s/blog/{quizId}?action=review", headers=headers.Headers().headers)
+        if response.status_code != 200: return json.loads(response.text)
+        return objects.QuizQuestionList(json.loads(response.text)["quizQuestionList"]).QuizQuestionList
