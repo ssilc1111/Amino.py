@@ -24,7 +24,7 @@ author = 'Slimakoi'
 description = 'A library to create Amino bots.'
 
 # The full version, including alpha/beta/rc tags
-release = '1.1.8'
+release = '1.1.8a'
 
 # -- General configuration ---------------------------------------------------
 
