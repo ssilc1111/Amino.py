@@ -21,9 +21,10 @@ project = 'Amino.py'
 copyright = '2020, Slimakoi'
 license = 'MIT'
 author = 'Slimakoi'
+description = 'A library to create Amino bots.'
 
 # The full version, including alpha/beta/rc tags
-release = '1.1.7'
+release = '1.1.8'
 
 # -- General configuration ---------------------------------------------------
 

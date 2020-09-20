@@ -1925,3 +1925,16 @@ class SubClient(client.Client):
         response = requests.get(f"{self.api}/x{self.comId}/s/blog/{quizId}?action=review", headers=headers.Headers().headers)
         if response.status_code != 200: return json.loads(response.text)
         return objects.QuizQuestionList(json.loads(response.text)["quizQuestionList"]).QuizQuestionList
+
+    # TODO : Improve this
+    def get_recent_quiz(self, start: int = 0, size: int = 25):
+        response = requests.get(f"{self.api}/x{self.comId}/s/blog?type=quizzes-recent&start={start}&size={size}", headers=headers.Headers().headers)
+        return json.loads(response.text)
+
+    def get_trending_quiz(self, start: int = 0, size: int = 25):
+        response = requests.get(f"{self.api}/x{self.comId}/s/feed/quiz-trending?start={start}&size={size}", headers=headers.Headers().headers)
+        return json.loads(response.text)
+
+    def get_best_quiz(self, start: int = 0, size: int = 25):
+        response = requests.get(f"{self.api}/x{self.comId}/s/feed/quiz-best-quizzes?start={start}&size={size}", headers=headers.Headers().headers)
+        return json.loads(response.text)
