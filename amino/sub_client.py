@@ -1661,11 +1661,6 @@ class SubClient(client.Client):
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return json.loads(response.text)
 
-    def get_banned_users(self, start: int = 0, size: int = 25):
-        response = requests.get(f"{self.api}/x{self.comId}/s/user-profile?type=banned&start={start}&size={size}", headers=headers.Headers().headers)
-        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
-        else: return objects.UserProfileCountList(json.loads(response.text)).UserProfileCountList
-
     def get_hidden_blogs(self, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/feed/blog-disabled?start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
@@ -1681,18 +1676,17 @@ class SubClient(client.Client):
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return objects.QuizQuestionList(json.loads(response.text)["quizQuestionList"]).QuizQuestionList
 
-    # TODO : Improve these 3
     def get_recent_quiz(self, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/blog?type=quizzes-recent&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
-        else: return json.loads(response.text)
+        else: return objects.BlogList(json.loads(response.text)["blogList"]).BlogList
 
     def get_trending_quiz(self, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/feed/quiz-trending?start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
-        else: return json.loads(response.text)
+        else: return objects.BlogList(json.loads(response.text)["blogList"]).BlogList
 
     def get_best_quiz(self, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/feed/quiz-best-quizzes?start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
-        else: return json.loads(response.text)
+        else: return objects.BlogList(json.loads(response.text)["blogList"]).BlogList

@@ -2476,6 +2476,7 @@ class Message:
         self.content = None
         self.includedInSummary = None
         self.isHidden = None
+        self.messageType = None
         self.messageId = None
         self.mediaType = None
         self.mediaValue = None
@@ -2493,6 +2494,7 @@ class Message:
         self.videoHeight = None
         self.videoCoverImage = None
         self.videoWidth = None
+        self.mentionUserIds = None
 
     @property
     def Message(self):
@@ -2503,6 +2505,8 @@ class Message:
         try: self.isHidden = self.json["isHidden"]
         except (KeyError, TypeError): pass
         try: self.messageId = self.json["messageId"]
+        except (KeyError, TypeError): pass
+        try: self.messageType = self.json["messageType"]
         except (KeyError, TypeError): pass
         try: self.mediaType = self.json["mediaType"]
         except (KeyError, TypeError): pass
@@ -2534,6 +2538,8 @@ class Message:
         except (KeyError, TypeError): pass
         try: self.originalStickerId = self.json["extensions"]["originalStickerId"]
         except (KeyError, TypeError): pass
+        try: self.mentionUserIds = self.json["extensions"]["mentionUserIds"]
+        except (KeyError, TypeError): pass
 
         return self
 
@@ -2556,6 +2562,7 @@ class MessageList:
         self.isHidden = []
         self.messageType = []
         self.messageId = []
+        self.mediaType = []
         self.mediaValue = []
         self.chatBubbleId = []
         self.clientRefId = []
@@ -2600,6 +2607,8 @@ class MessageList:
             except (KeyError, TypeError): self.type.append(None)
             try: self.mediaValue.append(x["mediaValue"])
             except (KeyError, TypeError): self.mediaValue.append(None)
+            try: self.mediaType.append(x["mediaType"])
+            except (KeyError, TypeError): self.mediaType.append(None)
             try: self.extensions.append(x["extensions"])
             except (KeyError, TypeError): self.extensions.append(None)
             try: self.duration.append(x["extensions"]["duration"])

@@ -394,6 +394,15 @@ class ChatFull(Exception):
     def __init__(*args, **kwargs):
         Exception.__init__(*args, **kwargs)
 
+class ChatInvitesDisabled(Exception):
+    """
+    - **API Code** : 1611
+    - **API Message** : This user has disabled chat invite requests.
+    - **API String** : ``Unknown String``
+    """
+    def __init__(*args, **kwargs):
+        Exception.__init__(*args, **kwargs)
+
 class UserNotJoined(Exception):
     """
     - **API Code** : 1613
@@ -739,6 +748,7 @@ def CheckException(data):
     elif api_code == 806: raise CommunityCreateLimitReached(data)
     elif api_code == 833: raise CommunityDeleted(data)
     elif api_code == 1605: raise ChatFull(data)
+    elif api_code == 1611: raise ChatInvitesDisabled(data)
     elif api_code == 1613: raise UserNotJoined(data)
     elif api_code == 1627: raise API_ERR_CHAT_VVCHAT_NO_MORE_REPUTATIONS(data)
     elif api_code == 1661: raise LevelFiveRequiredToEnableProps(data)
