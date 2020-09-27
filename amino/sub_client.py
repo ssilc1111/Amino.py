@@ -389,13 +389,16 @@ class SubClient(client.Client):
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return response.status_code
 
-    def start_chat(self, userId: [str, list], message: str):
+    def start_chat(self, userId: [str, list], message: str, isGlobal: bool = False):
         if isinstance(userId, str): userIds = [userId]
         elif isinstance(userId, list): userIds = userId
         else: raise exceptions.WrongType
+        
+        if isGlobal is True: ty = 2
+        else: ty = 0
 
         data = json.dumps({
-            "type": 0,
+            "type": ty,
             "inviteeUids": userIds,
             "initialMessageContent": message,
             "timestamp": int(timestamp() * 1000)
