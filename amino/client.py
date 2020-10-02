@@ -1609,3 +1609,20 @@ class Client:
         response = requests.get(f"{self.api}/g/s/store/subscription?objectType=122&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return json.loads(response.text)["storeSubscriptionItemList"]
+
+    def get_all_users(self, start: int = 0, size: int = 25):
+        """
+        Get list of users of Amino.
+
+        **Parameters**
+            - *start* : Where to start the list.
+            - *size* : Size of the list.
+
+        **Returns**
+            - **Success** : :meth:`User Profile Count List Object <amino.lib.util.objects.UserProfileCountList>`
+
+            - **Fail** : :meth:`Exceptions <amino.lib.util.exceptions>`
+        """
+        response = requests.get(f"{self.api}/g/s/user-profile?type=recent&start={start}&size={size}", headers=headers.Headers().headers)
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return objects.UserProfileCountList(json.loads(response.text)).UserProfileCountList

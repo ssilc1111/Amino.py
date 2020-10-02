@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Modules &mdash; Amino.py 1.1.9 documentation</title>
+  <title>Modules &mdash; Amino.py 1.2.0 documentation</title>
   
 
   
@@ -514,6 +514,24 @@ categories: module.topicCategories.enabled</p>
 </dd>
 <dt><strong>Returns</strong></dt><dd><ul class="simple">
 <li><p><strong>Success</strong> : 200 (int)</p></li>
+<li><p><strong>Fail</strong> : <a class="reference internal" href="#module-amino.lib.util.exceptions" title="amino.lib.util.exceptions"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Exceptions</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="amino.client.Client.get_all_users">
+<code class="sig-name descname">get_all_users</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">size</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">25</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.client.Client.get_all_users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of users of Amino.</p>
+<dl class="simple">
+<dt><strong>Parameters</strong></dt><dd><ul class="simple">
+<li><p><em>start</em> : Where to start the list.</p></li>
+<li><p><em>size</em> : Size of the list.</p></li>
+</ul>
+</dd>
+<dt><strong>Returns</strong></dt><dd><ul class="simple">
+<li><p><strong>Success</strong> : <a class="reference internal" href="#amino.lib.util.objects.UserProfileCountList" title="amino.lib.util.objects.UserProfileCountList"><code class="xref py py-meth docutils literal notranslate"><span class="pre">User</span> <span class="pre">Profile</span> <span class="pre">Count</span> <span class="pre">List</span> <span class="pre">Object</span></code></a></p></li>
 <li><p><strong>Fail</strong> : <a class="reference internal" href="#module-amino.lib.util.exceptions" title="amino.lib.util.exceptions"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Exceptions</span></code></a></p></li>
 </ul>
 </dd>
@@ -1708,7 +1726,20 @@ categories: module.topicCategories.enabled</p>
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.get_all_users">
 <code class="sig-name descname">get_all_users</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">type</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'recent'</span></em>, <em class="sig-param"><span class="n">start</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">size</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">25</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.get_all_users" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Get list of users of Amino.</p>
+<dl class="simple">
+<dt><strong>Parameters</strong></dt><dd><ul class="simple">
+<li><p><em>start</em> : Where to start the list.</p></li>
+<li><p><em>size</em> : Size of the list.</p></li>
+</ul>
+</dd>
+<dt><strong>Returns</strong></dt><dd><ul class="simple">
+<li><p><strong>Success</strong> : <a class="reference internal" href="#amino.lib.util.objects.UserProfileCountList" title="amino.lib.util.objects.UserProfileCountList"><code class="xref py py-meth docutils literal notranslate"><span class="pre">User</span> <span class="pre">Profile</span> <span class="pre">Count</span> <span class="pre">List</span> <span class="pre">Object</span></code></a></p></li>
+<li><p><strong>Fail</strong> : <a class="reference internal" href="#module-amino.lib.util.exceptions" title="amino.lib.util.exceptions"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Exceptions</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.get_best_quiz">
@@ -2335,7 +2366,7 @@ categories: module.topicCategories.enabled</p>
 
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.start_chat">
-<code class="sig-name descname">start_chat</code><span class="sig-paren">(</span><em class="sig-param">userId: [&lt;class 'str'&gt;, &lt;class 'list'&gt;], message: str, isGlobal: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.start_chat" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">start_chat</code><span class="sig-paren">(</span><em class="sig-param">userId: [&lt;class 'str'&gt;, &lt;class 'list'&gt;], title: str, message: str, content: str = None, isGlobal: bool = False, publishToGlobal: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.start_chat" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">

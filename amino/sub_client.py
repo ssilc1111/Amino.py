@@ -389,20 +389,26 @@ class SubClient(client.Client):
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return response.status_code
 
-    def start_chat(self, userId: [str, list], message: str, isGlobal: bool = False):
+    def start_chat(self, userId: [str, list], title: str, message: str, content: str = None, isGlobal: bool = False, publishToGlobal: bool = False):
         if isinstance(userId, str): userIds = [userId]
         elif isinstance(userId, list): userIds = userId
         else: raise exceptions.WrongType
-        
-        if isGlobal is True: ty = 2
-        else: ty = 0
 
-        data = json.dumps({
-            "type": ty,
+        data = {
+            "title": title,
             "inviteeUids": userIds,
             "initialMessageContent": message,
+            "content": content,
             "timestamp": int(timestamp() * 1000)
-        })
+        }
+
+        if isGlobal is True: data["type"] = 2; data["eventSource"] = "GlobalComposeMenu"
+        else: data["type"] = 0
+
+        if publishToGlobal is True: data["publishToGlobal"] = 1
+        else: data["publishToGlobal"] = 0
+
+        data = json.dumps(data)
 
         response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread", data=data, headers=headers.Headers(data=data).headers)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
