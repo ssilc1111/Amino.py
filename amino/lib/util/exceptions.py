@@ -52,6 +52,15 @@ class UnexistentData(Exception):
     def __init__(*args, **kwargs):
         Exception.__init__(*args, **kwargs)
 
+class ActionNotAllowed(Exception):
+    """
+    - **API Code** : 110
+    - **API Message** : Action not allowed.
+    - **API String** : ``Unknown String``
+    """
+    def __init__(*args, **kwargs):
+        Exception.__init__(*args, **kwargs)
+
 class MessageNeeded(Exception):
     """
     - **API Code** : 113
@@ -713,6 +722,7 @@ def CheckException(data):
     elif api_code == 105: raise InvalidSession(data)
     elif api_code == 106: raise AccessDenied(data)
     elif api_code == 107: raise UnexistentData(data)
+    elif api_code == 110: raise ActionNotAllowed(data)
     elif api_code == 113: raise MessageNeeded(data)
     elif api_code == 200: raise InvalidAccountOrPassword(data)
     elif api_code == 213: raise InvalidEmail(data)
@@ -769,4 +779,4 @@ def CheckException(data):
     elif api_code == 6001: raise AminoIDAlreadyChanged(data)
     elif api_code == 6002: raise InvalidAminoID(data)
     elif api_code == 9901: raise InvalidName(data)
-    else: return data
+    else: raise data
