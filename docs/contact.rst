@@ -5,5 +5,5 @@ Contact
 
 Here you can contact me about the library.
 
-- Discord
-    - Support Server : https://discord.gg/EpseeX9
+- Developer : Slimakoi 鿆#6422 (https://linktr.ee/Slimakoi)
+- Discord Support Server : https://rebrand.ly/slimakoi-and-friends

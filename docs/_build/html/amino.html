@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Modules &mdash; Amino.py 1.2.1.1 documentation</title>
+  <title>Modules &mdash; Amino.py 1.2.2 documentation</title>
   
 
   
@@ -2542,13 +2542,28 @@ categories: module.topicCategories.enabled</p>
 <em class="property">class </em><code class="sig-prename descclassname">amino.socket.</code><code class="sig-name descname">Callbacks</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">client</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.socket.Callbacks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
+<dt id="amino.socket.Callbacks.call">
+<code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">type</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.socket.Callbacks.call" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="amino.socket.Callbacks.default">
 <code class="sig-name descname">default</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.socket.Callbacks.default" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt id="amino.socket.Callbacks.event">
+<code class="sig-name descname">event</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">type</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.socket.Callbacks.event" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="amino.socket.Callbacks.on_chat_invite">
 <code class="sig-name descname">on_chat_invite</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.socket.Callbacks.on_chat_invite" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="amino.socket.Callbacks.on_delete_message">
+<code class="sig-name descname">on_delete_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.socket.Callbacks.on_delete_message" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -2567,6 +2582,11 @@ categories: module.topicCategories.enabled</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt id="amino.socket.Callbacks.on_screen_room_start">
+<code class="sig-name descname">on_screen_room_start</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.socket.Callbacks.on_screen_room_start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="amino.socket.Callbacks.on_sticker_message">
 <code class="sig-name descname">on_sticker_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.socket.Callbacks.on_sticker_message" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -2574,6 +2594,26 @@ categories: module.topicCategories.enabled</p>
 <dl class="py method">
 <dt id="amino.socket.Callbacks.on_text_message">
 <code class="sig-name descname">on_text_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.socket.Callbacks.on_text_message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="amino.socket.Callbacks.on_user_typing_end">
+<code class="sig-name descname">on_user_typing_end</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.socket.Callbacks.on_user_typing_end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="amino.socket.Callbacks.on_user_typing_start">
+<code class="sig-name descname">on_user_typing_start</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.socket.Callbacks.on_user_typing_start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="amino.socket.Callbacks.on_voice_chat_end">
+<code class="sig-name descname">on_voice_chat_end</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.socket.Callbacks.on_voice_chat_end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="amino.socket.Callbacks.on_voice_chat_start">
+<code class="sig-name descname">on_voice_chat_start</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.socket.Callbacks.on_voice_chat_start" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -2722,6 +2762,17 @@ categories: module.topicCategories.enabled</p>
 <dl class="py method">
 <dt id="amino.lib.util.objects.CommunityStickerCollection.CommunityStickerCollection">
 <em class="property">property </em><code class="sig-name descname">CommunityStickerCollection</code><a class="headerlink" href="#amino.lib.util.objects.CommunityStickerCollection.CommunityStickerCollection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="amino.lib.util.objects.Event">
+<em class="property">class </em><code class="sig-prename descclassname">amino.lib.util.objects.</code><code class="sig-name descname">Event</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.lib.util.objects.Event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="amino.lib.util.objects.Event.Event">
+<em class="property">property </em><code class="sig-name descname">Event</code><a class="headerlink" href="#amino.lib.util.objects.Event.Event" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

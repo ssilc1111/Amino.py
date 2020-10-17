@@ -4,6 +4,8 @@ import time
 import websocket
 import contextlib
 
+from .lib.util import objects
+
 class SocketHandler:
     def __init__(self, client, socket_trace = False):
         websocket.enableTrace(True)
@@ -68,8 +70,11 @@ class Callbacks:
         client: Client to be used
         """
         self.client = client
+        self.handlers = {}
 
         self.methods = {
+            304: self._resolve_chat_action_start,
+            306: self._resolve_chat_action_end,
             1000: self._resolve_chat_message
         }
 
@@ -79,42 +84,69 @@ class Callbacks:
             "0:103": self.on_youtube_message,
             "2:110": self.on_voice_message,
             "3:113": self.on_sticker_message,
+            "100:0": self.on_delete_message,
             "101:0": self.on_group_member_join,
             "102:0": self.on_group_member_leave,
-            "103:0": self.on_chat_invite
+            "103:0": self.on_chat_invite,
+            "107:0": self.on_voice_chat_start,
+            "110:0": self.on_voice_chat_end,
+            "114:0": self.on_screen_room_start
+        }
+
+        self.chat_actions_start = {
+            "Typing": self.on_user_typing_start,
+        }
+
+        self.chat_actions_end = {
+            "Typing": self.on_user_typing_end,
         }
 
     def _resolve_chat_message(self, data):
         key = f"{data['o']['chatMessage']['type']}:{data['o']['chatMessage'].get('mediaType', 0)}"
         return self.chat_methods.get(key, self.default)(data)
 
+    def _resolve_chat_action_start(self, data):
+        key = data['o'].get('actions', 0)
+        return self.chat_actions_start.get(key, self.default)(data)
+
+    def _resolve_chat_action_end(self, data):
+        key = data['o'].get('actions', 0)
+        return self.chat_actions_end.get(key, self.default)(data)
+
     def resolve(self, data):
         data = json.loads(data)
         return self.methods.get(data["t"], self.default)(data)
 
-    def on_text_message(self, data):
-        pass
+    def call(self, type, data):
+        if type in self.handlers:
+            for handler in self.handlers[type]:
+                handler(data)
 
-    def on_image_message(self, data):
-        pass
+    def event(self, type):
+        def registerHandler(handler):
+            if type in self.handlers:
+                self.handlers[type].append(handler)
+            else:
+                self.handlers[type] = [handler]
+            return handler
 
-    def on_youtube_message(self, data):
-        pass
+        return registerHandler
 
-    def on_voice_message(self, data):
-        pass
+    def on_text_message(self, data): self.call("on_text_message", objects.Event(data["o"]).Event)
+    def on_image_message(self, data): self.call("on_image_message", objects.Event(data["o"]).Event)
+    def on_youtube_message(self, data): self.call("on_youtube_message", objects.Event(data["o"]).Event)
+    def on_voice_message(self, data): self.call("on_voice_message", objects.Event(data["o"]).Event)
+    def on_sticker_message(self, data): self.call("on_sticker_message", objects.Event(data["o"]).Event)
+    def on_delete_message(self, data): self.call("on_delete_message", objects.Event(data["o"]).Event)
+    def on_group_member_join(self, data): self.call("on_group_member_join", objects.Event(data["o"]).Event)
+    def on_group_member_leave(self, data): self.call("on_group_member_leave", objects.Event(data["o"]).Event)
+    def on_chat_invite(self, data): self.call("on_chat_invite", objects.Event(data["o"]).Event)
+    def on_voice_chat_start(self, data): self.call("on_voice_chat_start", objects.Event(data["o"]).Event)
+    def on_voice_chat_end(self, data): self.call("on_voice_chat_end", objects.Event(data["o"]).Event)
+    def on_screen_room_start(self, data): self.call("on_screen_room_start", objects.Event(data["o"]).Event)
 
-    def on_sticker_message(self, data):
-        pass
+    # TODO: fix these
+    def on_user_typing_start(self, data): self.call("on_user_typing_start", objects.Event(data["o"]).Event)
+    def on_user_typing_end(self, data): self.call("on_user_typing_end", objects.Event(data["o"]).Event)
 
-    def on_group_member_join(self, data):
-        pass
-
-    def on_group_member_leave(self, data):
-        pass
-
-    def on_chat_invite(self, data):
-        pass
-
-    def default(self, data):
-        pass
+    def default(self, data): self.call("default", data)

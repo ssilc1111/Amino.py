@@ -917,8 +917,8 @@ class SubClient(client.Client):
 
         for question, answer in zip(questionIdsList, answerIdsList):
             part = json.dumps({
-                "optIdList": [question],
-                "quizQuestionId": answer,
+                "optIdList": [answer],
+                "quizQuestionId": question,
                 "timeSpent": 0.0
             })
 
@@ -1683,7 +1683,7 @@ class SubClient(client.Client):
     def review_quiz_questions(self, quizId: str):
         response = requests.get(f"{self.api}/x{self.comId}/s/blog/{quizId}?action=review", headers=headers.Headers().headers)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
-        else: return objects.QuizQuestionList(json.loads(response.text)["quizQuestionList"]).QuizQuestionList
+        else: return objects.QuizQuestionList(json.loads(response.text)["blog"]["quizQuestionList"]).QuizQuestionList
 
     def get_recent_quiz(self, start: int = 0, size: int = 25):
         response = requests.get(f"{self.api}/x{self.comId}/s/blog?type=quizzes-recent&start={start}&size={size}", headers=headers.Headers().headers)

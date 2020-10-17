@@ -12,7 +12,7 @@ from .socket import Callbacks, SocketHandler
 device = device.DeviceGenerator()
 
 class Client:
-    def __init__(self, callback=Callbacks, socket_trace=False):
+    def __init__(self, callback = Callbacks, socket_trace = False):
         self.api = "https://service.narvii.com/api/v1"
         self.authenticated = False
         self.configured = False
@@ -246,6 +246,7 @@ class Client:
 
             - **Fail** : :meth:`Exceptions <amino.lib.util.exceptions>`
         """
+
         data = json.dumps({
             "type": 1,
             "identity": email,
