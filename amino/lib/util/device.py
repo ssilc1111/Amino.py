@@ -13,7 +13,7 @@ class DeviceGenerator:
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             device = generate_device_info()
             with open("device.json", "w") as stream:
-                json.dump(device, stream)
+                json.dump(device, stream, indent=4)
 
             with open("device.json", "r") as stream:
                 data = json.load(stream)

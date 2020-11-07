@@ -779,4 +779,4 @@ def CheckException(data):
     elif api_code == 6001: raise AminoIDAlreadyChanged(data)
     elif api_code == 6002: raise InvalidAminoID(data)
     elif api_code == 9901: raise InvalidName(data)
-    else: raise data
+    else: raise Exception(data)

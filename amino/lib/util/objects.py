@@ -80,6 +80,8 @@ class UserProfile:
         self.visitPrivacy = None
         self.visitorsCount = None
         self.warningCount = None
+        self.totalQuizHighestScore = None
+        self.totalQuizPlayedTimes = None
 
     @property
     def UserProfile(self):
@@ -229,6 +231,10 @@ class UserProfile:
         except (KeyError, TypeError): pass
         try: self.warningCount = self.json["adminInfo"]["warningCount"]
         except (KeyError, TypeError): pass
+        try: self.totalQuizHighestScore = self.json["totalQuizHighestScore"]
+        except (KeyError, TypeError): pass
+        try: self.totalQuizPlayedTimes = self.json["totalQuizPlayedTimes"]
+        except (KeyError, TypeError): pass
 
         return self
 
@@ -315,6 +321,8 @@ class UserProfileList:
         self.visitPrivacy = []
         self.visitorsCount = []
         self.warningCount = []
+        self.totalQuizPlayedTimes = []
+        self.totalQuizHighestScore = []
 
     @property
     def UserProfileList(self):
@@ -465,6 +473,10 @@ class UserProfileList:
             except (KeyError, TypeError): self.visitorsCount.append(None)
             try: self.warningCount.append(x["adminInfo"]["warningCount"])
             except (KeyError, TypeError): self.warningCount.append(None)
+            try: self.totalQuizPlayedTimes.append(x["totalQuizPlayedTimes"])
+            except (KeyError, TypeError): self.totalQuizPlayedTimes.append(None)
+            try: self.totalQuizHighestScore.append(x["totalQuizHighestScore"])
+            except (KeyError, TypeError): self.totalQuizHighestScore.append(None)
 
         return self
 
@@ -673,10 +685,10 @@ class Blog:
     def __init__(self, data):
         self.json = data
 
-        try: self.author = UserProfile(data["author"]).UserProfile
-        except (KeyError, TypeError): self.author = None
-        try: self.quizQuestionList = QuizQuestionList(data["quizQuestionList"]).QuizQuestionList
-        except (KeyError, TypeError): self.quizQuestionList = None
+        try: self.author: UserProfile = UserProfile(data["author"]).UserProfile
+        except (KeyError, TypeError): self.author: UserProfile = UserProfile(None)
+        try: self.quizQuestionList: QuizQuestionList = QuizQuestionList(data["quizQuestionList"]).QuizQuestionList
+        except (KeyError, TypeError): self.quizQuestionList: QuizQuestionList = QuizQuestionList([])
 
         self.createdTime = None
         self.globalVotesCount = None
@@ -1785,8 +1797,8 @@ class GetBlogInfo:
     def __init__(self, data):
         self.json = data
 
-        try: self.blog = Blog(data["blog"]).Blog
-        except (KeyError, TypeError): self.blog = None
+        try: self.blog: Blog = Blog(data["blog"]).Blog
+        except (KeyError, TypeError): self.blog: Blog = Blog(None)
 
         self.isBookmarked = None
 
@@ -2943,7 +2955,14 @@ class InfluencerFans:
 
 class QuizQuestionList:
     def __init__(self, data):
+        _answersList = []
+
         self.json = data
+
+        for y in data:
+            try: _answersList.append(QuizAnswers(y["extensions"]["quizQuestionOptList"]).QuizAnswers)
+            except (KeyError, TypeError): _answersList.append(None)
+
         self.status = []
         self.parentType = []
         self.title = []
@@ -2954,8 +2973,9 @@ class QuizQuestionList:
         self.extensions = []
         self.style = []
         self.backgroundImage = []
+        self.backgroundColor = []
         self.answerExplanation = []
-        self.answersList = []
+        self.answersList = _answersList
 
     @property
     def QuizQuestionList(self):
@@ -2979,11 +2999,36 @@ class QuizQuestionList:
             try: self.style.append(x["extensions"]["style"])
             except (KeyError, TypeError): self.style.append(None)
             try: self.backgroundImage.append(x["extensions"]["style"]["backgroundMediaList"][0][1])
-            except (KeyError, TypeError): self.backgroundImage.append(None)
+            except (KeyError, TypeError, IndexError): self.backgroundImage.append(None)
+            try: self.backgroundColor.append(x["extensions"]["style"]["backgroundColor"])
+            except (KeyError, TypeError): self.backgroundColor.append(None)
             try: self.answerExplanation.append(x["extensions"]["quizAnswerExplanation"])
             except (KeyError, TypeError): self.answerExplanation.append(None)
-            try: self.answersList.append(x["extensions"]["quizQuestionOptList"])
-            except (KeyError, TypeError): self.answersList.append(None)
+
+        return self
+
+class QuizAnswers:
+    def __init__(self, data):
+        self.json = data
+        self.answerId = []
+        self.isCorrect = []
+        self.mediaList = []
+        self.title = []
+        self.qhash = []
+
+    @property
+    def QuizAnswers(self):
+        for x in self.json:
+            try: self.answerId.append(x["optId"])
+            except (KeyError, TypeError): self.answerId.append(None)
+            try: self.qhash.append(x["qhash"])
+            except (KeyError, TypeError): self.qhash.append(None)
+            try: self.isCorrect.append(x["isCorrect"])
+            except (KeyError, TypeError): self.isCorrect.append(None)
+            try: self.mediaList.append(x["mediaList"])
+            except (KeyError, TypeError): self.mediaList.append(None)
+            try: self.title.append(x["title"])
+            except (KeyError, TypeError): self.title.append(None)
 
         return self
 
@@ -2994,20 +3039,21 @@ class QuizRankings:
         self.json = data
 
         for y in data:
-            try: self.profile = QuizRanking(y["quizResultOfCurrentUser"]).QuizRanking
-            except (KeyError, TypeError): self.profile = None
             try: _rankingList.append(QuizRanking(y["quizResultRankingList"]).QuizRanking)
             except (KeyError, TypeError): _rankingList.append(None)
 
         self.rankingList = _rankingList
         self.quizPlayedTimes = None
         self.quizInBestQuizzes = None
+        self.profile: QuizRanking = QuizRanking(None)
 
     @property
     def QuizRankings(self):
         try: self.quizPlayedTimes = self.json["quizPlayedTimes"]
         except (KeyError, TypeError): pass
         try: self.quizInBestQuizzes = self.json["quizInBestQuizzes"]
+        except (KeyError, TypeError): pass
+        try: self.profile: QuizRanking = QuizRanking(self.json["quizResultOfCurrentUser"]).QuizRanking
         except (KeyError, TypeError): pass
 
         return self

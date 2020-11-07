@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Modules &mdash; Amino.py 1.2.2 documentation</title>
+  <title>Modules &mdash; Amino.py 1.2.3 documentation</title>
   
 
   
@@ -231,7 +231,7 @@ categories: module.topicCategories.enabled</p>
 <span id="client"></span><h2>Client<a class="headerlink" href="#module-amino.client" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="amino.client.Client">
-<em class="property">class </em><code class="sig-prename descclassname">amino.client.</code><code class="sig-name descname">Client</code><span class="sig-paren">(</span><em class="sig-param">callback=&lt;class 'amino.socket.Callbacks'&gt;</em>, <em class="sig-param">socket_trace=False</em><span class="sig-paren">)</span><a class="headerlink" href="#amino.client.Client" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">amino.client.</code><code class="sig-name descname">Client</code><span class="sig-paren">(</span><em class="sig-param">callback=&lt;class 'amino.socket.Callbacks'&gt;</em>, <em class="sig-param">proxies: dict = None</em>, <em class="sig-param">certificatePath=None</em>, <em class="sig-param">socket_trace=False</em><span class="sig-paren">)</span><a class="headerlink" href="#amino.client.Client" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt id="amino.client.Client.activate_account">
@@ -288,7 +288,21 @@ categories: module.topicCategories.enabled</p>
 <dl class="py method">
 <dt id="amino.client.Client.change_password">
 <code class="sig-name descname">change_password</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">email</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">password</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">code</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.client.Client.change_password" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Change password of an account.</p>
+<dl class="simple">
+<dt><strong>Parameters</strong></dt><dd><ul class="simple">
+<li><p><strong>email</strong> : Email of the account.</p></li>
+<li><p><strong>password</strong> : Password of the account.</p></li>
+<li><p><strong>code</strong> : Verification code.</p></li>
+</ul>
+</dd>
+<dt><strong>Returns</strong></dt><dd><ul class="simple">
+<li><p><strong>Success</strong> : 200 (int)</p></li>
+<li><p><strong>Fail</strong> : <a class="reference internal" href="#module-amino.lib.util.exceptions" title="amino.lib.util.exceptions"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Exceptions</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="amino.client.Client.check_device">
@@ -978,6 +992,24 @@ categories: module.topicCategories.enabled</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt id="amino.client.Client.invite_to_chat">
+<code class="sig-name descname">invite_to_chat</code><span class="sig-paren">(</span><em class="sig-param">userId: [&lt;class 'str'&gt;, &lt;class 'list'&gt;], chatId: str</em><span class="sig-paren">)</span><a class="headerlink" href="#amino.client.Client.invite_to_chat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Invite a User or List of Users to a Chat.</p>
+<dl class="simple">
+<dt><strong>Parameters</strong></dt><dd><ul class="simple">
+<li><p><strong>userId</strong> : ID of the User or List of User IDs.</p></li>
+<li><p><strong>chatId</strong> : ID of the Chat.</p></li>
+</ul>
+</dd>
+<dt><strong>Returns</strong></dt><dd><ul class="simple">
+<li><p><strong>Success</strong> : 200 (int)</p></li>
+<li><p><strong>Fail</strong> : <a class="reference internal" href="#module-amino.lib.util.exceptions" title="amino.lib.util.exceptions"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Exceptions</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="amino.client.Client.join_chat">
 <code class="sig-name descname">join_chat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chatId</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.client.Client.join_chat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Join an Chat.</p>
@@ -1333,6 +1365,28 @@ categories: module.topicCategories.enabled</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="amino.client.Client.start_chat">
+<code class="sig-name descname">start_chat</code><span class="sig-paren">(</span><em class="sig-param">userId: [&lt;class 'str'&gt;, &lt;class 'list'&gt;], message: str, title: str = None, content: str = None, isGlobal: bool = False, publishToGlobal: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#amino.client.Client.start_chat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start an Chat with an User or List of Users.</p>
+<dl class="simple">
+<dt><strong>Parameters</strong></dt><dd><ul class="simple">
+<li><p><strong>userId</strong> : ID of the User or List of User IDs.</p></li>
+<li><p><strong>message</strong> : Starting Message.</p></li>
+<li><p><strong>title</strong> : Title of Group Chat.</p></li>
+<li><p><strong>content</strong> : Content of Group Chat.</p></li>
+<li><p><strong>isGlobal</strong> : If Group Chat is Global.</p></li>
+<li><p><strong>publishToGlobal</strong> : If Group Chat should show in Global.</p></li>
+</ul>
+</dd>
+<dt><strong>Returns</strong></dt><dd><ul class="simple">
+<li><p><strong>Success</strong> : 200 (int)</p></li>
+<li><p><strong>Fail</strong> : <a class="reference internal" href="#module-amino.lib.util.exceptions" title="amino.lib.util.exceptions"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Exceptions</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="amino.client.Client.sub_clients">
 <code class="sig-name descname">sub_clients</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">size</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">25</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.client.Client.sub_clients" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of Communities the account is in.</p>
@@ -1484,14 +1538,19 @@ categories: module.topicCategories.enabled</p>
 <em class="property">class </em><code class="sig-prename descclassname">amino.sub_client.</code><code class="sig-name descname">SubClient</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">comId</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">profile</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#amino.lib.util.objects.UserProfile" title="amino.lib.util.objects.UserProfile">amino.lib.util.objects.UserProfile</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#amino.client.Client" title="amino.client.Client"><code class="xref py py-class docutils literal notranslate"><span class="pre">amino.client.Client</span></code></a></p>
 <dl class="py method">
+<dt id="amino.sub_client.SubClient.accept_host">
+<code class="sig-name descname">accept_host</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chatId</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.accept_host" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="amino.sub_client.SubClient.accept_organizer">
+<code class="sig-name descname">accept_organizer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chatId</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.accept_organizer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="amino.sub_client.SubClient.activity_status">
-<code class="sig-name descname">activity_status</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">status</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.activity_status" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>status</strong> (<em>int</em>) – 1 is Online, 2 is Offline</p>
-</dd>
-</dl>
-</dd></dl>
+<code class="sig-name descname">activity_status</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">status</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.activity_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.add_to_favorites">
@@ -2161,7 +2220,20 @@ categories: module.topicCategories.enabled</p>
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.invite_to_chat">
 <code class="sig-name descname">invite_to_chat</code><span class="sig-paren">(</span><em class="sig-param">userId: [&lt;class 'str'&gt;, &lt;class 'list'&gt;], chatId: str</em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.invite_to_chat" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Invite a User or List of Users to a Chat.</p>
+<dl class="simple">
+<dt><strong>Parameters</strong></dt><dd><ul class="simple">
+<li><p><strong>userId</strong> : ID of the User or List of User IDs.</p></li>
+<li><p><strong>chatId</strong> : ID of the Chat.</p></li>
+</ul>
+</dd>
+<dt><strong>Returns</strong></dt><dd><ul class="simple">
+<li><p><strong>Success</strong> : 200 (int)</p></li>
+<li><p><strong>Fail</strong> : <a class="reference internal" href="#module-amino.lib.util.exceptions" title="amino.lib.util.exceptions"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Exceptions</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.join_chat">
@@ -2274,8 +2346,13 @@ categories: module.topicCategories.enabled</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt id="amino.sub_client.SubClient.play_quiz_xd">
+<code class="sig-name descname">play_quiz_xd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">quizId</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">quizAnswerList</span></em>, <em class="sig-param"><span class="n">quizMode</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.play_quiz_xd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="amino.sub_client.SubClient.post_blog">
-<code class="sig-name descname">post_blog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">title</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">content</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">categoriesList</span><span class="p">:</span> <span class="n">list</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">backgroundColor</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fansOnly</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.post_blog" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">post_blog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">title</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">content</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">categoriesList</span><span class="p">:</span> <span class="n">list</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">backgroundColor</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fansOnly</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">extensions</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.post_blog" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -2305,9 +2382,8 @@ categories: module.topicCategories.enabled</p>
 
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.repost_blog">
-<code class="sig-name descname">repost_blog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">blogId</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">content</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.repost_blog" title="Permalink to this definition">¶</a></dt>
-<dd><p>refObjectType: 1 is blog, 2 is favorite</p>
-</dd></dl>
+<code class="sig-name descname">repost_blog</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">content</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">blogId</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">wikiId</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.repost_blog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.review_quiz_questions">
@@ -2317,6 +2393,11 @@ categories: module.topicCategories.enabled</p>
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.search_users">
 <code class="sig-name descname">search_users</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nickname</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">start</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">size</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">25</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.search_users" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="amino.sub_client.SubClient.send_action">
+<code class="sig-name descname">send_action</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">actions</span><span class="p">:</span> <span class="n">list</span></em>, <em class="sig-param"><span class="n">blogId</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">quizId</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">lastAction</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.send_action" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -2367,7 +2448,24 @@ categories: module.topicCategories.enabled</p>
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.start_chat">
 <code class="sig-name descname">start_chat</code><span class="sig-paren">(</span><em class="sig-param">userId: [&lt;class 'str'&gt;, &lt;class 'list'&gt;], message: str, title: str = None, content: str = None, isGlobal: bool = False, publishToGlobal: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.start_chat" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Start an Chat with an User or List of Users.</p>
+<dl class="simple">
+<dt><strong>Parameters</strong></dt><dd><ul class="simple">
+<li><p><strong>userId</strong> : ID of the User or List of User IDs.</p></li>
+<li><p><strong>message</strong> : Starting Message.</p></li>
+<li><p><strong>title</strong> : Title of Group Chat.</p></li>
+<li><p><strong>content</strong> : Content of Group Chat.</p></li>
+<li><p><strong>isGlobal</strong> : If Group Chat is Global.</p></li>
+<li><p><strong>publishToGlobal</strong> : If Group Chat should show in Global.</p></li>
+</ul>
+</dd>
+<dt><strong>Returns</strong></dt><dd><ul class="simple">
+<li><p><strong>Success</strong> : 200 (int)</p></li>
+<li><p><strong>Fail</strong> : <a class="reference internal" href="#module-amino.lib.util.exceptions" title="amino.lib.util.exceptions"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Exceptions</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.strike">
@@ -2376,7 +2474,7 @@ categories: module.topicCategories.enabled</p>
 
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.subscribe">
-<code class="sig-name descname">subscribe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">userId</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">autoRenew</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.subscribe" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">subscribe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">userId</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">autoRenew</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">transactionId</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.subscribe" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -2894,6 +2992,17 @@ categories: module.topicCategories.enabled</p>
 <dl class="py method">
 <dt id="amino.lib.util.objects.NotificationList.NotificationList">
 <em class="property">property </em><code class="sig-name descname">NotificationList</code><a class="headerlink" href="#amino.lib.util.objects.NotificationList.NotificationList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="amino.lib.util.objects.QuizAnswers">
+<em class="property">class </em><code class="sig-prename descclassname">amino.lib.util.objects.</code><code class="sig-name descname">QuizAnswers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.lib.util.objects.QuizAnswers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="amino.lib.util.objects.QuizAnswers.QuizAnswers">
+<em class="property">property </em><code class="sig-name descname">QuizAnswers</code><a class="headerlink" href="#amino.lib.util.objects.QuizAnswers.QuizAnswers" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
