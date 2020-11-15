@@ -1,6 +1,6 @@
-import json
 import base64
 import requests
+import ujson as json
 
 from uuid import UUID
 from os import urandom
@@ -437,7 +437,8 @@ class SubClient(client.Client):
         else: return response.status_code
 
     def send_coins(self, coins: int, blogId: str = None, chatId: str = None, objectId: str = None, transactionId: str = None):
-        if transactionId is None: transactionId = UUID(hexlify(urandom(16)).decode('ascii'))
+        url = None
+        if transactionId is None: transactionId = str(UUID(hexlify(urandom(16)).decode('ascii')))
 
         data = {
             "coins": coins,
@@ -445,15 +446,17 @@ class SubClient(client.Client):
             "timestamp": int(timestamp() * 1000)
         }
 
-        if chatId: response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/tipping", headers=headers.Headers(data=json.dumps(data)).headers, data=json.dumps(data))
-        elif blogId: response = requests.post(f"{self.api}/x{self.comId}/s/blog/{blogId}/tipping", headers=headers.Headers(data=json.dumps(data)).headers, data=json.dumps(data))
-        elif objectId:
+        if blogId is not None: url = f"{self.api}/x{self.comId}/s/blog/{blogId}/tipping"
+        if chatId is not None: url = f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/tipping"
+        if objectId is not None:
             data["objectId"] = objectId
             data["objectType"] = 2
-            data = json.dumps(data)
-            response = requests.post(f"{self.api}/x{self.comId}/s/tipping", headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
+            url = f"{self.api}/x{self.comId}/s/tipping"
 
-        else: raise exceptions.SpecifyType()
+        if url is None: raise exceptions.SpecifyType()
+
+        data = json.dumps(data)
+        response = requests.post(url, headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return response.status_code
 
@@ -908,7 +911,7 @@ class SubClient(client.Client):
         else: return response.status_code
 
     def subscribe(self, userId: str, autoRenew: str = False, transactionId: str = None):
-        if transactionId is None: transactionId = UUID(hexlify(urandom(16)).decode('ascii'))
+        if transactionId is None: transactionId = str(UUID(hexlify(urandom(16)).decode('ascii')))
 
         data = json.dumps({
             "paymentContext": {

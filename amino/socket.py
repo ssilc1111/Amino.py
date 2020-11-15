@@ -1,8 +1,8 @@
-import json
 import threading
 import time
 import websocket
 import contextlib
+import ujson as json
 
 from .lib.util import objects
 

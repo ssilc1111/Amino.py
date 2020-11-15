@@ -1,10 +1,13 @@
-import json
 import base64
 import requests
+import ujson as json
+from uuid import UUID
+from os import urandom
 from time import timezone
+from typing import BinaryIO
+from binascii import hexlify
 from time import time as timestamp
 from locale import getdefaultlocale as locale
-from typing import BinaryIO
 
 from .lib.util import exceptions, headers, device, objects
 from .socket import Callbacks, SocketHandler
@@ -1002,6 +1005,30 @@ class Client:
             - **Fail** : :meth:`Exceptions <amino.lib.util.exceptions>`
         """
         response = requests.get(f"{self.api}/g/s/user-profile/{userId}?action=visit", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return response.status_code
+
+    def send_coins(self, coins: int, blogId: str = None, chatId: str = None, objectId: str = None, transactionId: str = None):
+        url = None
+        if transactionId is None: transactionId = str(UUID(hexlify(urandom(16)).decode('ascii')))
+
+        data = {
+            "coins": coins,
+            "tippingContext": {"transactionId": transactionId},
+            "timestamp": int(timestamp() * 1000)
+        }
+
+        if blogId is not None: url = f"{self.api}/g/s/blog/{blogId}/tipping"
+        if chatId is not None: url = f"{self.api}/g/s/chat/thread/{chatId}/tipping"
+        if objectId is not None:
+            data["objectId"] = objectId
+            data["objectType"] = 2
+            url = f"{self.api}/g/s/tipping"
+
+        if url is None: raise exceptions.SpecifyType()
+
+        data = json.dumps(data)
+        response = requests.post(url, headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return response.status_code
 

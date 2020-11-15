@@ -5,8 +5,8 @@ class UserProfile:
     def __init__(self, data):
         self.json = data
 
-        try: self.fanClub = FanClubList(data["fanClubList"]).FanClubList
-        except (KeyError, TypeError): self.fanClub = None
+        try: self.fanClub: FanClubList = FanClubList(data["fanClubList"]).FanClubList
+        except (KeyError, TypeError): self.fanClub: FanClubList = FanClubList([])
 
         self.accountMembershipStatus = None
         self.activation = None
@@ -492,7 +492,7 @@ class BlogList:
             try: _quizQuestionList.append(QuizQuestionList(y["quizQuestionList"]).QuizQuestionList)
             except (KeyError, TypeError): _quizQuestionList.append(None)
 
-        self.author = UserProfileList(_author).UserProfileList
+        self.author: UserProfileList = UserProfileList(_author).UserProfileList
         self.quizQuestionList = _quizQuestionList
 
         self.createdTime = []
@@ -626,8 +626,8 @@ class RecentBlogs:
     def __init__(self, data):
         self.json = data
 
-        try: self.blog = BlogList(data["blogList"]).BlogList
-        except (KeyError, TypeError): self.blog = None
+        try: self.blog: BlogList = BlogList(data["blogList"]).BlogList
+        except (KeyError, TypeError): self.blog: BlogList = BlogList([])
 
         self.nextPageToken = None
 
@@ -686,7 +686,7 @@ class Blog:
         self.json = data
 
         try: self.author: UserProfile = UserProfile(data["author"]).UserProfile
-        except (KeyError, TypeError): self.author: UserProfile = UserProfile(None)
+        except (KeyError, TypeError): self.author: UserProfile = UserProfile([])
         try: self.quizQuestionList: QuizQuestionList = QuizQuestionList(data["quizQuestionList"]).QuizQuestionList
         except (KeyError, TypeError): self.quizQuestionList: QuizQuestionList = QuizQuestionList([])
 
@@ -823,10 +823,10 @@ class Wiki:
     def __init__(self, data):
         self.json = data
 
-        try: self.author = UserProfile(data["author"]).UserProfile
-        except (KeyError, TypeError): self.author = None
-        try: self.labels = WikiLabelList(data["extensions"]["props"]).WikiLabelList
-        except (KeyError, TypeError): self.labels = None
+        try: self.author: UserProfile = UserProfile(data["author"]).UserProfile
+        except (KeyError, TypeError): self.author: UserProfile = UserProfile([])
+        try: self.labels: WikiLabelList = WikiLabelList(data["extensions"]["props"]).WikiLabelList
+        except (KeyError, TypeError): self.labels: WikiLabelList = WikiLabelList([])
 
         self.createdTime = None
         self.modifiedTime = None
@@ -927,7 +927,7 @@ class WikiList:
             try: _labels.append(WikiLabelList(y["extensions"]["props"]).WikiLabelList)
             except (KeyError, TypeError): _labels.append(None)
 
-        self.author = UserProfileList(_author).UserProfileList
+        self.author: UserProfileList = UserProfileList(_author).UserProfileList
         self.labels = _labels
         self.createdTime = []
         self.modifiedTime = []
@@ -1063,10 +1063,10 @@ class Community:
     def __init__(self, data):
         self.json = data
 
-        try: self.agent = UserProfile(data["agent"]).UserProfile
-        except (KeyError, TypeError): self.agent = None
-        try: self.rankingTable = RankingTableList(data["advancedSettings"]["rankingTable"]).RankingTableList
-        except (KeyError, TypeError): self.rankingTable = None
+        try: self.agent: UserProfile = UserProfile(data["agent"]).UserProfile
+        except (KeyError, TypeError): self.agent: UserProfile = UserProfile([])
+        try: self.rankingTable: RankingTableList = RankingTableList(data["advancedSettings"]["rankingTable"]).RankingTableList
+        except (KeyError, TypeError): self.rankingTable: RankingTableList = RankingTableList([])
 
         self.usersCount = None
         self.createdTime = None
@@ -1239,7 +1239,7 @@ class CommunityList:
             try: _rankingTable.append(RankingTableList(y["advancedSettings"]["rankingTable"]).RankingTableList)
             except (KeyError, TypeError): _rankingTable.append(None)
 
-        self.agent = UserProfileList(_agent).UserProfileList
+        self.agent: UserProfileList = UserProfileList(_agent).UserProfileList
         self.rankingTable = _rankingTable
         self.usersCount = []
         self.createdTime = []
@@ -1411,7 +1411,7 @@ class VisitorsList:
             try: _profile.append(y["profile"])
             except (KeyError, TypeError): _profile.append(None)
 
-        self.profile = UserProfileList(_profile).UserProfileList
+        self.profile: UserProfileList = UserProfileList(_profile).UserProfileList
         self.visitors = None
         self.lastCheckTime = None
         self.visitorsCapacity = None
@@ -1451,7 +1451,7 @@ class CommentList:
             try: _author.append(y["author"])
             except (KeyError, TypeError): _author.append(None)
 
-        self.author = UserProfileList(_author).UserProfileList
+        self.author: UserProfileList = UserProfileList(_author).UserProfileList
         self.votesSum = []
         self.votedValue = []
         self.mediaList = []
@@ -1580,8 +1580,8 @@ class UserProfileCountList:
     def __init__(self, data):
         self.json = data
 
-        try: self.profile = UserProfileList(data["userProfileList"]).UserProfileList
-        except (KeyError, TypeError): self.profile = None
+        try: self.profile: UserProfileList = UserProfileList(data["userProfileList"]).UserProfileList
+        except (KeyError, TypeError): self.profile: UserProfileList = UserProfileList([])
 
         self.userProfileCount = None
 
@@ -1778,8 +1778,8 @@ class GetWikiInfo:
     def __init__(self, data):
         self.json = data
 
-        try: self.wiki = Wiki(data["item"]).Wiki
-        except (KeyError, TypeError): self.wiki = None
+        try: self.wiki: Wiki = Wiki(data["item"]).Wiki
+        except (KeyError, TypeError): self.wiki: Wiki = Wiki([])
 
         self.inMyFavorites = None
         self.isBookmarked = None
@@ -1798,7 +1798,7 @@ class GetBlogInfo:
         self.json = data
 
         try: self.blog: Blog = Blog(data["blog"]).Blog
-        except (KeyError, TypeError): self.blog: Blog = Blog(None)
+        except (KeyError, TypeError): self.blog: Blog = Blog([])
 
         self.isBookmarked = None
 
@@ -1834,7 +1834,7 @@ class WikiCategoryList:
             try: _author.append(y["author"])
             except (KeyError, TypeError): _author.append(None)
 
-        self.author = UserProfileList(_author).UserProfileList
+        self.author: UserProfileList = UserProfileList(_author).UserProfileList
         self.itemsCount = []
         self.parentCategoryId = []
         self.categoryId = []
@@ -1873,9 +1873,9 @@ class WikiCategory:
         self.json = data
 
         try: self.author = UserProfile(data["itemCategory"]["author"]).UserProfile
-        except (KeyError, TypeError): self.author = None
+        except (KeyError, TypeError): self.author: UserProfile = UserProfile([])
         try: self.subCategory = WikiCategoryList(data["childrenWrapper"]["itemCategoryList"]).WikiCategoryList
-        except (KeyError, TypeError): self.subCategory = None
+        except (KeyError, TypeError): self.subCategory: WikiCategoryList = WikiCategoryList([])
 
         self.itemsCount = None
         self.parentCategoryId = None
@@ -1922,7 +1922,7 @@ class TippedUsersSummary:
             try: _author.append(y["tipper"])
             except (KeyError, TypeError): _author.append(None)
 
-        self.author = UserProfileList(_author).UserProfileList
+        self.author: UserProfileList = UserProfileList(_author).UserProfileList
         self.tipSummary = None
         self.totalCoins = None
         self.tippersCount = None
@@ -1962,10 +1962,10 @@ class Thread:
     def __init__(self, data):
         self.json = data
 
-        try: self.author = UserProfile(data["author"]).UserProfile
-        except (KeyError, TypeError): self.author = None
-        try: self.membersSummary = UserProfileList(data["membersSummary"]).UserProfileList
-        except (KeyError, TypeError): self.membersSummary = None
+        try: self.author: UserProfile = UserProfile(data["author"]).UserProfile
+        except (KeyError, TypeError): self.author: UserProfile = UserProfile([])
+        try: self.membersSummary: UserProfileList = UserProfileList(data["membersSummary"]).UserProfileList
+        except (KeyError, TypeError): self.membersSummary: UserProfileList = UserProfileList([])
 
         self.userAddedTopicList = None
         self.membersQuota = None
@@ -2104,7 +2104,7 @@ class ThreadList:
             try: _membersSummary.append(UserProfileList(y["membersSummary"]).UserProfileList)
             except (KeyError, TypeError): _membersSummary.append(None)
 
-        self.author = UserProfileList(_author).UserProfileList
+        self.author: UserProfileList = UserProfileList(_author).UserProfileList
         self.membersSummary = _membersSummary
         self.userAddedTopicList = []
         self.membersQuota = []
@@ -2235,8 +2235,8 @@ class Sticker:
     def __init__(self, data):
         self.json = data
 
-        try: self.collection = StickerCollection(data["stickerCollectionSummary"]).StickerCollection
-        except (KeyError, TypeError): self.collection = None
+        try: self.collection: StickerCollection = StickerCollection(data["stickerCollectionSummary"]).StickerCollection
+        except (KeyError, TypeError): self.collection: StickerCollection = StickerCollection([])
 
         self.status = None
         self.icon = None
@@ -2293,7 +2293,7 @@ class StickerList:
             try: _collection.append(y["stickerCollectionSummary"])
             except (KeyError, TypeError): _collection.append(None)
 
-        self.collection = StickerCollectionList(_collection).StickerCollectionList
+        self.collection: StickerCollectionList = StickerCollectionList(_collection).StickerCollectionList
         self.status = []
         self.icon = []
         self.iconV2 = []
@@ -2344,12 +2344,12 @@ class StickerCollection:
     def __init__(self, data):
         self.json = data
 
-        try: self.author = UserProfile(data["author"]).UserProfile
-        except (KeyError, TypeError): self.author = None
-        try: self.originalAuthor = UserProfile(data["extensions"]["originalAuthor"]).UserProfile
-        except (KeyError, TypeError): self.originalAuthor = None
-        try: self.originalCommunity = Community(data["extensions"]["originalCommunity"]).Community
-        except (KeyError, TypeError): self.originalCommunity = None
+        try: self.author: UserProfile = UserProfile(data["author"]).UserProfile
+        except (KeyError, TypeError): self.author: UserProfile = UserProfile([])
+        try: self.originalAuthor: UserProfile = UserProfile(data["extensions"]["originalAuthor"]).UserProfile
+        except (KeyError, TypeError): self.originalAuthor: UserProfile = UserProfile([])
+        try: self.originalCommunity: Community = Community(data["extensions"]["originalCommunity"]).Community
+        except (KeyError, TypeError): self.originalCommunity: Community = Community([])
 
         self.status = None
         self.collectionType = None
@@ -2446,9 +2446,9 @@ class StickerCollectionList:
             try: _originalCommunity.append(y["extensions"]["originalCommunity"])
             except (KeyError, TypeError): _originalCommunity.append(None)
 
-        self.author = UserProfileList(_author).UserProfileList
-        self.originalAuthor = UserProfileList(_originalAuthor).UserProfileList
-        self.originalCommunity = CommunityList(_originalCommunity).CommunityList
+        self.author: UserProfileList = UserProfileList(_author).UserProfileList
+        self.originalAuthor: UserProfileList = UserProfileList(_originalAuthor).UserProfileList
+        self.originalCommunity: CommunityList = CommunityList(_originalCommunity).CommunityList
         self.status = []
         self.collectionType = []
         self.modifiedTime = []
@@ -2535,10 +2535,10 @@ class Message:
     def __init__(self, data):
         self.json = data
 
-        try: self.author = UserProfile(data["author"]).UserProfile
-        except (KeyError, TypeError): self.author = None
-        try: self.sticker = Sticker(data["extensions"]["sticker"]).Sticker
-        except (KeyError, TypeError): self.sticker = None
+        try: self.author: UserProfile = UserProfile(data["author"]).UserProfile
+        except (KeyError, TypeError): self.author: UserProfile = UserProfile([])
+        try: self.sticker: Sticker = Sticker(data["extensions"]["sticker"]).Sticker
+        except (KeyError, TypeError): self.sticker: Sticker = Sticker([])
 
         self.content = None
         self.includedInSummary = None
@@ -2622,8 +2622,8 @@ class MessageList:
             try: _sticker.append(y["extensions"]["sticker"])
             except (KeyError, TypeError): _sticker.append(None)
 
-        self.author = UserProfileList(_author).UserProfileList
-        self.sticker = StickerList(_sticker).StickerList
+        self.author: UserProfileList = UserProfileList(_author).UserProfileList
+        self.sticker: StickerList = StickerList(_sticker).StickerList
         self.content = []
         self.includedInSummary = []
         self.isHidden = []
@@ -2701,8 +2701,8 @@ class CommunityStickerCollection:
     def __init__(self, data):
         self.json = data
 
-        try: self.sticker = StickerCollectionList(data["stickerCollectionList"]).StickerCollectionList
-        except (KeyError, TypeError): self.sticker = None
+        try: self.sticker: StickerCollectionList = StickerCollectionList(data["stickerCollectionList"]).StickerCollectionList
+        except (KeyError, TypeError): self.sticker: StickerCollectionList = StickerCollectionList([])
 
         self.stickerCollectionCount = None
 
@@ -2723,7 +2723,7 @@ class NotificationList:
             try: _author.append(y["author"])
             except (KeyError, TypeError): _author.append(None)
 
-        self.author = UserProfileList(_author).UserProfileList
+        self.author: UserProfileList = UserProfileList(_author).UserProfileList
         self.contextComId = []
         self.objectText = []
         self.objectType = []
@@ -2783,7 +2783,7 @@ class AdminLogList:
             try: _author.append(y["author"])
             except (KeyError, TypeError): _author.append(None)
 
-        self.author = UserProfileList(_author).UserProfileList
+        self.author: UserProfileList = UserProfileList(_author).UserProfileList
         self.createdTime = []
         self.objectType = []
         self.operationName = []
@@ -2908,8 +2908,8 @@ class FanClubList:
             try: _targetUserProfile.append(y["targetUserProfile"])
             except (KeyError, TypeError): _targetUserProfile.append(None)
 
-        self.profile = UserProfileList(_profile).UserProfileList
-        self.targetUserProfile = UserProfileList(_targetUserProfile).UserProfileList
+        self.profile: UserProfileList = UserProfileList(_profile).UserProfileList
+        self.targetUserProfile: UserProfileList = UserProfileList(_targetUserProfile).UserProfileList
         self.userId = []
         self.lastThankedTime = []
         self.expiredTime = []
@@ -2939,10 +2939,10 @@ class InfluencerFans:
     def __init__(self, data):
         self.json = data
 
-        try: self.influencerProfile = UserProfile(data["influencerUserProfile"]).UserProfile
-        except (KeyError, TypeError): self.influencerProfile = None
-        try: self.fanClubList = FanClubList(data["fanClubList"]).FanClubList
-        except (KeyError, TypeError): self.fanClubList = None
+        try: self.influencerProfile: UserProfile = UserProfile(data["influencerUserProfile"]).UserProfile
+        except (KeyError, TypeError): self.influencerProfile: UserProfile = UserProfile([])
+        try: self.fanClubList: FanClubList = FanClubList(data["fanClubList"]).FanClubList
+        except (KeyError, TypeError): self.fanClubList: FanClubList = FanClubList([])
 
         self.myFanClub = None
 
@@ -3045,7 +3045,7 @@ class QuizRankings:
         self.rankingList = _rankingList
         self.quizPlayedTimes = None
         self.quizInBestQuizzes = None
-        self.profile: QuizRanking = QuizRanking(None)
+        self.profile: QuizRanking = QuizRanking([])
 
     @property
     def QuizRankings(self):
@@ -3110,7 +3110,7 @@ class QuizRankingList:
             try: _author.append(y["author"])
             except (KeyError, TypeError): _author.append(None)
 
-        self.author = UserProfileList(_author).UserProfileList
+        self.author: UserProfileList = UserProfileList(_author).UserProfileList
         self.highestMode = []
         self.modifiedTime = []
         self.isFinished = []
@@ -3155,8 +3155,8 @@ class SharedFolderFile:
     def __init__(self, data):
         self.json = data
 
-        try: self.author = UserProfile(data["author"]).UserProfile
-        except (KeyError, TypeError): self.author = None
+        try: self.author: UserProfile = UserProfile(data["author"]).UserProfile
+        except (KeyError, TypeError): self.author: UserProfile = UserProfile([])
 
         self.votesCount = None
         self.createdTime = None
@@ -3222,7 +3222,7 @@ class SharedFolderFileList:
             try: _author.append(y["author"])
             except (KeyError, TypeError): _author.append(None)
 
-        self.author = UserProfileList(_author).UserProfileList
+        self.author: UserProfileList = UserProfileList(_author).UserProfileList
         self.votesCount = []
         self.createdTime = []
         self.modifiedTime = []
@@ -3291,8 +3291,8 @@ class Event:
         self.id = None
         self.duration = None
 
-        try: self.message = Message(data["chatMessage"]).Message
-        except (KeyError, TypeError): self.message = None
+        try: self.message: Message = Message(data["chatMessage"]).Message
+        except (KeyError, TypeError): self.message: Message = Message([])
 
     @property
     def Event(self):
