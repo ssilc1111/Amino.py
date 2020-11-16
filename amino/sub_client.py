@@ -22,7 +22,7 @@ class SubClient(client.Client):
         if not comId: raise exceptions.NoCommunity()
 
         self.comId = comId
-        try: self.profile = self.get_user_info(userId=profile.userId)
+        try: self.profile: objects.UserProfile = self.get_user_info(userId=profile.userId)
         except AttributeError: raise exceptions.FailedLogin()
 
     def post_blog(self, title: str, content: str, categoriesList: list = None, backgroundColor: str = None, fansOnly: bool = False, extensions: dict = None):
@@ -69,11 +69,11 @@ class SubClient(client.Client):
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return response.status_code
 
-    def edit_blog(self, blogId: str, title: str = None, body: str = None, categoriesList: list = None, backgroundColor: str = None, images: list = None, fansOnly: bool = False):
+    def edit_blog(self, blogId: str, title: str = None, content: str = None, categoriesList: list = None, backgroundColor: str = None, images: list = None, fansOnly: bool = False):
         if images:
             images_list = []
             for item in images:
-                body = body.replace(item.replace_key, f"[IMG={item.replace_key}]")
+                content = content.replace(item.replace_key, f"[IMG={item.replace_key}]")
                 images_list.append(item.media_list_item)
 
         else: images_list = None
@@ -88,7 +88,7 @@ class SubClient(client.Client):
         }
 
         if title: data["title"] = title
-        if body: data["content"] = body
+        if body: data["content"] = content
         if fansOnly: data["extensions"] = {"fansOnly": fansOnly}
         if backgroundColor: data["extensions"] = {"style": {"backgroundColor": backgroundColor}}
         if categoriesList: data["taggedBlogCategoryIdList"] = categoriesList
@@ -626,6 +626,9 @@ class SubClient(client.Client):
 
             - **Fail** : :meth:`Exceptions <amino.lib.util.exceptions>`
         """
+
+        message = message.replace("<$", "‎‏").replace("$>", "‬‭")
+
         mentions = []
         if mentionUserIds:
             for mention_uid in mentionUserIds:

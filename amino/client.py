@@ -30,8 +30,8 @@ class Client:
         self.json = None
         self.sid = None
         self.userId = None
-        self.account = None
-        self.profile = None
+        self.account: objects.UserProfile = objects.UserProfile(None)
+        self.profile: objects.UserProfile = objects.UserProfile(None)
 
         self.check_device(device.device_id)
 
@@ -66,8 +66,8 @@ class Client:
             self.json = json.loads(response.text)
             self.sid = self.json["sid"]
             self.userId = self.json["account"]["uid"]
-            self.account = objects.UserProfile(self.json["account"]).UserProfile
-            self.profile = objects.UserProfile(self.json["userProfile"]).UserProfile
+            self.account: objects.UserProfile = objects.UserProfile(self.json["account"]).UserProfile
+            self.profile: objects.UserProfile = objects.UserProfile(self.json["userProfile"]).UserProfile
             headers.sid = self.sid
             self.socket.start()
             return response.status_code
@@ -770,6 +770,9 @@ class Client:
 
             - **Fail** : :meth:`Exceptions <amino.lib.util.exceptions>`
         """
+
+        message = message.replace("<$", "‎‏").replace("$>", "‬‭")
+
         mentions = []
         if mentionUserIds:
             for mention_uid in mentionUserIds:
