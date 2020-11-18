@@ -481,10 +481,12 @@ class UserProfileList:
         return self
 
 class BlogList:
-    def __init__(self, data):
+    def __init__(self, data, nextPageToken = None, prevPageToken = None):
         _author, _quizQuestionList = [], []
 
         self.json = data
+        self.nextPageToken = nextPageToken
+        self.prevPageToken = prevPageToken
 
         for y in data:
             try: _author.append(y["author"])
@@ -626,17 +628,17 @@ class RecentBlogs:
     def __init__(self, data):
         self.json = data
 
-        try: self.blog: BlogList = BlogList(data["blogList"]).BlogList
-        except (KeyError, TypeError): self.blog: BlogList = BlogList([])
-
         self.nextPageToken = None
+        self.prevPageToken = None
 
     @property
     def RecentBlogs(self):
         try: self.nextPageToken = self.json["paging"]["nextPageToken"]
         except (KeyError, TypeError): pass
+        try: self.prevPageToken = self.json["paging"]["prevPageToken"]
+        except (KeyError, TypeError): pass
 
-        return self
+        return BlogList(self.json["blogList"], self.nextPageToken, self.prevPageToken).BlogList
 
 class BlogCategoryList:
     def __init__(self, data):
@@ -2611,10 +2613,12 @@ class Message:
         return self
 
 class MessageList:
-    def __init__(self, data):
+    def __init__(self, data, nextPageToken = None, prevPageToken = None):
         _author, _sticker = [], []
 
         self.json = data
+        self.nextPageToken = nextPageToken
+        self.prevPageToken = prevPageToken
 
         for y in data:
             try: _author.append(y["author"])
@@ -2696,6 +2700,25 @@ class MessageList:
             except (KeyError, TypeError): self.videoCoverImage.append(None)
 
         return self
+
+class GetMessages:
+    def __init__(self, data):
+        self.json = data
+
+        self.messageList = []
+        self.nextPageToken = None
+        self.prevPageToken = None
+
+    @property
+    def GetMessages(self):
+        try: self.nextPageToken = self.json["paging"]["nextPageToken"]
+        except (KeyError, TypeError): pass
+        try: self.prevPageToken = self.json["paging"]["prevPageToken"]
+        except (KeyError, TypeError): pass
+        try: self.messageList = self.json["messageList"]
+        except (KeyError, TypeError): pass
+
+        return MessageList(self.messageList, self.nextPageToken, self.prevPageToken).MessageList
 
 class CommunityStickerCollection:
     def __init__(self, data):

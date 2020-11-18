@@ -8,4 +8,4 @@ subclient = amino.SubClient(comId='COMMUNITY ID', profile=client.profile)
 subclient.block('USER ID')
 
 # Unblock
-subclient.block('USER ID')
+subclient.unblock('USER ID')
