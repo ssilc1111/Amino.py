@@ -53,7 +53,7 @@ class SocketHandler:
             header = self.headers
         )
 
-        self.socket_thread = threading.Thread(target = self.socket.run_forever(), kwargs = {"ping_interval": 60})
+        self.socket_thread = threading.Thread(target = self.socket.run_forever, kwargs = {"ping_interval": 60})
         self.socket_thread.daemon = True
         self.socket_thread.start()
         self.active = True
