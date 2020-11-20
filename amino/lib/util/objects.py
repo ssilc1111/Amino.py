@@ -2564,6 +2564,7 @@ class Message:
         self.videoCoverImage = None
         self.videoWidth = None
         self.mentionUserIds = None
+        self.tippingCoins = None
 
     @property
     def Message(self):
@@ -2609,6 +2610,8 @@ class Message:
         except (KeyError, TypeError): pass
         try: self.mentionUserIds = self.json["extensions"]["mentionUserIds"]
         except (KeyError, TypeError): pass
+        try: self.tippingCoins = self.json["extensions"]["tippingCoins"]
+        except (KeyError, TypeError): pass
 
         return self
 
@@ -2650,6 +2653,7 @@ class MessageList:
         self.videoHeight = []
         self.videoWidth = []
         self.videoCoverImage = []
+        self.tippingCoins = []
 
     @property
     def MessageList(self):
@@ -2698,6 +2702,8 @@ class MessageList:
             except (KeyError, TypeError): self.videoWidth.append(None)
             try: self.videoCoverImage.append(x["extensions"]["videoExtensions"]["coverImage"])
             except (KeyError, TypeError): self.videoCoverImage.append(None)
+            try: self.tippingCoins.append(x["extensions"]["tippingCoins"])
+            except (KeyError, TypeError): self.tippingCoins.append(None)
 
         return self
 
