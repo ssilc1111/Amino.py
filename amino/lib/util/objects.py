@@ -17,6 +17,7 @@ class UserProfile:
         self.appleId = None
         self.avatarFrame = None
         self.avatarFrameId = None
+        self.backgroundImage = None
         self.backgroundColor = None
         self.blogsCount = None
         self.commentsCount = None
@@ -105,7 +106,7 @@ class UserProfile:
         except (KeyError, TypeError): pass
         try: self.backgroundColor = self.json["extensions"]["style"]["backgroundColor"]
         except (KeyError, TypeError): pass
-        try: self.backgroundColor = self.json["extensions"]["style"]["coverAnimation"]
+        try: self.backgroundImage = self.json["extensions"]["style"]["backgroundMediaList"][1]
         except (KeyError, TypeError): pass
         try: self.blogsCount = self.json["blogsCount"]
         except (KeyError, TypeError): pass
@@ -258,6 +259,7 @@ class UserProfileList:
         self.avatarFrame = []
         self.avatarFrameId = []
         self.backgroundColor = []
+        self.backgroundImage = []
         self.blogsCount = []
         self.commentsCount = []
         self.content = []
@@ -347,8 +349,8 @@ class UserProfileList:
             except (KeyError, TypeError): self.avatarFrameId.append(None)
             try: self.backgroundColor.append(x["extensions"]["style"]["backgroundColor"])
             except (KeyError, TypeError): self.backgroundColor.append(None)
-            try: self.backgroundColor.append(x["extensions"]["style"]["coverAnimation"])
-            except (KeyError, TypeError): self.backgroundColor.append(None)
+            try: self.backgroundImage.append(x["extensions"]["style"]["backgroundMediaList"][1])
+            except (KeyError, TypeError): self.backgroundImage.append(None)
             try: self.blogsCount.append(x["blogsCount"])
             except (KeyError, TypeError): self.blogsCount.append(None)
             try: self.commentsCount.append(x["commentsCount"])

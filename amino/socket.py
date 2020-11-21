@@ -8,16 +8,17 @@ from sys import _getframe as getframe
 from .lib.util import objects
 
 class SocketHandler:
-    def __init__(self, client, socket_trace = False):
-
+    def __init__(self, client, socket_trace = False, debug = False):
         websocket.enableTrace(True)
         self.socket_url = "wss://ws1.narvii.com"
         self.client = client
+        self.debug = debug
         self.active = False
         self.headers = None
         self.socket = None
         self.socket_thread = None
         self.reconnect = True
+        self.socket_stop = False
         self.socketDelay = 0
 
         self.socket_handler = threading.Thread(target = self.reconnect_handler)
@@ -27,8 +28,15 @@ class SocketHandler:
 
     def reconnect_handler(self):
         # Made by enchart#3410 thx
+        # Fixed by The_Phoenix#3967
         while True:
+            if self.debug is True:
+                print(f"[socket][reconnect_handler] socketDelay : {self.socketDelay}")
+
             if self.socketDelay >= 300 and self.active:
+                if self.debug is True:
+                    print(f"[socket][reconnect_handler] Reconnecting Socket")
+
                 self.close()
                 self.start()
                 self.socketDelay = 0
@@ -36,20 +44,32 @@ class SocketHandler:
             self.socketDelay += 1
 
             if self.reconnect is False:
+                if self.debug is True:
+                    print(f"[socket][reconnect_handler] reconnect is False, breaking")
+
                 break
 
             time.sleep(1)
 
     def on_open(self):
+        if self.debug is True:
+            print("[socket][on_open] Socket Opened")
+
         pass
 
     def on_close(self):
+        if self.debug is True:
+            print("[socket][on_close] Socket Closed")
+
         self.active = False
 
         if self.reconnect:
             self.start()
 
     def on_ping(self, data):
+        if self.debug is True:
+            print("[socket][on_ping] Socket Pinged")
+
         contextlib.suppress(self.socket.sock.pong(data))
 
     def handle_message(self, data):
@@ -57,9 +77,15 @@ class SocketHandler:
         return
 
     def send(self, data):
+        if self.debug is True:
+            print(f"[socket][send] Sending Data : {data}")
+
         self.socket.send(data)
 
     def start(self):
+        if self.debug is True:
+            print(f"[socket][start] Starting Socket")
+
         self.headers = {
             "NDCDEVICEID": self.client.device_id,
             "NDCAUTH": f"sid={self.client.sid}"
@@ -74,13 +100,18 @@ class SocketHandler:
             header = self.headers
         )
 
-        self.socket_thread = threading.Thread(target = self.socket.run_forever, kwargs = {"ping_interval": 60})
+        self.socket_thread = threading.Thread(target = self.socket.run_forever, args = (lambda: self.socket_stop, ), kwargs = {"ping_interval": 60})
         self.socket_thread.start()
         self.active = True
 
     def close(self):
+        if self.debug is True:
+            print(f"[socket][close] Closing Socket")
+
         self.reconnect = False
         self.active = False
+        self.socket_stop = True
+        self.socket_thread.join()
         return self.socket.close()
 
 class Callbacks:

@@ -16,14 +16,14 @@ from .socket import Callbacks, SocketHandler
 device = device.DeviceGenerator()
 
 class Client:
-    def __init__(self, callback = Callbacks, proxies: dict = None, certificatePath = None, socket_trace = False):
+    def __init__(self, callback = Callbacks, proxies: dict = None, certificatePath = None, socket_trace = False, socketDebugging = False):
         self.api = "https://service.narvii.com/api/v1"
         self.authenticated = False
         self.configured = False
         self.user_agent = device.user_agent
         self.device_id = device.device_id
         self.device_id_sig = device.device_id_sig
-        self.socket = SocketHandler(self, socket_trace=socket_trace)
+        self.socket = SocketHandler(self, socket_trace=socket_trace, debug=socketDebugging)
         self.callbacks = callback(self)
         self.proxies = proxies
         self.certificatePath = certificatePath
