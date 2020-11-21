@@ -50,7 +50,7 @@ class SocketHandler:
 
                 break
 
-            time.sleep(1)
+            time.sleep(5)
 
     def on_open(self):
         if self.debug is True:
@@ -104,7 +104,7 @@ class SocketHandler:
             header = self.headers
         )
 
-        self.socket_thread = threading.Thread(target = self.socket.run_forever, args = (lambda: self.socket_stop, ), kwargs = {"ping_interval": 60})
+        self.socket_thread = threading.Thread(target = self.socket.run_forever, kwargs = {"ping_interval": 60})
         self.socket_thread.start()
         self.active = True
 
@@ -115,7 +115,6 @@ class SocketHandler:
         self.reconnect = False
         self.active = False
         self.socket_stop = True
-        self.socket_thread.join()
         return self.socket.close()
 
 class Callbacks:
