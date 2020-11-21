@@ -16,10 +16,9 @@ class SocketHandler:
         self.active = False
         self.headers = None
         self.socket = None
-        self.socket_thread = threading.Thread(None)
+        self.socket_thread = None
         self.reconnect = True
-        self.socketDelay = time.time()
-        self.socketDelay += 60
+        self.socketDelay = 0
 
         self.socket_handler = threading.Thread(target = self.reconnect_handler)
         self.socket_handler.start()
@@ -29,13 +28,17 @@ class SocketHandler:
     def reconnect_handler(self):
         # Made by enchart#3410 thx
         while True:
-            if self.socketDelay < time.time() and self.active:
+            if self.socketDelay >= 300 and self.active:
                 self.close()
                 self.start()
-                self.socketDelay += 60
+                self.socketDelay = 0
+
+            self.socketDelay += 1
 
             if self.reconnect is False:
                 break
+
+            time.sleep(1)
 
     def on_open(self):
         pass
