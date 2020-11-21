@@ -20,6 +20,7 @@ class SocketHandler:
         self.reconnect = True
         self.socket_stop = False
         self.socketDelay = 0
+        self.socketDelayFetch = 120  # Reconnects every 120 seconds.
 
         self.socket_handler = threading.Thread(target = self.reconnect_handler)
         self.socket_handler.start()
@@ -33,9 +34,9 @@ class SocketHandler:
             if self.debug is True:
                 print(f"[socket][reconnect_handler] socketDelay : {self.socketDelay}")
 
-            if self.socketDelay >= 300 and self.active:
+            if self.socketDelay >= self.socketDelayFetch and self.active:
                 if self.debug is True:
-                    print(f"[socket][reconnect_handler] Reconnecting Socket")
+                    print(f"[socket][reconnect_handler] socketDelay >= {self.socketDelayFetch}, Reconnecting Socket")
 
                 self.close()
                 self.start()
@@ -64,6 +65,9 @@ class SocketHandler:
         self.active = False
 
         if self.reconnect:
+            if self.debug is True:
+                print("[socket][on_close] reconnect is True, Opening Socket")
+
             self.start()
 
     def on_ping(self, data):

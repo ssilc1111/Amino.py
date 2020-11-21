@@ -107,7 +107,7 @@ class UserProfile:
         try: self.backgroundColor = self.json["extensions"]["style"]["backgroundColor"]
         except (KeyError, TypeError): pass
         try: self.backgroundImage = self.json["extensions"]["style"]["backgroundMediaList"][1]
-        except (KeyError, TypeError): pass
+        except (KeyError, TypeError, IndexError): pass
         try: self.blogsCount = self.json["blogsCount"]
         except (KeyError, TypeError): pass
         try: self.commentsCount = self.json["commentsCount"]
@@ -350,7 +350,7 @@ class UserProfileList:
             try: self.backgroundColor.append(x["extensions"]["style"]["backgroundColor"])
             except (KeyError, TypeError): self.backgroundColor.append(None)
             try: self.backgroundImage.append(x["extensions"]["style"]["backgroundMediaList"][1])
-            except (KeyError, TypeError): self.backgroundImage.append(None)
+            except (KeyError, TypeError, IndexError): self.backgroundImage.append(None)
             try: self.blogsCount.append(x["blogsCount"])
             except (KeyError, TypeError): self.blogsCount.append(None)
             try: self.commentsCount.append(x["commentsCount"])
@@ -2067,7 +2067,7 @@ class Thread:
         try: self.announcement = self.json["extensions"]["announcement"]
         except (KeyError, TypeError): pass
         try: self.backgroundImage = self.json["extensions"]["bm"][1]
-        except (KeyError, TypeError): pass
+        except (KeyError, TypeError, IndexError): pass
         try: self.lastMembersSummaryUpdateTime = self.json["extensions"]["lastMembersSummaryUpdateTime"]
         except (KeyError, TypeError): pass
         try: self.channelType = self.json["extensions"]["channelType"]
@@ -2207,7 +2207,7 @@ class ThreadList:
             try:  self.announcement.append(chat["extensions"]["announcement"])
             except (KeyError, TypeError): self.announcement.append(None)
             try:  self.backgroundImage.append(chat["extensions"]["bm"][1])
-            except (KeyError, TypeError): self.backgroundImage.append(None)
+            except (KeyError, TypeError, IndexError): self.backgroundImage.append(None)
             try:  self.lastMembersSummaryUpdateTime.append(chat["extensions"]["lastMembersSummaryUpdateTime"])
             except (KeyError, TypeError): self.lastMembersSummaryUpdateTime.append(None)
             try:  self.channelType.append(chat["extensions"]["channelType"])
@@ -3227,7 +3227,7 @@ class SharedFolderFile:
         try: self.mediaType = self.json["media"][0]
         except (KeyError, TypeError): pass
         try: self.fileUrl = self.json["media"][1]
-        except (KeyError, TypeError): pass
+        except (KeyError, TypeError, IndexError): pass
         try: self.commentsCount = self.json["commentsCount"]
         except (KeyError, TypeError): pass
         try: self.fileType = self.json["fileType"]
@@ -3293,7 +3293,7 @@ class SharedFolderFileList:
             try: self.mediaType.append(x["media"][0])
             except (KeyError, TypeError): self.mediaType.append(None)
             try: self.fileUrl.append(x["media"][1])
-            except (KeyError, TypeError): self.fileUrl.append(None)
+            except (KeyError, TypeError, IndexError): self.fileUrl.append(None)
             try: self.commentsCount.append(x["commentsCount"])
             except (KeyError, TypeError): self.commentsCount.append(None)
             try: self.fileType.append(x["fileType"])
