@@ -1,5 +1,5 @@
 import requests
-import ujson as json
+import json
 from time import time as timestamp
 from typing import BinaryIO
 

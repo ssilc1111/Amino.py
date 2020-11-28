@@ -1,7 +1,7 @@
+import json
 import base64
-
 import requests
-import ujson as json
+
 from uuid import UUID
 from os import urandom
 from time import timezone
@@ -777,7 +777,8 @@ class Client:
             - **Fail** : :meth:`Exceptions <amino.lib.util.exceptions>`
         """
 
-        message = message.replace("<$", "‎‏").replace("$>", "‬‭")
+        if message is not None and file is None:
+            message = message.replace("<$", "‎‏").replace("$>", "‬‭")
 
         mentions = []
         if mentionUserIds:
@@ -1200,7 +1201,7 @@ class Client:
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return response.status_code
 
-    def edit_profile(self, nickname: str = None, content: str = None, icon: str = None, backgroundColor: str = None, backgroundImage: str = None):
+    def edit_profile(self, nickname: str = None, content: str = None, icon: str = None, backgroundColor: str = None, backgroundImage: str = None, defaultBubbleId: str = None):
         """
         Edit account's Profile.
 
@@ -1210,6 +1211,7 @@ class Client:
             - **icon** : Url of the Icon of the Profile.
             - **backgroundImage** : Url of the Background Picture of the Profile.
             - **backgroundColor** : Hexadecimal Background Color of the Profile.
+            - **defaultBubbleId** : Chat bubble ID.
 
         **Returns**
             - **Success** : 200 (int)
@@ -1230,6 +1232,7 @@ class Client:
         if content: data["content"] = content
         if backgroundColor: data["extensions"] = {"style": {"backgroundColor": backgroundColor}}
         if backgroundImage: data["extensions"] = {"style": {"backgroundMediaList": [[100, backgroundImage, None, None, None]]}}
+        if defaultBubbleId: data["extensions"] = {"defaultBubbleId": defaultBubbleId}
 
         data = json.dumps(data)
         response = requests.post(f"{self.api}/g/s/user-profile/{self.userId}", headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
@@ -1746,3 +1749,18 @@ class Client:
         response = requests.get(f"{self.api}/g/s/user-profile?type=recent&start={start}&size={size}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return objects.UserProfileCountList(json.loads(response.text)).UserProfileCountList
+
+    def accept_host(self, chatId: str):
+        data = json.dumps({"timestamp": int(timestamp() * 1000)})
+
+        response = requests.post(f"{self.api}/g/s/chat/thread/{chatId}/accept-organizer", headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return response.status_code
+
+    def accept_organizer(self, chatId: str):
+        self.accept_host(chatId)
+
+    # Contributed by 'https://github.com/LynxN1'
+    def link_identify(self, code: str):
+        response = requests.get(f"{self.api}/g/s/community/link-identify?q=http%3A%2F%2Faminoapps.com%2Finvite%2F{code}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
+        return json.loads(response.text)

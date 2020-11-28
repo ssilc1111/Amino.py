@@ -196,6 +196,15 @@ class UserNotMemberOfCommunity(Exception):
     def __init__(*args, **kwargs):
         Exception.__init__(*args, **kwargs)
 
+class ActivateAccount(Exception):
+    """
+    - **API Code** : 238
+    - **API Message** : Please activate your account first. Check your email, including your spam folder.
+    - **API String** : ``Unknown String``
+    """
+    def __init__(*args, **kwargs):
+        Exception.__init__(*args, **kwargs)
+
 class CantLeaveCommunity(Exception):
     """
     - **API Code** : 239
@@ -412,6 +421,15 @@ class ChatInvitesDisabled(Exception):
     def __init__(*args, **kwargs):
         Exception.__init__(*args, **kwargs)
 
+class RemovedFromChat(Exception):
+    """
+    - **API Code** : 1612
+    - **API Message** : You've been removed from this chatroom.
+    - **API String** : ``Unknown String``
+    """
+    def __init__(*args, **kwargs):
+        Exception.__init__(*args, **kwargs)
+
 class UserNotJoined(Exception):
     """
     - **API Code** : 1613
@@ -426,6 +444,15 @@ class API_ERR_CHAT_VVCHAT_NO_MORE_REPUTATIONS(Exception):
     - **API Code** : 1627
     - **API Message** : ``Unknown Message``
     - **API String** : API_ERR_CHAT_VVCHAT_NO_MORE_REPUTATIONS
+    """
+    def __init__(*args, **kwargs):
+        Exception.__init__(*args, **kwargs)
+
+class MemberKickedByOrganizer(Exception):
+    """
+    - **API Code** : 1637
+    - **API Message** : This member was previously kicked by the organizer and cannot be reinvited.
+    - **API String** : ``Unknown String``
     """
     def __init__(*args, **kwargs):
         Exception.__init__(*args, **kwargs)
@@ -735,6 +762,7 @@ def CheckException(data):
     elif api_code == 225: raise UserUnavailable(data)
     elif api_code == 229: raise YouAreBanned(data)
     elif api_code == 230: raise UserNotMemberOfCommunity(data)
+    elif api_code == 238: raise ActivateAccount(data)
     elif api_code == 239: raise CantLeaveCommunity(data)
     elif api_code == 240: raise ReachedTitleLength(data)
     elif api_code == 246: raise AccountDeleted(data)
@@ -759,8 +787,10 @@ def CheckException(data):
     elif api_code == 833: raise CommunityDeleted(data)
     elif api_code == 1605: raise ChatFull(data)
     elif api_code == 1611: raise ChatInvitesDisabled(data)
+    elif api_code == 1612: raise RemovedFromChat(data)
     elif api_code == 1613: raise UserNotJoined(data)
     elif api_code == 1627: raise API_ERR_CHAT_VVCHAT_NO_MORE_REPUTATIONS(data)
+    elif api_code == 1637: raise MemberKickedByOrganizer(data)
     elif api_code == 1661: raise LevelFiveRequiredToEnableProps(data)
     elif api_code == 1663: raise ChatViewOnly(data)
     elif api_code == 2001: raise AlreadyRequestedJoinCommunity(data)

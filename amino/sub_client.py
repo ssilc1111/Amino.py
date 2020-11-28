@@ -1,6 +1,6 @@
+import json
 import base64
 import requests
-import ujson as json
 
 from uuid import UUID
 from os import urandom
@@ -149,7 +149,7 @@ class SubClient(client.Client):
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return objects.LotteryLog(json.loads(response.text)["lotteryLog"]).LotteryLog
 
-    def edit_profile(self, nickname: str = None, content: str = None, icon: str = None, chatRequestPrivilege: str = None, mediaList: list = None, backgroundImage: str = None, backgroundColor: str = None, titles: list = None):
+    def edit_profile(self, nickname: str = None, content: str = None, icon: str = None, chatRequestPrivilege: str = None, mediaList: list = None, backgroundImage: str = None, backgroundColor: str = None, titles: list = None, defaultBubbleId: str = None):
         data = {"timestamp": int(timestamp() * 1000)}
 
         if nickname: data["nickname"] = nickname
@@ -160,6 +160,7 @@ class SubClient(client.Client):
         if backgroundImage: data["extensions"] = {"style": {"backgroundMediaList": [[100, backgroundImage, None, None, None]]}}
         if backgroundColor: data["extensions"] = {"style": {"backgroundColor": backgroundColor}}
         if titles: data["extensions"] = {"customTitles": titles}
+        if defaultBubbleId: data["extensions"] = {"defaultBubbleId": defaultBubbleId}
 
         data = json.dumps(data)
         response = requests.post(f"{self.api}/x{self.comId}/s/user-profile/{self.profile.userId}", headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
@@ -627,7 +628,8 @@ class SubClient(client.Client):
             - **Fail** : :meth:`Exceptions <amino.lib.util.exceptions>`
         """
 
-        message = message.replace("<$", "‎‏").replace("$>", "‬‭")
+        if message is not None and file is None:
+            message = message.replace("<$", "‎‏").replace("$>", "‬‭")
 
         mentions = []
         if mentionUserIds:
@@ -865,9 +867,9 @@ class SubClient(client.Client):
         self.transfer_host(chatId, userIds)
 
     def accept_host(self, chatId: str):
-        data = json.dumps({})
+        data = json.dumps({"timestamp": int(timestamp() * 1000)})
 
-        response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/transfer-organizer/{self.userId}/accept", headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
+        response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/accept-organizer", headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return response.status_code
 

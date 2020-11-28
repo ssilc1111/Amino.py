@@ -1,8 +1,9 @@
 import time
+import json
 import websocket
 import threading
 import contextlib
-import ujson as json
+
 from sys import _getframe as getframe
 
 from .lib.util import objects
@@ -108,6 +109,9 @@ class SocketHandler:
         self.socket_thread.start()
         self.active = True
 
+        if self.debug is True:
+            print(f"[socket][start] Socket Started")
+
     def close(self):
         if self.debug is True:
             print(f"[socket][close] Closing Socket")
@@ -115,7 +119,12 @@ class SocketHandler:
         self.reconnect = False
         self.active = False
         self.socket_stop = True
-        return self.socket.close()
+        try: self.socket.close()
+        except Exception as closeError:
+            if self.debug is True:
+                print(f"[socket][close] Error while closing Socket : {closeError}")
+
+        return
 
 class Callbacks:
     def __init__(self, client):
