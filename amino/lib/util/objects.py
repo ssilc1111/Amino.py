@@ -83,6 +83,11 @@ class UserProfile:
         self.warningCount = None
         self.totalQuizHighestScore = None
         self.totalQuizPlayedTimes = None
+        self.requestId = None
+        self.message = None
+        self.applicant = None
+        self.avgDailySpendTimeIn7Days = None
+        self.adminLogCountIn7Days = None
 
     @property
     def UserProfile(self):
@@ -236,6 +241,16 @@ class UserProfile:
         except (KeyError, TypeError): pass
         try: self.totalQuizPlayedTimes = self.json["totalQuizPlayedTimes"]
         except (KeyError, TypeError): pass
+        try: self.requestId = self.json["requestId"]
+        except (KeyError, TypeError): pass
+        try: self.message = self.json["message"]
+        except (KeyError, TypeError): pass
+        try: self.applicant = self.json["applicant"]
+        except (KeyError, TypeError): pass
+        try: self.avgDailySpendTimeIn7Days = self.json["avgDailySpendTimeIn7Days"]
+        except (KeyError, TypeError): pass
+        try: self.adminLogCountIn7Days = self.json["adminLogCountIn7Days"]
+        except (KeyError, TypeError): pass
 
         return self
 
@@ -325,6 +340,11 @@ class UserProfileList:
         self.warningCount = []
         self.totalQuizPlayedTimes = []
         self.totalQuizHighestScore = []
+        self.requestId = []
+        self.message = []
+        self.applicant = []
+        self.avgDailySpendTimeIn7Days = []
+        self.adminLogCountIn7Days = []
 
     @property
     def UserProfileList(self):
@@ -479,6 +499,16 @@ class UserProfileList:
             except (KeyError, TypeError): self.totalQuizPlayedTimes.append(None)
             try: self.totalQuizHighestScore.append(x["totalQuizHighestScore"])
             except (KeyError, TypeError): self.totalQuizHighestScore.append(None)
+            try: self.requestId.append(x["requestId"])
+            except (KeyError, TypeError): self.requestId.append(None)
+            try: self.message.append(x["message"])
+            except (KeyError, TypeError): self.message.append(None)
+            try: self.applicant.append(x["applicant"])
+            except (KeyError, TypeError): self.applicant.append(None)
+            try: self.avgDailySpendTimeIn7Days.append(x["avgDailySpendTimeIn7Days"])
+            except (KeyError, TypeError): self.avgDailySpendTimeIn7Days.append(None)
+            try: self.adminLogCountIn7Days.append(x["adminLogCountIn7Days"])
+            except (KeyError, TypeError): self.adminLogCountIn7Days.append(None)
 
         return self
 
@@ -3347,3 +3377,51 @@ class Event:
         except (KeyError, TypeError): pass
 
         return self
+
+class JoinRequest:
+    def __init__(self, data):
+        _author = []
+
+        self.json = data
+
+        for y in data["communityMembershipRequestList"]:
+            try: _author.append(y)
+            except (KeyError, TypeError): _author.append(None)
+
+        self.author: UserProfileList = UserProfileList(_author).UserProfileList
+        self.communityMembershipRequestCount = None
+
+    @property
+    def JoinRequest(self):
+        try: self.communityMembershipRequestCount = self.json["communityMembershipRequestCount"]
+        except (KeyError, TypeError): pass
+
+        return self
+
+class CommunityStats:
+    def __init__(self, data):
+        self.json = data
+        self.dailyActiveMembers = None
+        self.monthlyActiveMembers = None
+        self.totalTimeSpent = None
+        self.totalPostsCreated = None
+        self.newMembersToday = None
+        self.totalMembers = None
+
+    @property
+    def CommunityStats(self):
+        try: self.dailyActiveMembers = self.json["dailyActiveMembers"]
+        except (KeyError, TypeError): pass
+        try: self.monthlyActiveMembers = self.json["monthlyActiveMembers"]
+        except (KeyError, TypeError): pass
+        try: self.totalTimeSpent = self.json["totalTimeSpent"]
+        except (KeyError, TypeError): pass
+        try: self.totalPostsCreated = self.json["totalPostsCreated"]
+        except (KeyError, TypeError): pass
+        try: self.newMembersToday = self.json["newMembersToday"]
+        except (KeyError, TypeError): pass
+        try: self.totalMembers = self.json["totalMembers"]
+        except (KeyError, TypeError): pass
+
+        return self
+

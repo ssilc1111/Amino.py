@@ -4,7 +4,7 @@ from time import time as timestamp
 from typing import BinaryIO
 
 from . import client
-from .lib.util import exceptions, headers, device
+from .lib.util import exceptions, headers, device, objects
 
 device = device.DeviceGenerator()
 headers.sid = client.Client().sid
@@ -37,12 +37,7 @@ class ACM(client.Client):
         })
 
         response = requests.post(f"{self.api}/g/s/community", headers=headers.Headers(data=data).headers, data=data)
-        if response.status_code != 200:
-            response = json.loads(response.text)
-            if response["api:statuscode"] == 805: raise exceptions.CommunityNameAlreadyTaken
-            if response["api:statuscode"] == 2800: raise exceptions.AccountAlreadyRestored
-            else: return response
-
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return response.status_code
 
     def delete_community(self, email: str, password: str, verificationCode: str):
@@ -58,17 +53,9 @@ class ACM(client.Client):
             "deviceID": device.device_id
         })
 
-        if self.comId is None: raise exceptions.CommunityNeeded
+        if self.comId is None: raise exceptions.CommunityNeeded()
         response = requests.post(f"{self.api}/g/s-x{self.comId}/community/delete-request", headers=headers.Headers(data=data).headers, data=data)
-        if response.status_code != 200:
-            response = json.loads(response.text)
-            if response["api:statuscode"] == 200: raise exceptions.InvalidAccountOrPassword
-            if response["api:statuscode"] == 213: raise exceptions.InvalidEmail
-            if response["api:statuscode"] == 214: raise exceptions.InvalidPassword
-            if response["api:statuscode"] == 270: raise exceptions.VerificationRequired
-            if response["api:statuscode"] == 833: raise exceptions.CommunityDeleted
-            else: return response
-
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return response.status_code
 
     def list_communities(self, start: int = 0, size: int = 25):
@@ -90,14 +77,16 @@ class ACM(client.Client):
             "timestamp": int(timestamp() * 1000)
         })
 
-        if self.comId is None: raise exceptions.CommunityNeeded
+        if self.comId is None: raise exceptions.CommunityNeeded()
         response = requests.post(f"{self.api}/x{self.comId}/s/community/configuration", headers=headers.Headers(data=data).headers, data=data)
-        return json.loads(response.text)
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return json.loads(response.text)
 
     def get_categories(self, start: int = 0, size: int = 25):
-        if self.comId is None: raise exceptions.CommunityNeeded
+        if self.comId is None: raise exceptions.CommunityNeeded()
         response = requests.get(f"{self.api}/x{self.comId}/s/blog-category?start={start}&size={size}", headers=headers.Headers().headers)
-        return json.loads(response.text)
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return json.loads(response.text)
 
     def change_sidepanel_color(self, color: str):
         data = json.dumps({
@@ -106,15 +95,15 @@ class ACM(client.Client):
             "timestamp": int(timestamp() * 1000)
         })
 
-        if self.comId is None: raise exceptions.CommunityNeeded
+        if self.comId is None: raise exceptions.CommunityNeeded()
         response = requests.post(f"{self.api}/x{self.comId}/s/community/configuration", headers=headers.Headers(data=data).headers, data=data)
         if response.status_code == 200: return response.status_code
         else: return json.loads(response.text)
 
     def upload_themepack_raw(self, file: BinaryIO):
-        if self.comId is None: raise exceptions.CommunityNeeded
+        if self.comId is None: raise exceptions.CommunityNeeded()
         response = requests.post(f"{self.api}/x{self.comId}/s/media/upload/target/community-theme-pack", data=file.read(), headers=headers.Headers(data=file.read()).headers)
-        if response.status_code == 200: return json.loads(response.text)["mediaValue"]
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return json.loads(response.text)
 
     def upload_theme(self, themePackUrl: str):
@@ -123,7 +112,43 @@ class ACM(client.Client):
             "timestamp": int(timestamp() * 1000)
         })
 
-        if self.comId is None: raise exceptions.CommunityNeeded
+        if self.comId is None: raise exceptions.CommunityNeeded()
         response = requests.post(f"{self.api}/x{self.comId}/s/community/settings", data=data, headers=headers.Headers(data=data).headers)
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return response.status_code
+
+    def promote(self, userId: str, rank: str):
+        if rank.lower() not in ["leader", "curator"]:
+            raise exceptions.WrongType(rank)
+
+        data = json.dumps({})
+
+        if self.comId is None: raise exceptions.CommunityNeeded()
+        response = requests.post(f"{self.api}/x{self.comId}/s/user-profile/{userId}/{rank}", headers=headers.Headers(data=data).headers, data=data)
         if response.status_code == 200: return response.status_code
         else: return json.loads(response.text)
+        
+    def get_join_requests(self, start: int = 0, size: int = 25):
+        if self.comId is None: raise exceptions.CommunityNeeded()
+
+        response = requests.get(f"{self.api}/x{self.comId}/s/community/membership-request?status=pending&start={start}&size={size}", headers=headers.Headers().headers)
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return objects.JoinRequest(json.loads(response.text)).JoinRequest
+
+    def get_community_stats(self):
+        if self.comId is None: raise exceptions.CommunityNeeded()
+
+        response = requests.get(f"{self.api}/x{self.comId}/s/community/stats", headers=headers.Headers().headers)
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return objects.CommunityStats(json.loads(response.text)["communityStats"]).CommunityStats
+
+    def get_community_user_stats(self, type: str, start: int = 0, size: int = 25):
+        if self.comId is None: raise exceptions.CommunityNeeded()
+
+        if type.lower() == "leader": target = "leader"
+        elif type.lower() == "curator": target = "curator"
+        else: raise exceptions.WrongType(type)
+
+        response = requests.get(f"{self.api}/x{self.comId}/s/community/stats/moderation?type={target}&start={start}&size={size}", headers=headers.Headers().headers)
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return objects.UserProfileList(json.loads(response.text)["userProfileList"]).UserProfileList

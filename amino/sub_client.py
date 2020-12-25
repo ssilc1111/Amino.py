@@ -343,14 +343,14 @@ class SubClient(client.Client):
         else: return response.status_code
 
     # TODO : Fix stay online object, returning Invalid Request
-    def send_active_obj(self):
+    def send_active_obj(self, startTime: int, endTime: int, optInAdsFlags: int = 2147483647, timezone: int = -timezone // 1000):
         data = json.dumps({
             "userActiveTimeChunkList": [{
-                "start": int(timestamp()),
-                "end": int(timestamp()) + int(30)
+                "start": startTime,
+                "end": endTime
             }],
-            "optInAdsFlags": 2147483647,
-            "timezone": -timezone // 1000
+            "optInAdsFlags": optInAdsFlags,
+            "timezone": timezone
         })
 
         response = requests.post(f"{self.api}/x{self.comId}/s/community/stats/user-active-time", headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
@@ -935,7 +935,7 @@ class SubClient(client.Client):
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return response.status_code
 
-    def play_quiz_xd(self, quizId: str, quizAnswerList, quizMode: int = 0):
+    def play_quiz_raw(self, quizId: str, quizAnswerList: list, quizMode: int = 0):
         data = json.dumps({
             "mode": quizMode,
             "quizAnswerList": quizAnswerList,
@@ -1000,6 +1000,9 @@ class SubClient(client.Client):
         elif type == "leaders": response = requests.get(f"{self.api}/x{self.comId}/s/user-profile?type=leaders&start={start}&size={size}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
         elif type == "curators": response = requests.get(f"{self.api}/x{self.comId}/s/user-profile?type=curators&start={start}&size={size}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
         else: raise exceptions.WrongType(type)
+
+        print(response.text)
+
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return objects.UserProfileCountList(json.loads(response.text)).UserProfileCountList
 
