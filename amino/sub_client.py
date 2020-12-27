@@ -1763,3 +1763,47 @@ class SubClient(client.Client):
             if quizId is not None: data["params"]["blogType"] = 6
 
         return self.socket.send(json.dumps(data))
+
+    # Provided by "spectrum#4691"
+    def purchase(self, objectId: str, objectType: int, aminoPlus: bool = True, autoRenew: bool = False):
+        data = {'objectId': objectId,
+                'objectType': objectType,
+                'v': 1,
+                "timestamp": int(timestamp() * 1000)}
+
+        if aminoPlus: data['paymentContext'] = {'discountStatus': 1, 'discountValue': 1, 'isAutoRenew': autoRenew}
+        else: data['paymentContext'] = {'discountStatus': 0, 'discountValue': 1, 'isAutoRenew': autoRenew}
+
+        data = json.dumps(data)
+        response = requests.post(f"{self.api}/x{self.comId}/s/store/purchase",headers=headers.Headers(data=data).headers, data=data)
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return response.status_code
+
+    # Provided by "spectrum#4691"
+    def apply_avatar_frame(self, avatarId: str, applyToAll: bool = True):
+        """
+
+        Apply avatar frame.
+
+        **Parameters**
+            - **avatarId** : ID of the store item.
+            - **applyToAll** : Apply to all.
+
+        **Returns**
+            - **Success** : 200 (int)
+
+            - **Fail** : :meth:`Exceptions <amino.lib.util.exceptions>`
+
+        """
+
+        data = {"frameId": avatarId,
+                "applyToAll": 0,
+                "timestamp": int(timestamp() * 1000)}
+
+        if applyToAll: data['applyToAll'] = 1
+
+        data = json.dumps(data)
+
+        response = requests.post(f"{self.api}/x{self.comId}/s/avatar-frame/apply", headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return response.status_code
