@@ -264,6 +264,29 @@ class Client:
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return response.status_code
 
+    # Provided by "𝑰 𝑵 𝑻 𝑬 𝑹 𝑳 𝑼 𝑫 𝑬#4082"
+    def delete_account(self, password: str):
+        """
+        Delete an account.
+
+        **Parameters**
+            - **password** : Password of the account.
+
+        **Returns**
+            - **Success** : 200 (int)
+
+            - **Fail** : :meth:`Exceptions <amino.lib.util.exceptions>`
+        """
+
+        data = json.dumps({
+            "deviceID": device.device_id,
+            "secret": f"0 {password}"
+        })
+
+        response = requests.post(f"{self.api}/g/s/account/delete-request", headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return response.status_code
+
     def change_password(self, email: str, password: str, code: str):
         """
         Change password of an account.
@@ -660,6 +683,40 @@ class Client:
         response = requests.get(f"{self.api}/g/s/block?start={start}&size={size}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return objects.UserProfileList(json.loads(response.text)["userProfileList"]).UserProfileList
+
+    def get_blog_info(self, blogId: str = None, wikiId: str = None, quizId: str = None, fileId: str = None):
+        if blogId or quizId:
+            if quizId is not None: blogId = quizId
+            response = requests.get(f"{self.api}/x{self.comId}/s/blog/{blogId}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
+            if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+            else: return objects.GetBlogInfo(json.loads(response.text)).GetBlogInfo
+
+        elif wikiId:
+            response = requests.get(f"{self.api}/x{self.comId}/s/item/{wikiId}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
+            if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+            else: return objects.GetWikiInfo(json.loads(response.text)).GetWikiInfo
+
+        elif fileId:
+            response = requests.get(f"{self.api}/g/s/shared-folder/files/{fileId}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
+            if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+            else: return objects.SharedFolderFile(json.loads(response.text)["file"]).SharedFolderFile
+
+        else: raise exceptions.SpecifyType()
+
+    def get_blog_comments(self, blogId: str = None, wikiId: str = None, quizId: str = None, fileId: str = None, sorting: str = "newest", start: int = 0, size: int = 25):
+        if sorting == "newest": sorting = "newest"
+        elif sorting == "oldest": sorting = "oldest"
+        elif sorting == "top": sorting = "vote"
+
+        if blogId or quizId:
+            if quizId is not None: blogId = quizId
+            response = requests.get(f"{self.api}/g/s/blog/{blogId}/comment?sort={sorting}&start={start}&size={size}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
+        elif wikiId: response = requests.get(f"{self.api}/g/s/item/{wikiId}/comment?sort={sorting}&start={start}&size={size}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
+        elif fileId: response = requests.get(f"{self.api}/g/s/shared-folder/files/{fileId}/comment?sort={sorting}&start={start}&size={size}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
+        else: raise exceptions.SpecifyType()
+
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return objects.CommentList(json.loads(response.text)["commentList"]).CommentList
 
     def get_blocker_users(self, start: int = 0, size: int = 25):
         """

@@ -16,14 +16,22 @@ device = device.DeviceGenerator()
 headers.sid = client.Client().sid
 
 class SubClient(client.Client):
-    def __init__(self, comId: str, profile: objects.UserProfile):
+    def __init__(self, comId: str = None, aminoId: str = None, *, profile: objects.UserProfile):
         client.Client.__init__(self)
 
-        if not comId: raise exceptions.NoCommunity()
+        if comId is not None:
+            self.comId = comId
+            self.community: objects.Community = client.Client().get_community_info(comId)
 
-        self.comId = comId
+        if aminoId is not None:
+            self.comId = client.Client().search_community(aminoId).comId[0]
+            self.community: objects.Community = client.Client().get_community_info(self.comId)
+
+        if comId is None and aminoId is None: raise exceptions.NoCommunity()
+
         try: self.profile: objects.UserProfile = self.get_user_info(userId=profile.userId)
         except AttributeError: raise exceptions.FailedLogin()
+        except exceptions.UserUnavailable: pass
 
     def post_blog(self, title: str, content: str, categoriesList: list = None, backgroundColor: str = None, fansOnly: bool = False, extensions: dict = None):
         data = {

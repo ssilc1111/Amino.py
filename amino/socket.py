@@ -9,24 +9,22 @@ from sys import _getframe as getframe
 from .lib.util import objects
 
 class SocketHandler:
-    def __init__(self, client, socket_trace = False, debug = False, socketDelayFetch = 120, autoractive = True):
+    def __init__(self, client, socket_trace = False, debug = False):
         websocket.enableTrace(True)
         self.socket_url = "wss://ws1.narvii.com"
         self.client = client
         self.debug = debug
         self.active = False
-        self.autoractive = autoractive # Whether auto-reconnect is enabled or not is provided in args
         self.headers = None
         self.socket = None
         self.socket_thread = None
         self.reconnect = True
         self.socket_stop = False
         self.socketDelay = 0
-        self.socketDelayFetch = socketDelayFetch  # Reconnects every 120 seconds by default if custom value is not provided
+        self.socketDelayFetch = 120  # Reconnects every 120 seconds.
 
-        if autoractive:
-            self.socket_handler = threading.Thread(target = self.reconnect_handler)
-            self.socket_handler.start()
+        self.socket_handler = threading.Thread(target = self.reconnect_handler)
+        self.socket_handler.start()
 
         websocket.enableTrace(socket_trace)
 
@@ -44,7 +42,6 @@ class SocketHandler:
                 self.close()
                 self.start()
                 self.socketDelay = 0
-                self.reconnect = True
 
             self.socketDelay += 1
 
@@ -54,7 +51,7 @@ class SocketHandler:
 
                 break
 
-            time.sleep(1)
+            time.sleep(5)
 
     def on_open(self):
         if self.debug is True:
@@ -110,9 +107,7 @@ class SocketHandler:
 
         self.socket_thread = threading.Thread(target = self.socket.run_forever, kwargs = {"ping_interval": 60})
         self.socket_thread.start()
-
-        if self.autoractive:
-            self.active = True
+        self.active = True
 
         if self.debug is True:
             print(f"[socket][start] Socket Started")
