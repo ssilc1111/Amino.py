@@ -687,12 +687,12 @@ class Client:
     def get_blog_info(self, blogId: str = None, wikiId: str = None, quizId: str = None, fileId: str = None):
         if blogId or quizId:
             if quizId is not None: blogId = quizId
-            response = requests.get(f"{self.api}/x{self.comId}/s/blog/{blogId}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
+            response = requests.get(f"{self.api}/g/s/blog/{blogId}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
             if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
             else: return objects.GetBlogInfo(json.loads(response.text)).GetBlogInfo
 
         elif wikiId:
-            response = requests.get(f"{self.api}/x{self.comId}/s/item/{wikiId}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
+            response = requests.get(f"{self.api}/g/s/item/{wikiId}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
             if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
             else: return objects.GetWikiInfo(json.loads(response.text)).GetWikiInfo
 

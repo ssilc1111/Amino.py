@@ -3424,4 +3424,3 @@ class CommunityStats:
         except (KeyError, TypeError): pass
 
         return self
-
