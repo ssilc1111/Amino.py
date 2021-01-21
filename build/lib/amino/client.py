@@ -10,7 +10,7 @@ from binascii import hexlify
 from time import time as timestamp
 from locale import getdefaultlocale as locale
 
-from .lib.util import exceptions, headers, device, objects, helpers
+from .lib.util import exceptions, headers, device, objects
 from .socket import Callbacks, SocketHandler
 
 device = device.DeviceGenerator()
@@ -43,12 +43,12 @@ class Client:
         **Parameters**
             - **SID** : SID of the account
         """
-        uId = helpers.sid_to_uid(SID)
+        event = self.get_eventlog()
         self.authenticated = True
         self.sid = SID
-        self.userId = uId
-        self.account: objects.UserProfile = self.get_user_info(uId)
-        self.profile: objects.UserProfile = self.get_user_info(uId)
+        self.userId = event["auid"]
+        self.account: objects.UserProfile = self.get_user_info(self.userId)
+        self.profile: objects.UserProfile = self.get_user_info(self.userId)
         headers.sid = self.sid
         self.socket.start()
 
