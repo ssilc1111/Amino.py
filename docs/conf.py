@@ -12,7 +12,6 @@
 #
 import os
 import sys
-import amino
 
 sys.path.insert(0, os.path.abspath('..'))
 
@@ -25,7 +24,7 @@ author = 'Slimakoi'
 description = 'A library to create Amino bots.'
 
 # The full version, including alpha/beta/rc tags
-release = amino.__version__
+release = '1.2.11'
 
 # -- General configuration ---------------------------------------------------
 
