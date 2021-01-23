@@ -12,19 +12,20 @@
 #
 import os
 import sys
+import amino
 
 sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
 project = 'Amino.py'
-copyright = '2020, Slimakoi'
+copyright = '2020-2021 Slimakoi'
 license = 'MIT'
 author = 'Slimakoi'
 description = 'A library to create Amino bots.'
 
 # The full version, including alpha/beta/rc tags
-release = '1.2.11.1'
+release = '1.2.11.2'
 
 # -- General configuration ---------------------------------------------------
 
