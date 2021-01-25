@@ -31,6 +31,7 @@ class SocketHandler:
     def reconnect_handler(self):
         # Made by enchart#3410 thx
         # Fixed by The_Phoenix#3967
+        # Fixed by enchart again lmao
         while True:
             if self.debug is True:
                 print(f"[socket][reconnect_handler] socketDelay : {self.socketDelay}")
@@ -51,7 +52,7 @@ class SocketHandler:
 
                 break
 
-            time.sleep(5)
+            time.sleep(1)
 
     def on_open(self):
         if self.debug is True:
@@ -107,6 +108,7 @@ class SocketHandler:
 
         self.socket_thread = threading.Thread(target = self.socket.run_forever, kwargs = {"ping_interval": 60})
         self.socket_thread.start()
+        self.reconnect = True
         self.active = True
 
         if self.debug is True:

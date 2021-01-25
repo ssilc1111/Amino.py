@@ -2652,7 +2652,8 @@ class Message:
         except (KeyError, TypeError): pass
         try: self.originalStickerId = self.json["extensions"]["originalStickerId"]
         except (KeyError, TypeError): pass
-        try: self.mentionUserIds = self.json["extensions"]["mentionUserIds"]
+        # mentions fixed by enchart
+        try: self.mentionUserIds = [m["uid"] for m in self.json["extensions"]["mentionedArray"]]
         except (KeyError, TypeError): pass
         try: self.tippingCoins = self.json["extensions"]["tippingCoins"]
         except (KeyError, TypeError): pass
@@ -2734,7 +2735,7 @@ class MessageList:
             except (KeyError, TypeError): self.duration.append(None)
             try: self.originalStickerId.append(x["extensions"]["originalStickerId"])
             except (KeyError, TypeError): self.originalStickerId.append(None)
-            try: self.mentionUserIds.append(x["extensions"]["mentionUserIds"])
+            try: self.mentionUserIds.append([m["uid"] for m in x["extensions"]["mentionedArray"]])
             except (KeyError, TypeError): self.mentionUserIds.append(None)
             try: self.videoExtensions.append(x["extensions"]["videoExtensions"])
             except (KeyError, TypeError): self.videoExtensions.append(None)
