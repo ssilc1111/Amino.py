@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Modules &mdash; Amino.py 1.2.11.3 documentation</title>
+  <title>Modules &mdash; Amino.py 1.2.11.4 documentation</title>
   
 
   
@@ -176,8 +176,33 @@
 <em class="property">class </em><code class="sig-prename descclassname">amino.acm.</code><code class="sig-name descname">ACM</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">profile</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">comId</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.acm.ACM" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#amino.client.Client" title="amino.client.Client"><code class="xref py py-class docutils literal notranslate"><span class="pre">amino.client.Client</span></code></a></p>
 <dl class="py method">
+<dt id="amino.acm.ACM.accept_join_request">
+<code class="sig-name descname">accept_join_request</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">userId</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.acm.ACM.accept_join_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="amino.acm.ACM.add_influencer">
+<code class="sig-name descname">add_influencer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">userId</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">monthlyFee</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.acm.ACM.add_influencer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="amino.acm.ACM.change_guidelines">
+<code class="sig-name descname">change_guidelines</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.acm.ACM.change_guidelines" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="amino.acm.ACM.change_module">
+<code class="sig-name descname">change_module</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">module</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">isEnabled</span><span class="p">:</span> <span class="n">bool</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.acm.ACM.change_module" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="amino.acm.ACM.change_sidepanel_color">
 <code class="sig-name descname">change_sidepanel_color</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">color</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.acm.ACM.change_sidepanel_color" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="amino.acm.ACM.change_welcome_message">
+<code class="sig-name descname">change_welcome_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">isEnabled</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.acm.ACM.change_welcome_message" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -191,17 +216,9 @@
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="amino.acm.ACM.edit_modules">
-<code class="sig-name descname">edit_modules</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">module</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.acm.ACM.edit_modules" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Modules:</dt><dd><p>chat: module.chat.enabled
-posts: module.post.enabled
-wiki: module.catalog.enabled
-| curation : module.catalog.curationEnabled
-categories: module.topicCategories.enabled</p>
-</dd>
-</dl>
-</dd></dl>
+<dt id="amino.acm.ACM.edit_community">
+<code class="sig-name descname">edit_community</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">description</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">aminoId</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">primaryLanguage</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">themePackUrl</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.acm.ACM.edit_community" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="amino.acm.ACM.get_categories">
@@ -234,8 +251,13 @@ categories: module.topicCategories.enabled</p>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="amino.acm.ACM.upload_theme">
-<code class="sig-name descname">upload_theme</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">themePackUrl</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.acm.ACM.upload_theme" title="Permalink to this definition">¶</a></dt>
+<dt id="amino.acm.ACM.reject_join_request">
+<code class="sig-name descname">reject_join_request</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">userId</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.acm.ACM.reject_join_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="amino.acm.ACM.remove_influencer">
+<code class="sig-name descname">remove_influencer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">userId</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.acm.ACM.remove_influencer" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1750,6 +1772,11 @@ categories: module.topicCategories.enabled</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="amino.sub_client.SubClient.delete_invite_code">
+<code class="sig-name descname">delete_invite_code</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inviteId</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.delete_invite_code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="amino.sub_client.SubClient.delete_message">
 <code class="sig-name descname">delete_message</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chatId</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">messageId</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">asStaff</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">reason</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.delete_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delete a Message from a Chat.</p>
@@ -1886,6 +1913,11 @@ categories: module.topicCategories.enabled</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="amino.sub_client.SubClient.generate_invite_code">
+<code class="sig-name descname">generate_invite_code</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">duration</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">force</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.generate_invite_code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.get_all_users">
@@ -2038,6 +2070,11 @@ categories: module.topicCategories.enabled</p>
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.get_influencer_fans">
 <code class="sig-name descname">get_influencer_fans</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">userId</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">start</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">size</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">25</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.get_influencer_fans" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="amino.sub_client.SubClient.get_invite_codes">
+<code class="sig-name descname">get_invite_codes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">status</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'normal'</span></em>, <em class="sig-param"><span class="n">start</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">size</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">25</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.get_invite_codes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -2339,6 +2376,11 @@ categories: module.topicCategories.enabled</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt id="amino.sub_client.SubClient.invite_to_vc">
+<code class="sig-name descname">invite_to_vc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chatId</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">userId</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.sub_client.SubClient.invite_to_vc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="amino.sub_client.SubClient.join_chat">
@@ -3259,6 +3301,28 @@ categories: module.topicCategories.enabled</p>
 </dd></dl>
 
 <dl class="py class">
+<dt id="amino.lib.util.objects.InviteCode">
+<em class="property">class </em><code class="sig-prename descclassname">amino.lib.util.objects.</code><code class="sig-name descname">InviteCode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.lib.util.objects.InviteCode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="amino.lib.util.objects.InviteCode.InviteCode">
+<em class="property">property </em><code class="sig-name descname">InviteCode</code><a class="headerlink" href="#amino.lib.util.objects.InviteCode.InviteCode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="amino.lib.util.objects.InviteCodeList">
+<em class="property">class </em><code class="sig-prename descclassname">amino.lib.util.objects.</code><code class="sig-name descname">InviteCodeList</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.lib.util.objects.InviteCodeList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="amino.lib.util.objects.InviteCodeList.InviteCodeList">
+<em class="property">property </em><code class="sig-name descname">InviteCodeList</code><a class="headerlink" href="#amino.lib.util.objects.InviteCodeList.InviteCodeList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt id="amino.lib.util.objects.JoinRequest">
 <em class="property">class </em><code class="sig-prename descclassname">amino.lib.util.objects.</code><code class="sig-name descname">JoinRequest</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.lib.util.objects.JoinRequest" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -3321,6 +3385,18 @@ categories: module.topicCategories.enabled</p>
 <dt id="amino.lib.util.objects.NotificationList.NotificationList">
 <em class="property">property </em><code class="sig-name descname">NotificationList</code><a class="headerlink" href="#amino.lib.util.objects.NotificationList.NotificationList" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="amino.lib.util.objects.Objects">
+<em class="property">class </em><code class="sig-prename descclassname">amino.lib.util.objects.</code><code class="sig-name descname">Objects</code><a class="headerlink" href="#amino.lib.util.objects.Objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py class">
+<dt id="amino.lib.util.objects.Objects.Users">
+<em class="property">class </em><code class="sig-name descname">Users</code><a class="headerlink" href="#amino.lib.util.objects.Objects.Users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
 
 </dd></dl>
 
@@ -4246,6 +4322,17 @@ categories: module.topicCategories.enabled</p>
 <ul class="simple">
 <li><p><strong>API Code</strong> : 314</p></li>
 <li><p><strong>API Message</strong> : <code class="docutils literal notranslate"><span class="pre">Unknown</span> <span class="pre">Message</span></code></p></li>
+<li><p><strong>API String</strong> : <code class="docutils literal notranslate"><span class="pre">Unknown</span> <span class="pre">String</span></code></p></li>
+</ul>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="amino.lib.util.exceptions.InviteCodeNotFound">
+<em class="property">exception </em><code class="sig-prename descclassname">amino.lib.util.exceptions.</code><code class="sig-name descname">InviteCodeNotFound</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#amino.lib.util.exceptions.InviteCodeNotFound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<ul class="simple">
+<li><p><strong>API Code</strong> : 1900</p></li>
+<li><p><strong>API Message</strong> : Sorry, the requested data no longer exists. Try refreshing the view.</p></li>
 <li><p><strong>API String</strong> : <code class="docutils literal notranslate"><span class="pre">Unknown</span> <span class="pre">String</span></code></p></li>
 </ul>
 </dd></dl>

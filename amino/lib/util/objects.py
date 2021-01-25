@@ -1,12 +1,18 @@
 # You don't even know how long this shit took...
 # F*ck you Sand for making me do this.
 
+class Objects:
+    class Users:
+        def __init__(self):
+            self.team_amino = "000000000-0000-0000-0000-000000000000"
+            self.news_feed = "000000000-0000-0000-0000-000000000001"
+
 class UserProfile:
     def __init__(self, data):
         self.json = data
 
-        try: self.fanClub: FanClubList = FanClubList(data["fanClubList"]).FanClubList
-        except (KeyError, TypeError): self.fanClub: FanClubList = FanClubList([])
+        #try: self.fanClub: FanClubList = FanClubList(data["fanClubList"]).FanClubList
+        #except (KeyError, TypeError): self.fanClub: FanClubList = FanClubList([])
 
         self.accountMembershipStatus = None
         self.activation = None
@@ -569,6 +575,7 @@ class BlogList:
         self.quizTotalQuestionCount = []
         self.quizTrendingTimes = []
         self.quizLastAddQuestionTime = []
+        self.isIntroPost = []
 
     @property
     def BlogList(self):
@@ -653,6 +660,8 @@ class BlogList:
             except (KeyError, TypeError): self.quizTrendingTimes.append(None)
             try: self.quizLastAddQuestionTime.append(x["extensions"]["quizLastAddQuestionTime"])
             except (KeyError, TypeError): self.quizLastAddQuestionTime.append(None)
+            try: self.isIntroPost.append(x["extensions"]["isIntroPost"])
+            except (KeyError, TypeError): self.isIntroPost.append(None)
 
         return self
 
@@ -765,6 +774,7 @@ class Blog:
         self.quizTotalQuestionCount = None
         self.quizTrendingTimes = None
         self.quizLastAddQuestionTime = None
+        self.isIntroPost = None
 
     @property
     def Blog(self):
@@ -849,6 +859,8 @@ class Blog:
         try: self.quizTrendingTimes = self.json["extensions"]["quizTrendingTimes"]
         except (KeyError, TypeError): pass
         try: self.quizLastAddQuestionTime = self.json["extensions"]["quizLastAddQuestionTime"]
+        except (KeyError, TypeError): pass
+        try: self.isIntroPost = self.json["extensions"]["isIntroPost"]
         except (KeyError, TypeError): pass
 
         return self
@@ -3422,5 +3434,86 @@ class CommunityStats:
         except (KeyError, TypeError): pass
         try: self.totalMembers = self.json["totalMembers"]
         except (KeyError, TypeError): pass
+
+        return self
+
+
+class InviteCode:
+    def __init__(self, data):
+        self.json = data
+
+        try: self.author: UserProfile = UserProfile(data["author"]).UserProfile
+        except (KeyError, TypeError): self.author: UserProfile = UserProfile([])
+
+        self.status = None
+        self.duration = None
+        self.invitationId = None
+        self.link = None
+        self.modifiedTime = None
+        self.comId = None
+        self.createdTime = None
+        self.inviteCode = None
+
+    @property
+    def InviteCode(self):
+        try: self.status = self.json["status"]
+        except (KeyError, TypeError): pass
+        try: self.duration = self.json["duration"]
+        except (KeyError, TypeError): pass
+        try: self.invitationId = self.json["invitationId"]
+        except (KeyError, TypeError): pass
+        try: self.link = self.json["link"]
+        except (KeyError, TypeError): pass
+        try: self.modifiedTime = self.json["modifiedTime"]
+        except (KeyError, TypeError): pass
+        try: self.comId = self.json["ndcId"]
+        except (KeyError, TypeError): pass
+        try: self.createdTime = self.json["createdTime"]
+        except (KeyError, TypeError): pass
+        try: self.inviteCode = self.json["inviteCode"]
+        except (KeyError, TypeError): pass
+
+        return self
+
+
+class InviteCodeList:
+    def __init__(self, data):
+        _author = []
+
+        self.json = data
+
+        for y in data:
+            try: _author.append(y["author"])
+            except (KeyError, TypeError): _author.append(None)
+
+        self.author: UserProfileList = UserProfileList(_author).UserProfileList
+        self.status = []
+        self.duration = []
+        self.invitationId = []
+        self.link = []
+        self.modifiedTime = []
+        self.comId = []
+        self.createdTime = []
+        self.inviteCode = []
+
+    @property
+    def InviteCodeList(self):
+        for x in self.json:
+            try: self.status.append(x["status"])
+            except (KeyError, TypeError): self.status.append(None)
+            try: self.duration.append(x["duration"])
+            except (KeyError, TypeError): self.duration.append(None)
+            try: self.invitationId.append(x["invitationId"])
+            except (KeyError, TypeError): self.invitationId.append(None)
+            try: self.link.append(x["link"])
+            except (KeyError, TypeError): self.link.append(None)
+            try: self.modifiedTime.append(x["modifiedTime"])
+            except (KeyError, TypeError): self.modifiedTime.append(None)
+            try: self.comId.append(x["ndcId"])
+            except (KeyError, TypeError): self.comId.append(None)
+            try: self.createdTime.append(x["createdTime"])
+            except (KeyError, TypeError): self.createdTime.append(None)
+            try: self.inviteCode.append(x["inviteCode"])
+            except (KeyError, TypeError): self.inviteCode.append(None)
 
         return self

@@ -62,26 +62,6 @@ class ACM(client.Client):
         response = requests.get(f"{self.api}/g/s/community/managed?start={start}&size={size}", headers=headers.Headers().headers)
         return json.loads(response.text)
 
-    def edit_modules(self, module: str, value):
-        """
-        Modules:
-          chat: module.chat.enabled
-          posts: module.post.enabled
-          wiki: module.catalog.enabled
-          | curation : module.catalog.curationEnabled
-          categories: module.topicCategories.enabled
-        """
-        data = json.dumps({
-            "path": f"module.{module}.enabled",
-            "value": value,
-            "timestamp": int(timestamp() * 1000)
-        })
-
-        if self.comId is None: raise exceptions.CommunityNeeded()
-        response = requests.post(f"{self.api}/x{self.comId}/s/community/configuration", headers=headers.Headers(data=data).headers, data=data)
-        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
-        else: return json.loads(response.text)
-
     def get_categories(self, start: int = 0, size: int = 25):
         if self.comId is None: raise exceptions.CommunityNeeded()
         response = requests.get(f"{self.api}/x{self.comId}/s/blog-category?start={start}&size={size}", headers=headers.Headers().headers)
@@ -106,17 +86,6 @@ class ACM(client.Client):
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return json.loads(response.text)
 
-    def upload_theme(self, themePackUrl: str):
-        data = json.dumps({
-            "themePackUrl": themePackUrl,
-            "timestamp": int(timestamp() * 1000)
-        })
-
-        if self.comId is None: raise exceptions.CommunityNeeded()
-        response = requests.post(f"{self.api}/x{self.comId}/s/community/settings", data=data, headers=headers.Headers(data=data).headers)
-        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
-        else: return response.status_code
-
     def promote(self, userId: str, rank: str):
         if rank.lower() not in ["leader", "curator"]:
             raise exceptions.WrongType(rank)
@@ -135,6 +104,22 @@ class ACM(client.Client):
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return objects.JoinRequest(json.loads(response.text)).JoinRequest
 
+    def accept_join_request(self, userId: str):
+        data = json.dumps({})
+
+        if self.comId is None: raise exceptions.CommunityNeeded()
+        response = requests.post(f"{self.api}/x{self.comId}/s/community/membership-request/{userId}/accept", headers=headers.Headers(data=data).headers, data=data)
+        if response.status_code == 200: return response.status_code
+        else: return json.loads(response.text)
+
+    def reject_join_request(self, userId: str):
+        data = json.dumps({})
+
+        if self.comId is None: raise exceptions.CommunityNeeded()
+        response = requests.post(f"{self.api}/x{self.comId}/s/community/membership-request/{userId}/reject", headers=headers.Headers(data=data).headers, data=data)
+        if response.status_code == 200: return response.status_code
+        else: return json.loads(response.text)
+
     def get_community_stats(self):
         if self.comId is None: raise exceptions.CommunityNeeded()
 
@@ -152,3 +137,92 @@ class ACM(client.Client):
         response = requests.get(f"{self.api}/x{self.comId}/s/community/stats/moderation?type={target}&start={start}&size={size}", headers=headers.Headers().headers)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return objects.UserProfileList(json.loads(response.text)["userProfileList"]).UserProfileList
+
+    def change_welcome_message(self, message: str, isEnabled: bool = True):
+        data = json.dumps({
+            "path": "general.welcomeMessage",
+            "value": {
+                "enabled": isEnabled,
+                "text": message
+            },
+            "timestamp": int(timestamp() * 1000)
+        })
+
+        if self.comId is None: raise exceptions.CommunityNeeded()
+        response = requests.post(f"{self.api}/x{self.comId}/s/community/configuration", headers=headers.Headers(data=data).headers, data=data)
+        if response.status_code == 200: return response.status_code
+        else: return json.loads(response.text)
+
+    def change_guidelines(self, message: str):
+        data = json.dumps({
+            "content": message,
+            "timestamp": int(timestamp() * 1000)
+        })
+
+        if self.comId is None: raise exceptions.CommunityNeeded()
+        response = requests.post(f"{self.api}/x{self.comId}/s/community/guideline", headers=headers.Headers(data=data).headers, data=data)
+        if response.status_code == 200: return response.status_code
+        else: return json.loads(response.text)
+
+    def edit_community(self, name: str = None, description: str = None, aminoId: str = None, primaryLanguage: str = None, themePackUrl: str = None):
+        data = {"timestamp": int(timestamp() * 1000)}
+
+        if name is not None: data["name"] = name
+        if description is not None: data["content"] = description
+        if aminoId is not None: data["endpoint"] = aminoId
+        if primaryLanguage is not None: data["primaryLanguage"] = primaryLanguage
+        if themePackUrl is not None: data["themePackUrl"] = themePackUrl
+
+        data = json.dumps(data)
+
+        if self.comId is None: raise exceptions.CommunityNeeded()
+        response = requests.post(f"{self.api}/x{self.comId}/s/community/settings", data=data, headers=headers.Headers(data=data).headers)
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return response.status_code
+
+    def change_module(self, module: str, isEnabled: bool):
+        if module.lower() == "chat": mod = "module.chat.enabled"
+        elif module.lower() == "livechat": mod = "module.chat.avChat.videoEnabled"
+        elif module.lower() == "screeningroom": mod = "module.chat.avChat.screeningRoomEnabled"
+        elif module.lower() == "publicchats": mod = "module.chat.publicChat.enabled"
+        elif module.lower() == "posts": mod = "module.post.enabled"
+        elif module.lower() == "ranking": mod = "module.ranking.enabled"
+        elif module.lower() == "leaderboards": mod = "module.ranking.leaderboardEnabled"
+        elif module.lower() == "featured": mod = "module.featured.enabled"
+        elif module.lower() == "featuredposts": mod = "module.featured.postEnabled"
+        elif module.lower() == "featuredusers": mod = "module.featured.memberEnabled"
+        elif module.lower() == "featuredchats": mod = "module.featured.publicChatRoomEnabled"
+        elif module.lower() == "sharedfolder": mod = "module.sharedFolder.enabled"
+        elif module.lower() == "influencer": mod = "module.influencer.enabled"
+        elif module.lower() == "catalog": mod = "module.catalog.enabled"
+        elif module.lower() == "externalcontent": mod = "module.externalContent.enabled"
+        elif module.lower() == "topiccategories": mod = "module.topicCategories.enabled"
+        else: raise exceptions.SpecifyType()
+
+        data = json.dumps({
+            "path": mod,
+            "value": isEnabled,
+            "timestamp": int(timestamp() * 1000)
+        })
+
+        if self.comId is None: raise exceptions.CommunityNeeded()
+        response = requests.post(f"{self.api}/x{self.comId}/s/community/configuration", headers=headers.Headers(data=data).headers, data=data)
+        if response.status_code == 200: return response.status_code
+        else: return json.loads(response.text)
+
+    def add_influencer(self, userId: str, monthlyFee: int):
+        data = json.dumps({
+            "monthlyFee": monthlyFee,
+            "timestamp": int(timestamp() * 1000)
+        })
+
+        if self.comId is None: raise exceptions.CommunityNeeded()
+        response = requests.post(f"{self.api}/x{self.comId}/s/influencer/{userId}", headers=headers.Headers(data=data).headers, data=data)
+        if response.status_code == 200: return response.status_code
+        else: return json.loads(response.text)
+
+    def remove_influencer(self, userId: str):
+        if self.comId is None: raise exceptions.CommunityNeeded()
+        response = requests.delete(f"{self.api}/x{self.comId}/s/influencer/{userId}", headers=headers.Headers().headers)
+        if response.status_code == 200: return response.status_code
+        else: return json.loads(response.text)

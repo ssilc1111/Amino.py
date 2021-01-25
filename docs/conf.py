@@ -15,6 +15,9 @@ import sys
 
 sys.path.insert(0, os.path.abspath('..'))
 
+import amino
+
+
 # -- Project information -----------------------------------------------------
 
 project = 'Amino.py'
@@ -24,7 +27,7 @@ author = 'Slimakoi'
 description = 'A library to create Amino bots.'
 
 # The full version, including alpha/beta/rc tags
-release = '1.2.11.3'
+release = '1.2.11.4'
 
 # -- General configuration ---------------------------------------------------
 

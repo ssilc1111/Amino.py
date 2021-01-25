@@ -33,6 +33,27 @@ class SubClient(client.Client):
         except AttributeError: raise exceptions.FailedLogin()
         except exceptions.UserUnavailable: pass
 
+    def get_invite_codes(self, status: str = "normal", start: int = 0, size: int = 25):
+        response = requests.get(f"{self.api}/g/s-x{self.comId}/community/invitation?status={status}&start={start}&size={size}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return objects.InviteCodeList(json.loads(response.text)["communityInvitationList"]).InviteCodeList
+
+    def generate_invite_code(self, duration: int = 0, force: bool = True):
+        data = json.dumps({
+            "duration": duration,
+            "force": force,
+            "timestamp": int(timestamp() * 1000)
+        })
+
+        response = requests.post(f"{self.api}/g/s-x{self.comId}/community/invitation", headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return objects.InviteCode(json.loads(response.text)["communityInvitation"]).InviteCode
+
+    def delete_invite_code(self, inviteId: str):
+        response = requests.delete(f"{self.api}/g/s-x{self.comId}/community/invitation/{inviteId}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return response.status_code
+
     def post_blog(self, title: str, content: str, categoriesList: list = None, backgroundColor: str = None, fansOnly: bool = False, extensions: dict = None):
         data = {
             "address": None,
@@ -350,7 +371,6 @@ class SubClient(client.Client):
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return response.status_code
 
-    # TODO : Fix stay online object, returning Invalid Request
     def send_active_obj(self, startTime: int, endTime: int, optInAdsFlags: int = 2147483647, timezone: int = -timezone // 1000):
         data = json.dumps({
             "userActiveTimeChunkList": [{
@@ -739,7 +759,7 @@ class SubClient(client.Client):
             "messageId": messageId,
             "timestamp": int(timestamp() * 1000)
         })
-        response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/mark-as-read", headers=headers.Headers().headers, data=data, proxies=self.proxies, verify=self.certificatePath)
+        response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/mark-as-read", headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return response.status_code
 
@@ -1008,8 +1028,6 @@ class SubClient(client.Client):
         elif type == "leaders": response = requests.get(f"{self.api}/x{self.comId}/s/user-profile?type=leaders&start={start}&size={size}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
         elif type == "curators": response = requests.get(f"{self.api}/x{self.comId}/s/user-profile?type=curators&start={start}&size={size}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
         else: raise exceptions.WrongType(type)
-
-        print(response.text)
 
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return objects.UserProfileCountList(json.loads(response.text)).UserProfileCountList
@@ -1813,5 +1831,12 @@ class SubClient(client.Client):
         data = json.dumps(data)
 
         response = requests.post(f"{self.api}/x{self.comId}/s/avatar-frame/apply", headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return response.status_code
+
+    def invite_to_vc(self, chatId: str, userId: str):
+        data = json.dumps({})
+
+        response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/vvchat-presenter/invite/{userId}", headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return response.status_code
