@@ -168,7 +168,16 @@ class Client:
 
         response = requests.post(f"{self.api}/g/s/auth/logout", headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
-        else: self.authenticated = False; return response.status_code
+        else:
+            self.authenticated = False
+            self.json = None
+            self.sid = None
+            self.userId = None
+            self.account: None
+            self.profile: None
+            headers.sid = None
+            self.socket.close()
+            return response.status_code
 
     def configure(self, age: int, gender: str):
         """

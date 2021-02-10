@@ -148,6 +148,8 @@ class Callbacks:
             "1:0": self.on_strike_message,
             "2:110": self.on_voice_message,
             "3:113": self.on_sticker_message,
+            "50:0": self.TYPE_USER_SHARE_EXURL,
+            "51:0": self.TYPE_USER_SHARE_USER,
             "52:0": self.on_voice_chat_not_answered,
             "53:0": self.on_voice_chat_not_cancelled,
             "54:0": self.on_voice_chat_not_declined,
@@ -237,6 +239,8 @@ class Callbacks:
     def on_strike_message(self, data): self.call(getframe(0).f_code.co_name, objects.Event(data["o"]).Event)
     def on_voice_message(self, data): self.call(getframe(0).f_code.co_name, objects.Event(data["o"]).Event)
     def on_sticker_message(self, data): self.call(getframe(0).f_code.co_name, objects.Event(data["o"]).Event)
+    def TYPE_USER_SHARE_EXURL(self, data): self.call(getframe(0).f_code.co_name, objects.Event(data["o"]).Event)
+    def TYPE_USER_SHARE_USER(self, data): self.call(getframe(0).f_code.co_name, objects.Event(data["o"]).Event)
     def on_voice_chat_not_answered(self, data): self.call(getframe(0).f_code.co_name, objects.Event(data["o"]).Event)
     def on_voice_chat_not_cancelled(self, data): self.call(getframe(0).f_code.co_name, objects.Event(data["o"]).Event)
     def on_voice_chat_not_declined(self, data): self.call(getframe(0).f_code.co_name, objects.Event(data["o"]).Event)
