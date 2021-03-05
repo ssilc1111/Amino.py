@@ -8,6 +8,7 @@ from time import timezone
 from typing import BinaryIO
 from binascii import hexlify
 from time import time as timestamp
+from threading import Thread
 
 from . import client
 from .lib.util import exceptions, headers, device, objects
@@ -15,13 +16,31 @@ from .lib.util import exceptions, headers, device, objects
 device = device.DeviceGenerator()
 headers.sid = client.Client().sid
 
+
+class VCHeaders:
+    def __init__(self, data = None):
+        vc_headers = {
+            "Accept-Language": "en-US",
+            "Content-Type": "application/json",
+            "User-Agent": "Amino/45725 CFNetwork/1126 Darwin/19.5.0",  # Closest server (this one for me)
+            "Host": "rt.applovin.com",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "Keep-Alive",
+            "Accept": "*/*"
+        }
+
+        if data: vc_headers["Content-Length"] = str(len(data))
+        self.vc_headers = vc_headers
+
+
 class SubClient(client.Client):
     def __init__(self, comId: str = None, aminoId: str = None, *, profile: objects.UserProfile):
         client.Client.__init__(self)
+        self.vc_connect = False
 
         if comId is not None:
             self.comId = comId
-            self.community: objects.Community = client.Client().get_community_info(comId)
+            self.community: objects.Community = self.get_community_info(comId)
 
         if aminoId is not None:
             self.comId = client.Client().search_community(aminoId).comId[0]
@@ -740,9 +759,11 @@ class SubClient(client.Client):
         """
         data = {
             "adminOpName": 102,
-            "adminOpNote": {"content": reason},
+            # "adminOpNote": {"content": reason},
             "timestamp": int(timestamp() * 1000)
         }
+        if asStaff and reason:
+            data["adminOpNote"] = {"content": reason}
 
         data = json.dumps(data)
         if not asStaff: response = requests.delete(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/message/{messageId}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
@@ -909,8 +930,13 @@ class SubClient(client.Client):
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return response.status_code
 
-    def accept_organizer(self, chatId: str, requestId: str):
-        self.accept_host(chatId, requestId)
+    def accept_organizer(self, chatId: str):
+        chat_thread = self.get_chat_thread(chatId).json
+        transferRequest = chat_thread['extensions'].get('organizerTransferRequest')
+        if not transferRequest:
+            raise exceptions.TransferRequestNeeded()
+
+        self.accept_host(chatId)
 
     def kick(self, userId: str, chatId: str, allowRejoin: bool = True):
         if allowRejoin: allowRejoin = 1
@@ -1796,7 +1822,7 @@ class SubClient(client.Client):
             if blogId is not None: data["params"]["blogType"] = 0
             if quizId is not None: data["params"]["blogType"] = 6
 
-        return self.socket.send(json.dumps(data))
+        return self.send(json.dumps(data))
 
     # Provided by "spectrum#4691"
     def purchase(self, objectId: str, objectType: int, aminoPlus: bool = True, autoRenew: bool = False):
@@ -1834,7 +1860,7 @@ class SubClient(client.Client):
                 "applyToAll": 0,
                 "timestamp": int(timestamp() * 1000)}
 
-        if applyToAll: data['applyToAll'] = 1
+        if applyToAll: data["applyToAll"] = 1
 
         data = json.dumps(data)
 
@@ -1843,9 +1869,11 @@ class SubClient(client.Client):
         else: return response.status_code
 
     def invite_to_vc(self, chatId: str, userId: str):
-        data = json.dumps({})
+        data = json.dumps({
+            "uid": userId
+        })
 
-        response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/vvchat-presenter/invite/{userId}", headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
+        response = requests.post(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/vvchat-presenter/invite/", headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return response.status_code
 
