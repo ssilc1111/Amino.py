@@ -196,6 +196,15 @@ class UserNotMemberOfCommunity(Exception):
     def __init__(*args, **kwargs):
         Exception.__init__(*args, **kwargs)
 
+class RequestRejected(Exception):
+    """
+    - **API Code** : 235
+    - **API Message** : Request rejected. You have been temporarily muted (read only mode) because you have received a strike. To learn more, please check the Help Center.
+    - **API String** : ``Unknown String``
+    """
+    def __init__(*args, **kwargs):
+        Exception.__init__(*args, **kwargs)
+
 class ActivateAccount(Exception):
     """
     - **API Code** : 238
@@ -394,6 +403,15 @@ class CommunityCreateLimitReached(Exception):
     def __init__(*args, **kwargs):
         Exception.__init__(*args, **kwargs)
 
+class CommunityDisabled(Exception):
+    """
+    - **API Code** : 814
+    - **API Message** : This Community is disabled.
+    - **API String** : ``Unknown String``
+    """
+    def __init__(*args, **kwargs):
+        Exception.__init__(*args, **kwargs)
+
 class CommunityDeleted(Exception):
     """
     - **API Code** : 833
@@ -489,6 +507,15 @@ class ChatViewOnly(Exception):
     - **API Code** : 1663
     - **API Message** : ``Unknown Message``
     - **API String** : ``Unknown String``
+    """
+    def __init__(*args, **kwargs):
+        Exception.__init__(*args, **kwargs)
+
+class ChatMessageTooBig(Exception):
+    """
+    - **API Code** : 1664
+    - **API Message** : ``Unknown Message``
+    - **API String** : API_ERR_CHAT_MESSAGE_CONTENT_TOO_LONG
     """
     def __init__(*args, **kwargs):
         Exception.__init__(*args, **kwargs)
@@ -796,6 +823,7 @@ def CheckException(data):
     elif api_code == 225: raise UserUnavailable(data)
     elif api_code == 229: raise YouAreBanned(data)
     elif api_code == 230: raise UserNotMemberOfCommunity(data)
+    elif api_code == 235: raise RequestRejected(data)
     elif api_code == 238: raise ActivateAccount(data)
     elif api_code == 239: raise CantLeaveCommunity(data)
     elif api_code == 240: raise ReachedTitleLength(data)
@@ -818,6 +846,7 @@ def CheckException(data):
     elif api_code == 802: raise InvalidCodeOrLink(data)
     elif api_code == 805: raise CommunityNameAlreadyTaken(data)
     elif api_code == 806: raise CommunityCreateLimitReached(data)
+    elif api_code == 814: raise CommunityDisabled(data)
     elif api_code == 833: raise CommunityDeleted(data)
     elif api_code == 1501: raise DuplicatePollOption(data)
     elif api_code == 1507: raise ReachedMaxPollOptions(data)
@@ -829,6 +858,7 @@ def CheckException(data):
     elif api_code == 1637: raise MemberKickedByOrganizer(data)
     elif api_code == 1661: raise LevelFiveRequiredToEnableProps(data)
     elif api_code == 1663: raise ChatViewOnly(data)
+    elif api_code == 1664: raise ChatMessageTooBig(data)
     elif api_code == 1900: raise InviteCodeNotFound(data)
     elif api_code == 2001: raise AlreadyRequestedJoinCommunity(data)
     elif api_code == 2501: raise API_ERR_PUSH_SERVER_LIMITATION_APART(data)

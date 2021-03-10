@@ -1869,6 +1869,19 @@ class SubClient(client.Client):
         else: return response.status_code
 
     def invite_to_vc(self, chatId: str, userId: str):
+        """
+        Invite a User to a Voice Chat
+
+        **Parameters**
+            - **chatId** - ID of the Chat
+            - **userId** - ID of the User
+
+        **Returns**
+            - **Success** : 200 (int)
+
+            - **Fail** : :meth:`Exceptions <amino.lib.util.exceptions>`
+        """
+
         data = json.dumps({
             "uid": userId
         })
