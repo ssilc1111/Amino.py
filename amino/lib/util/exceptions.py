@@ -61,6 +61,15 @@ class ActionNotAllowed(Exception):
     def __init__(*args, **kwargs):
         Exception.__init__(*args, **kwargs)
 
+class ServiceUnderMaintenance(Exception):
+    """
+    - **API Code** : 111
+    - **API Message** : Sorry, this service is under maintenance. Please check back later.
+    - **API String** : ``Unknown String``
+    """
+    def __init__(*args, **kwargs):
+        Exception.__init__(*args, **kwargs)
+
 class MessageNeeded(Exception):
     """
     - **API Code** : 113
@@ -811,6 +820,7 @@ def CheckException(data):
     elif api_code == 106: raise AccessDenied(data)
     elif api_code == 107: raise UnexistentData(data)
     elif api_code == 110: raise ActionNotAllowed(data)
+    elif api_code == 111: raise ServiceUnderMaintenance(data)
     elif api_code == 113: raise MessageNeeded(data)
     elif api_code == 200: raise InvalidAccountOrPassword(data)
     elif api_code == 213: raise InvalidEmail(data)
