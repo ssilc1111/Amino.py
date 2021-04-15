@@ -212,13 +212,27 @@ class SubClient(client.Client):
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return objects.LotteryLog(json.loads(response.text)["lotteryLog"]).LotteryLog
 
-    def edit_profile(self, nickname: str = None, content: str = None, icon: str = None, chatRequestPrivilege: str = None, mediaList: list = None, backgroundImage: str = None, backgroundColor: str = None, titles: list = None, defaultBubbleId: str = None):
+    def edit_profile(self, nickname: str = None, content: str = None, icon: BinaryIO = None, chatRequestPrivilege: str = None, imageList: list = None, captionList: list = None, backgroundImage: str = None, backgroundColor: str = None, titles: list = None, defaultBubbleId: str = None):
+        mediaList = []
+
         data = {"timestamp": int(timestamp() * 1000)}
+
+        if captionList is not None:
+            for image, caption in zip(imageList, captionList):
+                mediaList.append([100, self.upload_media(image, "image"), caption])
+
+        else:
+            if imageList is not None:
+                for image in imageList:
+                    mediaList.append([100, self.upload_media(image, "image"), None])
+
+        if imageList is not None or captionList is not None:
+            data["mediaList"] = mediaList
 
         if nickname: data["nickname"] = nickname
         if icon: data["icon"] = self.upload_media(icon, "image")
         if content: data["content"] = content
-        if mediaList: data["mediaList"] = mediaList
+
         if chatRequestPrivilege: data["extensions"] = {"privilegeOfChatInviteRequest": chatRequestPrivilege}
         if backgroundImage: data["extensions"] = {"style": {"backgroundMediaList": [[100, backgroundImage, None, None, None]]}}
         if backgroundColor: data["extensions"] = {"style": {"backgroundColor": backgroundColor}}
