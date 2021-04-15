@@ -6,7 +6,9 @@ from functools import reduce
 import platform
 
 def generate_device_info():
-    deviceId = '01' + (hardwareInfo := sha1(platform.processor().encode("utf-8"))).hexdigest() + sha1(bytes.fromhex('01') + hardwareInfo.digest() + base64.b64decode("6a8tf0Meh6T4x7b0XvwEt+Xw6k8=")).hexdigest()
+    try: deviceId = '01' + (hardwareInfo := sha1(platform.processor().encode("utf-8"))).hexdigest() + sha1(bytes.fromhex('01') + hardwareInfo.digest() + base64.b64decode("6a8tf0Meh6T4x7b0XvwEt+Xw6k8=")).hexdigest()
+    except Exception: deviceId = "01534834CD64C0C0519BD11B6B627469C0FD008333EDC0FBCD0285FE9BEA491D45C192BE40D616417A"
+
     return {
         "device_id": deviceId,
         "device_id_sig": "Aa0ZDPOEgjt1EhyVYyZ5FgSZSqJt",
