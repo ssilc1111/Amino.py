@@ -3,16 +3,12 @@ import base64
 
 from hashlib import sha1
 from functools import reduce
-from secrets import token_hex
+import platform
 
 def generate_device_info():
-    hardwareInfo = token_hex(20).upper()
-    magicode = 'E9AF2D7F431E87A4F8C7B6F45EFC04B7E5F0EA4F'
-    final = sha1(bytes.fromhex('01' + hardwareInfo + magicode)).hexdigest()
-    device_id = '01' + hardwareInfo + final
-
+    deviceId = '01' + (hardwareInfo := sha1(platform.processor().encode("utf-8"))).hexdigest() + sha1(bytes.fromhex('01') + hardwareInfo.digest() + base64.b64decode("6a8tf0Meh6T4x7b0XvwEt+Xw6k8=")).hexdigest()
     return {
-        "device_id": device_id,
+        "device_id": deviceId,
         "device_id_sig": "Aa0ZDPOEgjt1EhyVYyZ5FgSZSqJt",
         "user_agent": "Dalvik/2.1.0 (Linux; U; Android 5.1.1; SM-G973N Build/beyond1qlteue-user 5; com.narvii.amino.master/3.4.33562)"
     }
