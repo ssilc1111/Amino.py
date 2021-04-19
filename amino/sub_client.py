@@ -1,14 +1,16 @@
+import hmac
 import json
 import base64
 import requests
 
 from uuid import UUID
 from os import urandom
+from hashlib import sha1
 from time import timezone
 from typing import BinaryIO
 from binascii import hexlify
 from time import time as timestamp
-from threading import Thread
+from json_minify import json_minify
 
 from . import client
 from .lib.util import exceptions, headers, device, objects
@@ -433,10 +435,12 @@ class SubClient(client.Client):
         if timers:
             data["userActiveTimeChunkList"] = timers
 
-        data = json.dumps(data)
-
-        response = requests.post(f"{self.api}/x{self.comId}/s/community/stats/user-active-time", headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
+        data = json_minify(json.dumps(data))
+        mac = hmac.new(bytes.fromhex("715ffccf8c0536f186bf127a16c14682827fc581"), data.encode("utf-8"), sha1)
+        signature = base64.b64encode(bytes.fromhex("01") + mac.digest()).decode("utf-8")
+        response = requests.post(f"{self.api}/x{self.comId}/s/community/stats/user-active-time", headers=headers.Headers(data=data, sig=signature).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return response.status_code
 
     def activity_status(self, status: str):
         if "on" in status.lower(): status = 1
@@ -956,13 +960,8 @@ class SubClient(client.Client):
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return response.status_code
 
-    def accept_organizer(self, chatId: str):
-        chat_thread = self.get_chat_thread(chatId).json
-        transferRequest = chat_thread['extensions'].get('organizerTransferRequest')
-        if not transferRequest:
-            raise exceptions.TransferRequestNeeded()
-
-        self.accept_host(chatId)
+    def accept_organizer(self, chatId: str, requestId: str):
+        self.accept_host(chatId, requestId)
 
     def kick(self, userId: str, chatId: str, allowRejoin: bool = True):
         if allowRejoin: allowRejoin = 1
@@ -1002,7 +1001,23 @@ class SubClient(client.Client):
         response = requests.delete(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}/member/{self.profile.userId}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return response.status_code
+        
+    def delete_chat(self, chatId: str):
+        """
+        Delete a Chat.
 
+        **Parameters**
+            - **chatId** : ID of the Chat.
+
+        **Returns**
+            - **Success** : 200 (int)
+
+            - **Fail** : :meth:`Exceptions <amino.lib.util.exceptions>`
+        """
+        response = requests.delete(f"{self.api}/x{self.comId}/s/chat/thread/{chatId}", headers=headers.Headers().headers, proxies=self.proxies, verify=self.certificatePath)
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return response.status_code
+        
     def subscribe(self, userId: str, autoRenew: str = False, transactionId: str = None):
         if transactionId is None: transactionId = str(UUID(hexlify(urandom(16)).decode('ascii')))
 
@@ -1950,6 +1965,15 @@ class SubClient(client.Client):
         })
 
         response = requests.post(f"{self.api}/x{self.comId}/s/item-category", headers=headers.Headers(data=data).headers, data=data, proxies=self.proxies, verify=self.certificatePath)
+        if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
+        else: return response.status_code
+
+    def create_shared_folder(self,title: str):
+        data = json.dumps({
+                "title":title,
+                "timestamp":int(timestamp() * 1000)
+            })
+        response = requests.post(f"{self.api}/x{self.comId}/s/shared-folder/folders", headers=headers.Headers(data=data).headers,data=data, proxies=self.proxies, verify=self.certificatePath)
         if response.status_code != 200: return exceptions.CheckException(json.loads(response.text))
         else: return response.status_code
 
