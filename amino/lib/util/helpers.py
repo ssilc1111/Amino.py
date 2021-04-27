@@ -1,7 +1,9 @@
 import json
 
+from hashlib import sha1
 from functools import reduce
 from base64 import b85decode, b64decode
+
 
 def generate_device_info():
     try:
