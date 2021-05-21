@@ -430,6 +430,15 @@ class CommunityDeleted(Exception):
     def __init__(*args, **kwargs):
         Exception.__init__(*args, **kwargs)
 
+class ReachedMaxCategories(Exception):
+    """
+    - **API Code** : 1002
+    - **API Message** : Sorry, you can create up to 100 categories.
+    - **API String** : ``Unknown String``
+    """
+    def __init__(*args, **kwargs):
+        Exception.__init__(*args, **kwargs)
+
 class DuplicatePollOption(Exception):
     """
     - **API Code** : 1501
